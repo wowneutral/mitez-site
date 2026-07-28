@@ -991,7 +991,9 @@ footer { padding: 70px 0 40px; }
     flex-direction: column;
     align-items: stretch;
     justify-content: flex-start;
-    min-height: 100svh;
+    /* No 100svh here. With the canvas at a fixed height below, forcing a
+       full-screen hero just parks leftover empty space under the robot. */
+    min-height: 0;
   }
   .hero > .wrap {
     order: 1;
@@ -1000,15 +1002,22 @@ footer { padding: 70px 0 40px; }
   }
   .hero-content { max-width: 100%; }
 
-  /* Out of absolute positioning and into the flow as a real flex item,
-     taking whatever height the copy leaves. min-height keeps the robot
-     from being squeezed to a sliver on small screens. */
+  /* Explicit height, NOT flex: 1.
+     react-three-fiber sizes the canvas from a ResizeObserver on this
+     element and writes the result to the canvas as an inline width and
+     height. When the height came from `flex: 1 1 auto`, R3F measured
+     during an intermediate layout pass and locked the canvas to 150px
+     inside a 443px box — so the robot rendered into a letterbox strip a
+     third of the intended size, which is why it looked tiny and cut off
+     with dead space beneath it. A height that is resolvable on the first
+     layout pass gives R3F a stable number to measure. */
   .hero-canvas {
     position: relative;
     inset: auto;
     order: 2;
-    flex: 1 1 auto;
-    min-height: 40vh;
+    flex: none;
+    height: 46vh;
+    min-height: 300px;
   }
 
   /* No longer needed: the scrim exists to keep copy legible over the
