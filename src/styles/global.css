@@ -134,12 +134,23 @@ section[id] { scroll-margin-top: 32px; }
   border: 0;
 }
 
+/* `clip` rather than `hidden`, on BOTH elements.
+   Two reasons. Measured on a 390px screen the document was 406px wide —
+   the scroll-reveal animations start elements offset by ±40px on the x
+   axis, and while they animate back to 0, that offset is real layout
+   overflow until they do, which is enough to make the whole page slide
+   sideways. `overflow-x` on body alone did not contain it because the
+   overflow propagates to the html element, which was unclipped.
+   And `hidden` turns the element into a scroll container, which is what
+   broke programmatic window.scrollTo(); `clip` does not. */
+html { overflow-x: clip; }
+
 body {
   background: var(--bg-deep);
   color: var(--ink);
   font-family: var(--sans);
   font-weight: 300;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 .wrap { max-width: 1320px; margin: 0 auto; padding: 0 clamp(24px, 6vw, 80px); }
@@ -1045,9 +1056,16 @@ footer { padding: 70px 0 40px; }
      not the positioned section itself. */
   .mission, .pilot, .final { overflow: hidden; }
   .final-bg { overflow: hidden; }
-  .mission-word { font-size: 34vw; }
-  .pilot-bg { font-size: 32vw; }
-  .final-word { font-size: 34vw; }
+
+  /* Sized so each word actually FITS the screen instead of bleeding off
+     both edges. One shared vw value cannot do that — the words have very
+     different lengths, and measured at a 390px viewport their widths came
+     out at 3.94x, 6.16x and 5.69x their own font-size respectively. So
+     each gets the value that lands it at ~92% of the viewport width:
+     92 / ratio. Being vw-based these stay correct at any screen width. */
+  .mission-word { font-size: 23vw; }   /* ACCESS */
+  .pilot-bg { font-size: 14vw; }       /* GAINESVILLE — longest word */
+  .final-word { font-size: 16vw; }     /* MOMENTUM */
 
   /* Absolutely positioned corner labels. At this width the left and
      right blocks would overlap each other in the middle of the section,
@@ -1073,7 +1091,10 @@ footer { padding: 70px 0 40px; }
      the two halves clinging to opposite edges with a gap in between. */
   .footer-top { flex-direction: column; gap: 32px; padding-bottom: 32px; }
   .footer-mission { max-width: 100%; }
-  .footer-cols { gap: 40px; }
+  /* Two even columns rather than a flex row that wraps unevenly. Both
+     lists are short and fit side by side at 390px; stacking them made
+     the footer ~110px taller for no gain. */
+  .footer-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
   .footer-bottom { flex-direction: column; gap: 8px; }
   footer { padding: 48px 0 32px; }
 
@@ -1135,11 +1156,10 @@ footer { padding: 70px 0 40px; }
   .value-card { padding: 26px 22px; }
   .form-done { padding: 24px; }
 
-  /* Watermarks shrink again — at 34vw the word still overflows enough
-     to look like a stray edge artifact rather than a deliberate bleed. */
-  .mission-word, .pilot-bg, .final-word { font-size: 40vw; }
-
-  .footer-cols { flex-direction: column; gap: 28px; }
+  /* Watermark sizes are handled once in the 720px block — they are vw
+     based, so they already scale correctly down here. Overriding them
+     with a single shared value was what pushed all three back off the
+     edges of the screen. */
 
   .nav-inner { height: 60px; }
   .nav-logo { font-size: 15px; }
