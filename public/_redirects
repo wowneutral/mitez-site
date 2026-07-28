@@ -23,6 +23,19 @@
 /pilot.html                             /about            301
 /free-student-support-gainesville.html  /                 301
 
+# Extension-less twins of the above. The old site answered BOTH forms —
+# a site:mitez.org search shows Google indexed the clean URLs
+# (/pilot, /free-student-support-gainesville), not the .html ones. Those
+# were falling through to the SPA catch-all, loading the app, matching no
+# route and rendering the 404 page — with a 200 status, so Google would
+# have kept them indexed as real pages showing "That page does not
+# exist." Worse than a plain 404, and invisible without checking.
+# /how-it-works, /get-involved and /contact need no rule here: those
+# paths are real routes in the new app.
+/mission                                /about            301
+/pilot                                  /about            301
+/free-student-support-gainesville       /                 301
+
 # ---------------------------------------------------------------------
 # SPA FALLBACK
 #
