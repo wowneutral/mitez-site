@@ -1,1 +1,35 @@
+# Redirects for Cloudflare Pages. Order matters: the first matching rule
+# wins, so every specific rule must come before the catch-all at the end.
+
+# ---------------------------------------------------------------------
+# LEGACY URLS (301 = permanent)
+#
+# The previous mitez.org was a multi-file static site (/mission.html,
+# /pilot.html, and so on) and those URLs are indexed by Google and linked
+# from elsewhere. This React app has no such paths, so without these
+# rules every old link would fall through to the catch-all below, load
+# the app, match no route, and render the 404 page — losing the search
+# ranking each of those URLs has already earned.
+#
+# 301 specifically (not 302): it tells Google the move is permanent and
+# to transfer the old page's ranking signals to the new URL. A 302 says
+# "temporary" and passes nothing on.
+# ---------------------------------------------------------------------
+/index.html                             /                 301
+/mission.html                           /about            301
+/how-it-works.html                      /how-it-works     301
+/get-involved.html                      /get-involved     301
+/contact.html                           /contact          301
+/pilot.html                             /about            301
+/free-student-support-gainesville.html  /                 301
+
+# ---------------------------------------------------------------------
+# SPA FALLBACK
+#
+# 200 (a rewrite), not 301. React Router owns routing on the client, but
+# the server still has to answer a cold request for /about with the app
+# itself. Serving index.html at that URL lets the router take over; a
+# redirect would instead bounce the browser to / and lose the requested
+# page.
+# ---------------------------------------------------------------------
 /*    /index.html   200
