@@ -800,10 +800,18 @@ footer { padding: 70px 0 40px; }
     display: grid;
     grid-template-rows: 0fr;
     transition: grid-template-rows .35s ease;
-    border-top: 1px solid rgba(22,24,29,0.08);
   }
   .nav-mobile.is-open { grid-template-rows: 1fr; }
-  .nav-mobile > * { overflow: hidden; }
+  /* The wrapper is the single grid row that collapses. min-height:0 is
+     required — a grid item's default min-height is auto, which refuses
+     to shrink below its content and would leave the menu permanently
+     open. The border lives on .is-open so no stray line shows when the
+     menu is shut. */
+  .nav-mobile-inner {
+    overflow: hidden;
+    min-height: 0;
+  }
+  .nav-mobile.is-open .nav-mobile-inner { border-top: 1px solid rgba(22,24,29,0.08); }
   .nav-mobile-link {
     display: block;
     padding: 16px clamp(24px, 6vw, 80px);
@@ -971,28 +979,41 @@ footer { padding: 70px 0 40px; }
      "beside" on a phone — so the copy moves to the TOP of the frame and
      the camera drops the robot lower (see MOBILE framing in Scene.jsx),
      giving each its own band of the screen instead of overlapping. */
+  /* The hero stops being "copy floating on top of a full-bleed canvas"
+     and becomes two stacked bands: copy on top, robot below. Overlaying
+     them worked on desktop because the copy sat in the left half and the
+     robot in the right — there is no "beside" on a phone, so overlaying
+     put the buttons directly on the robot's chest. Splitting them into
+     separate bands makes a collision structurally impossible instead of
+     something to be tuned around with scrims and camera offsets. */
   .hero {
-    align-items: flex-start;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
     min-height: 100svh;
   }
-  .hero > .wrap { padding-top: clamp(24px, 9vh, 64px); }
+  .hero > .wrap {
+    order: 1;
+    padding-top: 20px;
+    padding-bottom: 10px;
+  }
   .hero-content { max-width: 100%; }
 
-  /* Desktop's scrim is a left-edge gradient because the copy is on the
-     left. With the copy across the top, it becomes a top-down gradient
-     so the text has contrast against whatever the robot is doing behind
-     it. Taller than it looks — it has to cover the whole copy block. */
-  .hero-scrim {
-    inset: 0 0 auto 0;
-    width: 100%;
-    height: 72%;
-    background: linear-gradient(
-      to bottom,
-      rgba(242, 242, 242, 0.92) 0%,
-      rgba(242, 242, 242, 0.82) 45%,
-      rgba(242, 242, 242, 0) 100%
-    );
+  /* Out of absolute positioning and into the flow as a real flex item,
+     taking whatever height the copy leaves. min-height keeps the robot
+     from being squeezed to a sliver on small screens. */
+  .hero-canvas {
+    position: relative;
+    inset: auto;
+    order: 2;
+    flex: 1 1 auto;
+    min-height: 40vh;
   }
+
+  /* No longer needed: the scrim exists to keep copy legible over the
+     canvas, and the copy is no longer over the canvas. */
+  .hero-scrim { display: none; }
 
   .hero-title { font-size: clamp(32px, 8.4vw, 46px); margin-bottom: 18px; }
   .hero .lede { font-size: 16px; margin-bottom: 26px; }
@@ -1052,6 +1073,30 @@ footer { padding: 70px 0 40px; }
   .values-grid { grid-template-columns: 1fr; }
   .steps-list { gap: 26px; }
   .involved-card { min-height: 0; padding: 26px; }
+
+  /* The scroll-drawn progress line is a two-column device: it only means
+     anything sitting BESIDE the steps it tracks. Once the grid stacks it
+     lands above them as a 220px-tall bare vertical line with nothing
+     next to it — which reads as a rendering fault, and was the big empty
+     gap under "Simple on purpose." Hidden rather than restyled: there is
+     no sensible one-column version of "a line beside the list." */
+  .how-progress-track { display: none; }
+  .how-left h2 { margin-bottom: 0; }
+  .how-grid { gap: 28px; }
+
+  /* Stacked sections were landing ~110px apart with short copy between
+     them. Adjacent padding is additive, so each of these is roughly half
+     the visible gap it produces. */
+  .section { padding: 34px 0; }
+  .page .section { padding: 26px 0; }
+  .page-head { padding: 28px 0 14px; }
+  .section h2 { margin-bottom: 14px; }
+  .solution-head { margin-bottom: 24px; }
+  .who h2 { margin-bottom: 18px; }
+  .involved h2 { margin-bottom: 24px; }
+  .lede { margin-bottom: 24px; }
+  .faq { margin-top: 14px; }
+  .values-grid { margin-top: 18px; }
 }
 
 @media (max-width: 560px) {

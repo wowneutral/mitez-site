@@ -74,16 +74,25 @@ export default function Nav() {
         </button>
       </div>
 
+      {/* The links MUST stay wrapped in a single child. The open/close
+          animation uses the grid-template-rows 0fr -> 1fr technique,
+          which collapses only the rows it declares — one. With the links
+          as direct children, link #1 landed in that collapsed row while
+          links #2-4 fell into implicit auto-sized rows and stayed fully
+          visible with the menu shut, stacked over the page. One wrapper
+          means one row, so the whole list collapses together. */}
       <div id="mobile-nav" className={`nav-mobile${open ? ' is-open' : ''}`}>
-        {LINKS.map((l) => (
-          <NavLink
-            key={l.to}
-            to={l.to}
-            className={({ isActive }) => `nav-mobile-link${isActive ? ' is-active' : ''}`}
-          >
-            {l.label}
-          </NavLink>
-        ))}
+        <div className="nav-mobile-inner">
+          {LINKS.map((l) => (
+            <NavLink
+              key={l.to}
+              to={l.to}
+              className={({ isActive }) => `nav-mobile-link${isActive ? ' is-active' : ''}`}
+            >
+              {l.label}
+            </NavLink>
+          ))}
+        </div>
       </div>
     </header>
   );

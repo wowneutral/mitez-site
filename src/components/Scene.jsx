@@ -81,8 +81,21 @@ const FOV_END = 45
 // Bot group's -0.59 rotation (which was derived from that exact camera
 // position) still squares it up to face the viewer.
 const MOBILE_BREAKPOINT = 820
-const CAMERA_END_MOBILE = new THREE.Vector3(CAMERA_X_OFFSET, 220, 1150)
-const LOOK_AT_END_MOBILE = new THREE.Vector3(0, 190, 0)
+// The canvas on mobile is no longer the full screen — CSS gives it the
+// lower band of the hero, with the copy stacked above it (see the mobile
+// block in global.css). So the robot has to FILL a short, roughly square
+// box rather than sit inside a tall wide one, which means getting much
+// closer than the desktop framing: at the desktop distance the robot
+// occupied barely a fifth of that box's height.
+//
+// The x offset also comes way in. It exists on desktop to push the robot
+// off to one side of the copy column; with the copy above rather than
+// beside, the robot wants to be centred, and a smaller offset keeps just
+// enough angle for a three-quarter view instead of a flat mugshot.
+const CAMERA_X_MOBILE = -260
+const CAMERA_START_MOBILE = new THREE.Vector3(CAMERA_X_MOBILE, 190, 120)
+const CAMERA_END_MOBILE = new THREE.Vector3(CAMERA_X_MOBILE, 190, 420)
+const LOOK_AT_END_MOBILE = new THREE.Vector3(0, 115, 0)
 
 // Socket-aligned articulation. Two hard-won facts drive this design:
 //
@@ -308,10 +321,23 @@ export default function Scene({ ...props }) {
   const isNarrow = size.width < MOBILE_BREAKPOINT
   const endFraming = useMemo(
     () => ({
+      start: isNarrow ? CAMERA_START_MOBILE : CAMERA_START,
       position: isNarrow ? CAMERA_END_MOBILE : CAMERA_END,
       lookAt: isNarrow ? LOOK_AT_END_MOBILE : LOOK_AT_END,
     }),
     [isNarrow],
+  )
+
+  // The robot's facing direction is derived from where the camera ends
+  // up, not hard-coded. The desktop value (-0.59 rad) is exactly
+  // atan2(-600, 900) — the angle from the robot to the desktop camera —
+  // which is what squares it up to face the viewer. Mobile puts the
+  // camera somewhere else entirely, so a fixed rotation would leave the
+  // robot facing off into space there. Computing it keeps the robot
+  // looking at whoever is watching, on any screen.
+  const botRotationY = useMemo(
+    () => Math.atan2(endFraming.position.x, endFraming.position.z),
+    [endFraming],
   )
 
   // The intro only runs once, so if the viewport crosses the breakpoint
@@ -345,7 +371,7 @@ export default function Scene({ ...props }) {
       // eases back down into the settle, instead of ease-out cubic's flat
       // "already at full speed from frame one" motion.
       const eased = p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2
-      camera.position.lerpVectors(CAMERA_START, endFraming.position, eased)
+      camera.position.lerpVectors(endFraming.start, endFraming.position, eased)
       currentLookAt.current.lerpVectors(LOOK_AT_START, endFraming.lookAt, eased)
       camera.lookAt(currentLookAt.current)
       if (camera.isPerspectiveCamera) {
@@ -487,13 +513,11 @@ export default function Scene({ ...props }) {
               MITEZ
             </Text>
           </group>
-          {/* Rotated to face the camera. The camera sits well to the left
-              (x = -600) while the robot stands at x = 0, so with no
-              rotation the robot is seen from its side and reads as
-              looking away from the viewer. atan2(-600, 900) ≈ -0.59 rad
-              turns it to square up with the camera's actual position, so
-              it faces the user head-on. */}
-          <group name="Bot" position={[-2.75, 25.68, 0]} rotation={[0, -0.59, 0]} scale={0.8}>
+          {/* Rotated to face the camera — see botRotationY above. The
+              robot stands at x = 0 while the camera sits off to the left,
+              so with no rotation it is seen from the side and reads as
+              looking away from the viewer. */}
+          <group name="Bot" position={[-2.75, 25.68, 0]} rotation={[0, botRotationY, 0]} scale={0.8}>
             <group ref={torsoRef} name="Top part" position={[-0.18, 58.95, 2.04]}>
               <group ref={headRef} name="Head" position={[0.18, 183.55, 18.62]}>
                 <mesh name="Head 2" geometry={nodes['Head 2'].geometry} material={materials.Head} castShadow receiveShadow position={[0, 42.94, 4]} />
