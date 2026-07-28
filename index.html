@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MITEZ | Make It Easy</title>
+<meta name="description" content="MITEZ makes it easy to learn anything — free mentorship and hands-on help, for anyone who asks. Based in Gainesville, Florida." />
+
+<!-- OpenGraph / Twitter cards: without these, any link shared to iMessage,
+     Slack, WhatsApp or social renders as a bare URL with no title, blurb
+     or image. Missing OG data is one of the most common "shipped fast,
+     never cleaned up" tells. og:image intentionally points at the
+     apple-touch icon that actually exists in /public rather than a
+     placeholder path — a broken image URL is worse than a modest one. -->
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="MITEZ" />
+<meta property="og:title" content="MITEZ | Learn anything, free" />
+<meta property="og:description" content="Free mentorship in whatever you want to learn. Based in Gainesville, Florida." />
+<meta property="og:image" content="/apple-touch-icon.png" />
+<meta property="og:locale" content="en_US" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="MITEZ | Learn anything, free" />
+<meta name="twitter:description" content="Free mentorship in whatever you want to learn. Based in Gainesville, Florida." />
+<meta name="twitter:image" content="/apple-touch-icon.png" />
+<meta name="theme-color" content="#f2f2f2" />
+
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@200;300;400;500;600&family=Chakra+Petch:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+<!-- Structured data: tells Google what MITEZ actually is (an education /
+     mentorship org) rather than leaving it to guess from the page text.
+     Deliberately typed as EducationalOrganization, not NGO or
+     LocalBusiness with a nonprofit designation — MITEZ is not legally
+     incorporated yet, and this schema makes no claim about that either
+     way. Update this once the legal structure is real. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "EducationalOrganization",
+  "name": "MITEZ",
+  "alternateName": "Make It Easy",
+  "url": "https://mitez.org",
+  "logo": "https://mitez.org/apple-touch-icon.png",
+  "description": "MITEZ is free mentorship and hands-on support for anything you want to learn, based in Gainesville, Florida.",
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Gainesville",
+    "addressRegion": "FL",
+    "addressCountry": "US"
+  },
+  "areaServed": "Gainesville, Florida",
+  "email": "hello@mitez.org"
+}
+</script>
+</head>
+<body>
+<div id="root"></div>
+<script type="module" src="/src/main.jsx"></script>
+</body>
+</html>
