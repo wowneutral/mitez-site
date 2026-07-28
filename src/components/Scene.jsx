@@ -502,7 +502,13 @@ export default function Scene({ ...props }) {
               distance, so it needs real headroom, not a token reduction. */}
           <group
             name="logo"
-            position={isNarrow ? [0, 250, -1050] : [420, 230, -1050]}
+            /* x is 374, not 0, to appear CENTRED behind the robot. The
+               camera sits at x=-260 aiming at x=0, so that view ray keeps
+               drifting in +x the further back you go; solving it out to
+               the wordmark's z=-1050 plane gives x≈374. Putting it at 0
+               instead is what pushed it off to the left and clipped it on
+               the screen edge. */
+            position={isNarrow ? [374, 146, -1050] : [420, 230, -1050]}
             rotation={[0, 0, 0]}
             scale={isNarrow ? 0.22 : 0.3}
           >
