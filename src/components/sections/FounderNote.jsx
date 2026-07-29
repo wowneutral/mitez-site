@@ -14,9 +14,12 @@ export default function FounderNote() {
           </p>
         </Reveal>
         <Reveal as="div" variant="right" delay={0.15} className="founder-side">
+          {/* This quote is now the ONLY place on the homepage that makes
+              the "shouldn't depend on who you know" argument — it used to
+              also appear in the Mission section and the Problem lede.
+              Left here because it lands hardest attributed to a person. */}
           <p>
-            We started in one city with one promise: whatever you are trying to
-            learn, make it easier to find someone who will help you do it.
+            One city, one promise: make it easier to find someone who will help.
           </p>
           <div className="founder-sign">
             Founder, MITEZ

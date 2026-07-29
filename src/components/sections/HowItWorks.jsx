@@ -8,22 +8,22 @@ const STEPS = [
   {
     num: '01',
     title: 'Tell us what you want to learn',
-    copy: 'A subject, a skill, a project, or a problem. Anything counts.',
+    copy: 'A subject, a skill, a project, a problem. Anything counts.',
   },
   {
     num: '02',
     title: 'Connect',
-    copy: 'We match you with someone who already knows it — a person, not a chatbot.',
+    copy: 'A person who already knows it. Not a chatbot.',
   },
   {
     num: '03',
     title: 'Work through it together',
-    copy: 'Sessions focus on your next step, not a generic curriculum.',
+    copy: 'Your next step, not a generic curriculum.',
   },
   {
     num: '04',
     title: 'Keep going',
-    copy: 'Come once, or stay for the whole thing. Either way it stays free.',
+    copy: 'Once, or for as long as you want. Still free.',
   },
 ];
 

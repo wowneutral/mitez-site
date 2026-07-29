@@ -42,23 +42,39 @@ export default function Home() {
           <TextAnimate as="p" className="eyebrow" by="character" animation="fadeIn" duration={0.5}>
             MITEZ
           </TextAnimate>
+          {/* The promise, stated once. This used to read "One place to
+              learn anything, instead of ten" — the same sentence as the
+              Response section's heading further down the page. That line
+              now lives only there. */}
           <TextAnimate as="h2" className="tagline" by="word" animation="blurInUp" duration={0.8} delay={0.15}>
-            One place to learn anything, instead of ten.
+            Free. Any skill. Anyone who asks.
           </TextAnimate>
           <TextAnimate as="p" className="lede" by="line" animation="fadeIn" duration={0.6} delay={0.6}>
-            No waitlists, no paperwork, no cost. Whatever you want to learn, you
-            should be able to start this week — not next semester.
+            No waitlist, no paperwork, no cost — and no list of approved
+            subjects to pick from.
           </TextAnimate>
         </div>
       </section>
 
+      {/* Order is deliberate, and each section has ONE rhetorical job so
+          none of them re-argue what another already said:
+            Mission    — what MITEZ is, plainly (definition)
+            The Gap    — pathos: what it feels like to give up on something
+            The Response — logos: the three things we actually do
+            Get Involved — the action, moved up from the bottom. It used
+              to sit after four consecutive explainer sections, so a
+              visitor had to read the whole argument before finding
+              anything they could act on.
+            Who We Serve / The Process — logos, for anyone still reading
+            Pilot / Founder — ethos: real place, real person
+            Final CTA  — pathos close */}
       <Mission />
       <ProblemSolution />
+      <GetInvolved />
       <WhoWeServe />
       <HowItWorks />
       <Pilot />
       <FounderNote />
-      <GetInvolved />
       <FinalCta />
       <Footer />
     </main>

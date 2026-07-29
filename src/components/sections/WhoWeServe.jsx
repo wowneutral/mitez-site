@@ -5,31 +5,34 @@ import Reveal from '../Reveal.jsx';
 // row covers any skill rather than only coursework, but deliberately left
 // short and without example lists (naming subjects makes the offering read
 // as limited to them).
+// Copy deliberately trimmed to one short line each. As a five-row list
+// this is scanned, not read — long sentences here were a large part of
+// the "lots of words" problem.
 const ROWS = [
   {
     letter: 'S',
     role: 'Students',
-    copy: 'A first place to ask about anything — coursework or otherwise — without needing to be loud or already confident.',
+    copy: 'Somewhere to ask, without having to be confident first.',
   },
   {
     letter: 'P',
     role: 'Parents',
-    copy: 'A clearer route to real help for your family, without the cost or the waitlist.',
+    copy: 'Real help for your family. No cost, no waitlist.',
   },
   {
     letter: 'A',
     role: 'Adults',
-    copy: 'The skills nobody sat you down and taught. Learn them now, from someone who knows them.',
+    copy: 'The skills nobody ever sat you down and taught.',
   },
   {
     letter: 'C',
     role: 'Communities',
-    copy: 'Workshops, resources, and support brought to the places people already gather.',
+    copy: 'Workshops and resources, brought where people already gather.',
   },
   {
     letter: 'E',
     role: 'Educators & organizations',
-    copy: 'Extra capacity, materials, and hands-on help for the people doing the teaching and leading.',
+    copy: 'Extra hands for the people already doing the work.',
   },
 ];
 

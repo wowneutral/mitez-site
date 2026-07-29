@@ -5,25 +5,25 @@ import Reveal from '../Reveal.jsx';
 const CARDS = [
   {
     title: 'Learn something',
-    copy: 'Tell us what you are trying to figure out and we will find someone who knows it. No cost, no age limit, no wrong subject.',
+    copy: 'Tell us what you are stuck on. No cost, no age limit, no wrong subject.',
     cta: 'Ask for help',
     href: 'mailto:hello@mitez.org?subject=I%20want%20to%20learn%20something',
   },
   {
     title: 'Teach something',
-    copy: 'If you know a skill well enough to walk someone through it, that is enough. Mentor once or regularly.',
+    copy: 'Know a skill well enough to walk someone through it? That is enough.',
     cta: 'Become a mentor',
     href: 'mailto:hello@mitez.org?subject=I%20want%20to%20mentor',
   },
   {
     title: 'Schools, libraries & organizations',
-    copy: 'Host a workshop, refer people to us, or get free help with your website and materials.',
+    copy: 'Host a workshop, send people our way, or get free help with your site.',
     cta: 'Partner with us',
     href: 'mailto:hello@mitez.org?subject=Partnership',
   },
   {
     title: 'Donors & sponsors',
-    copy: 'Fund the infrastructure that keeps every one of these free for the people using them.',
+    copy: 'Keep every part of this free for the people using it.',
     cta: 'Support the work',
     href: 'mailto:hello@mitez.org?subject=Supporting%20MITEZ',
   },

@@ -4,7 +4,6 @@
 // (no path aliases configured in vite.config.js).
 import { memo } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { cn } from '../../lib/utils.js';
 
 const motionElements = {
   article: motion.article,
@@ -346,7 +345,8 @@ const TextAnimateBase = ({
         whileInView={startOnView ? 'show' : undefined}
         animate={startOnView ? undefined : 'show'}
         exit="exit"
-        className={cn('whitespace-pre-wrap', className)}
+        style={{ whiteSpace: 'pre-wrap' }}
+        className={className}
         viewport={{ once }}
         aria-label={accessible ? children : undefined}
         {...props}
@@ -357,10 +357,23 @@ const TextAnimateBase = ({
             key={`${by}-${segment}-${i}`}
             variants={finalVariants.item}
             custom={i * staggerTimings[by]}
-            className={cn(
-              by === 'line' ? 'block' : 'inline-block whitespace-pre',
-              segmentClassName
-            )}
+            /* Inline styles, not Tailwind class names.
+               This component came from Magic UI, which assumes Tailwind.
+               This project has no Tailwind and no build step that would
+               generate these classes, so `block`, `inline-block` and
+               `whitespace-pre` were resolving to nothing at all.
+               For by="word" that went unnoticed, because the split keeps
+               whitespace as its own segment. For by="line" it did not:
+               the split consumes the \n, and with `block` inert every
+               line rendered as a plain inline span — so consecutive lines
+               ran together with no space between them. That is the
+               "learningsomething" and "awayfrom" in the headings. */
+            style={
+              by === 'line'
+                ? { display: 'block' }
+                : { display: 'inline-block', whiteSpace: 'pre' }
+            }
+            className={segmentClassName}
             aria-hidden={accessible ? true : undefined}
           >
             {segment}

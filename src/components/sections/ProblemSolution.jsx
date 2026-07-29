@@ -6,15 +6,15 @@ import Reveal from '../Reveal.jsx';
 const PROBLEMS = [
   {
     title: 'Scattered.',
-    copy: 'One tool for this, another for that, a stranger for the rest. Nothing connects.',
+    copy: 'A tool here, a video there, a stranger for the rest. Nothing connects.',
   },
   {
-    title: 'Who you know.',
-    copy: 'Finding someone who actually knows the thing comes down to luck, not a system.',
+    title: 'Luck, not a system.',
+    copy: 'Whether you find someone who actually knows the thing is chance.',
   },
   {
     title: 'Priced out.',
-    copy: 'Most real help sits behind a cost that rules out the people who need it most.',
+    copy: 'Real help sits behind a cost that rules out the people who need it most.',
   },
 ];
 
@@ -49,10 +49,12 @@ export default function ProblemSolution() {
             <TextAnimate as="h2" by="word" animation="fadeIn" duration={0.7}>
               Wanting to learn is easy. Finding someone to teach you is not.
             </TextAnimate>
+            {/* Shortened, and the "knowing the right person" clause cut —
+                that was the third appearance of the same idea on one
+                page. The three cards to the right already make the point
+                concretely; the lede does not need to pre-summarise them. */}
             <p className="lede">
-              Most people quit a skill long before they lose interest — they quit
-              because the help was scattered, costly, or locked behind knowing the
-              right person.
+              Most people quit long before they stop caring.
             </p>
           </div>
           <div className="problem-list">
@@ -70,13 +72,13 @@ export default function ProblemSolution() {
         <div className="wrap">
           <div className="solution-head">
             <p className="section-label">The Response</p>
+            {/* "One place…" belongs here and only here — the homepage
+                intro used to open with the same sentence. */}
             <TextAnimate as="h2" by="word" animation="slideUp" duration={0.7}>
               One place, whatever you came to learn.
             </TextAnimate>
             <p className="lede">
-              MITEZ is being built as a single point of contact for learning and
-              mentorship — instead of assembling your own out of strangers,
-              subscriptions, and search results.
+              One point of contact instead of ten.
             </p>
           </div>
           <div className="sol-cards">

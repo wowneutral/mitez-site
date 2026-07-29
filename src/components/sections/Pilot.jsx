@@ -23,10 +23,11 @@ export default function Pilot() {
         <TextAnimate as="h2" by="line" animation="blurIn" duration={0.8} className="pilot-title">
           {'Rooted in Gainesville.\nOpen to anyone who asks.'}
         </TextAnimate>
+        {/* Ethos section: this is where the site earns belief by being
+            specific — a real city, real partners, in person. Kept short
+            so the specifics carry it rather than the adjectives. */}
         <p className="lede pilot-lede">
-          We are based in Gainesville, Florida — close enough to work in person
-          with schools, libraries, and local partners. It is where we started,
-          not where we stop.
+          Close enough to show up in person. Where we started, not where we stop.
         </p>
         <div className="pilot-data">
           {DATA.map((d, i) => (
