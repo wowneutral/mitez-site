@@ -202,24 +202,23 @@ const defaultItemAnimationVariants = {
       },
     },
   },
+  /* The springs are gone from both scale variants.
+     A spring at damping 15 / stiffness 300 overshoots past its target and
+     settles back — on text starting at scale 0.5 that reads as a bounce,
+     which looks cheap on a large serif headline. Replaced with a plain
+     eased tween, and the start scale moved much closer to 1 so it reads
+     as a settle rather than a zoom. */
   scaleUp: {
     container: defaultContainerVariants,
     item: {
-      hidden: { scale: 0.5, opacity: 0 },
+      hidden: { scale: 0.92, opacity: 0 },
       show: {
         scale: 1,
         opacity: 1,
-        transition: {
-          duration: 0.3,
-          scale: {
-            type: 'spring',
-            damping: 15,
-            stiffness: 300,
-          },
-        },
+        transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] },
       },
       exit: {
-        scale: 0.5,
+        scale: 0.92,
         opacity: 0,
         transition: { duration: 0.3 },
       },
@@ -228,21 +227,14 @@ const defaultItemAnimationVariants = {
   scaleDown: {
     container: defaultContainerVariants,
     item: {
-      hidden: { scale: 1.5, opacity: 0 },
+      hidden: { scale: 1.08, opacity: 0 },
       show: {
         scale: 1,
         opacity: 1,
-        transition: {
-          duration: 0.3,
-          scale: {
-            type: 'spring',
-            damping: 15,
-            stiffness: 300,
-          },
-        },
+        transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] },
       },
       exit: {
-        scale: 1.5,
+        scale: 1.08,
         opacity: 0,
         transition: { duration: 0.3 },
       },

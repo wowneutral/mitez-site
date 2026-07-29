@@ -24,6 +24,15 @@
 <meta name="twitter:image" content="/apple-touch-icon.png" />
 <meta name="theme-color" content="#f2f2f2" />
 
+<!-- Favicons, largest first — browsers and Googlebot-Image pick the best
+     available, and the order makes the intended one obvious.
+     Google's favicon docs recommend an icon LARGER than 48x48. Until now
+     the biggest thing declared as rel="icon" was 32x32, which is a likely
+     reason Search showed the generic globe instead of the MITEZ mark.
+     /favicon.ico is also the path both browsers and Google probe by
+     default even with no link tag present, so it should always exist. -->
+<link rel="icon" href="/favicon.ico" sizes="any" />
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png" />
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
 <link rel="apple-touch-icon" href="/apple-touch-icon.png" />

@@ -9,7 +9,9 @@ export default function FinalCta() {
         <span className="final-word">MOMENTUM</span>
       </div>
       <div className="wrap final-inner">
-        <TextAnimate as="h2" by="line" animation="scaleUp" duration={0.7} className="final-title">
+        {/* Was scaleUp, which sprang past its target and bounced. The
+            closing line of the page should land, not wobble. */}
+        <TextAnimate as="h2" by="line" animation="fadeIn" duration={0.8} className="final-title">
           {'Everyone is one conversation away\nfrom the thing they gave up on.'}
         </TextAnimate>
         <p className="lede">

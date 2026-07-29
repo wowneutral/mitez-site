@@ -46,7 +46,7 @@ export default function ProblemSolution() {
         <div className="wrap problem-grid">
           <div className="problem-left">
             <p className="section-label">The Gap</p>
-            <TextAnimate as="h2" by="word" animation="fadeIn" duration={0.7}>
+            <TextAnimate as="h2" by="word" animation="slideRight" duration={0.7}>
               Wanting to learn is easy. Finding someone to teach you is not.
             </TextAnimate>
             {/* Shortened, and the "knowing the right person" clause cut —

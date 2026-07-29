@@ -20,7 +20,7 @@ export default function Pilot() {
       <div className="pilot-meta pilot-meta-right">LOCAL PILOT<br />BUILT TO SCALE</div>
       <div className="wrap pilot-inner">
         <p className="section-label pilot-label">The Pilot</p>
-        <TextAnimate as="h2" by="line" animation="blurIn" duration={0.8} className="pilot-title">
+        <TextAnimate as="h2" by="line" animation="slideDown" duration={0.8} className="pilot-title">
           {'Rooted in Gainesville.\nOpen to anyone who asks.'}
         </TextAnimate>
         {/* Ethos section: this is where the site earns belief by being

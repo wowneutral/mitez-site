@@ -8,7 +8,7 @@ export default function PageHeader({ eyebrow, title, lede }) {
     <header className="page-head">
       <div className="wrap">
         {eyebrow && <p className="section-label">{eyebrow}</p>}
-        <TextAnimate as="h1" by="word" animation="blurInUp" duration={0.7} className="page-title">
+        <TextAnimate as="h1" by="word" animation="slideUp" duration={0.7} className="page-title">
           {title}
         </TextAnimate>
         {lede && (

@@ -46,7 +46,10 @@ export default function Home() {
               learn anything, instead of ten" — the same sentence as the
               Response section's heading further down the page. That line
               now lives only there. */}
-          <TextAnimate as="h2" className="tagline" by="word" animation="blurInUp" duration={0.8} delay={0.15}>
+          {/* Blur is now reserved for the hero headline alone — it was on
+              four separate headings, which turned a signature effect into
+              the site's default. */}
+          <TextAnimate as="h2" className="tagline" by="word" animation="slideUp" duration={0.8} delay={0.15}>
             Free. Any skill. Anyone who asks.
           </TextAnimate>
           <TextAnimate as="p" className="lede" by="line" animation="fadeIn" duration={0.6} delay={0.6}>
