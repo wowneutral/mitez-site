@@ -18,24 +18,31 @@ const PROBLEMS = [
   },
 ];
 
+// These are explanatory, not navigational — so they are no longer links.
+//
+// They used to jump to #how-it-works, #who-we-serve and #get-involved.
+// After Get Involved moved up the page, cards 01/02/03 pointed at the
+// 5th, 4th and 3rd sections respectively: clicking them in order sent you
+// UP the page each time. Repointing them would have kept the other
+// problem — every click pushed another entry into browser history, so
+// getting back to where you were reading took several presses of Back.
+// The action people actually want is the Get Involved block immediately
+// below this one.
 const SOLUTIONS = [
   {
     num: '01',
     title: 'Mentorship for any skill',
     copy: 'Work through it with someone who already knows how.',
-    href: '#how-it-works',
   },
   {
     num: '02',
     title: 'Support for those who teach and lead',
     copy: 'Hands-on help for educators and organizations doing the work.',
-    href: '#who-we-serve',
   },
   {
     num: '03',
     title: 'Resources in your community',
     copy: 'Help that shows up where people already are.',
-    href: '#get-involved',
   },
 ];
 
@@ -83,11 +90,10 @@ export default function ProblemSolution() {
           </div>
           <div className="sol-cards">
             {SOLUTIONS.map((s, i) => (
-              <Reveal as="a" variant="up" delay={i * 0.12} key={s.num} className="sol-card" href={s.href}>
+              <Reveal as="div" variant="up" delay={i * 0.12} key={s.num} className="sol-card">
                 <span className="sol-num" aria-hidden="true">{s.num}</span>
                 <h3>{s.title}</h3>
                 <p>{s.copy}</p>
-                <span className="sol-arrow">&rarr;</span>
               </Reveal>
             ))}
           </div>

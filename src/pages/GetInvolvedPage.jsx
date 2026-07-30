@@ -1,15 +1,19 @@
 import SEO from '../components/SEO.jsx';
 import PageHeader from '../components/PageHeader.jsx';
+import TallyEmbed from '../components/TallyEmbed.jsx';
 import Footer from '../components/Footer.jsx';
 import Reveal from '../components/Reveal.jsx';
 import { TALLY } from '../config/forms.js';
 
-// Link out to Tally rather than embed. The embed put Tally's own cover
-// image / avatar (set in their dashboard, not ours) directly into the
-// page, and there is no way to hide it from the embed URL or from our
-// CSS since it renders inside Tally's own iframe. Buttons keep the page
-// looking like the rest of the site and still take one click to reach
-// the actual form.
+// This page is now the ONE place the forms live.
+//
+// Testers pointed out that it previously showed the same four cards as
+// the homepage section, linking out to the same four Tally forms — so
+// clicking "Get Involved" in the nav landed you on a near-identical view
+// of what you had just scrolled past, for no added value. Now the
+// homepage cards summarise and link here, and here is where you actually
+// fill something in. Each block has an id so those cards can deep-link
+// straight to the relevant form.
 const BLOCKS = [
   {
     id: 'learn',
@@ -52,36 +56,21 @@ export default function GetInvolvedPage() {
       <PageHeader
         eyebrow="Get Involved"
         title="Come learn, come teach, or help us reach further."
-        lede="Pick whichever fits. Every one is free — each opens a short form in a new tab."
+        lede="Pick whichever fits. Every one is free."
       />
 
-      <section className="section">
-        <div className="wrap">
-          <div className="involved-grid">
-            {BLOCKS.map((b, i) => (
-              <Reveal
-                as="a"
-                variant={i % 2 === 0 ? 'left' : 'right'}
-                delay={i * 0.08}
-                key={b.id}
-                className="involved-card"
-                href={`https://tally.so/r/${b.formId}`}
-                target="_blank"
-                rel="noreferrer"
-              >
-                <div>
-                  <p className="section-label">{b.label}</p>
-                  <h3>{b.title}</h3>
-                  <p>{b.copy}</p>
-                </div>
-                <span className="involved-cta">
-                  Open form <span>&rarr;</span>
-                </span>
-              </Reveal>
-            ))}
+      {BLOCKS.map((b) => (
+        <section className="section involved-block" id={b.id} key={b.id}>
+          <div className="wrap">
+            <Reveal as="div" variant="up">
+              <p className="section-label">{b.label}</p>
+              <h2>{b.title}</h2>
+              <p className="lede">{b.copy}</p>
+            </Reveal>
+            <TallyEmbed formId={b.formId} title={b.title} />
           </div>
-        </div>
-      </section>
+        </section>
+      ))}
 
       <Footer />
     </main>

@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { TextAnimate } from '../magicui/text-animate.jsx';
 import Reveal from '../Reveal.jsx';
 
@@ -18,11 +19,17 @@ export default function FinalCta() {
           Learn something, teach something, bring us to your community, or help
           keep it free.
         </p>
+        {/* Each button now goes somewhere different and real.
+            Three of these pointed at the same #get-involved anchor — and
+            since Get Involved moved above this section, clicking any of
+            them scrolled the visitor back UP the page they had just
+            finished reading. The fourth was a mailto:, which does nothing
+            at all on a machine with no mail client configured. */}
         <Reveal as="div" variant="up" delay={0.2} className="final-actions">
-          <a className="btn btn-primary" href="#get-involved">Learn Something</a>
-          <a className="btn btn-ghost" href="#get-involved">Become a Mentor</a>
-          <a className="btn btn-ghost" href="#get-involved">Partner With Us</a>
-          <a className="btn btn-ghost" href="mailto:hello@mitez.org">Contact MITEZ</a>
+          <Link className="btn btn-primary" to="/get-involved#learn">Learn Something</Link>
+          <Link className="btn btn-ghost" to="/get-involved#mentor">Become a Mentor</Link>
+          <Link className="btn btn-ghost" to="/get-involved#partner">Partner With Us</Link>
+          <Link className="btn btn-ghost" to="/contact">Contact MITEZ</Link>
         </Reveal>
         <p className="final-signature">Gainesville, Florida — 2026</p>
         <div className="final-divider" />

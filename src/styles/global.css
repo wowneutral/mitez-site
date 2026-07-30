@@ -379,7 +379,11 @@ body {
   transition: background 0.35s ease;
 }
 
-.sol-card:hover { background: var(--bg); }
+/* No hover state: these are no longer links (see ProblemSolution.jsx),
+   and a hover response on something unclickable promises an interaction
+   that does not exist. Padding-bottom reduced too — it was leaving room
+   for an arrow that has been removed. */
+.sol-card { padding-bottom: 36px; }
 
 .sol-num {
   display: block;
@@ -619,6 +623,14 @@ body {
   background: rgba(22, 24, 29, 0.1);
   border: 1px solid rgba(22, 24, 29, 0.1);
 }
+
+/* The card is now wrapped in a Reveal element (the animation wrapper) so
+   the inner link can be a router Link. That wrapper becomes the grid
+   item, so it has to stretch and let the card fill it — otherwise the
+   card sizes to its content and the grid's 1px gap background shows
+   through as stray lines where the cards fall short. */
+.involved-grid > * { display: flex; }
+.involved-grid > * > .involved-card { flex: 1; }
 
 .involved-card {
   display: flex;

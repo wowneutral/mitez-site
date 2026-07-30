@@ -1,4 +1,5 @@
 import { Suspense, useRef, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Canvas, useFrame } from '@react-three/fiber';
 import Scene from './Scene.jsx';
 import { TextAnimate } from './magicui/text-animate.jsx';
@@ -147,13 +148,20 @@ export default function Hero({ onReady }) {
           MITEZ connects you with people who will teach you what you actually want to know — whatever the skill, whoever you are. Free.
         </TextAnimate>
 
+        {/* Real routes, not same-page anchors.
+            These used to jump to #get-involved and #how-it-works, which
+            catapulted a first-time visitor several screens down the
+            homepage, past everything explaining what MITEZ is — and left
+            them with no obvious way back but scrolling. Sending them to
+            the dedicated pages instead means the destination is a whole
+            page about that subject, and Back returns them here. */}
         <div className="hero-actions hero-actions-reveal">
-          <a className="btn btn-primary" href="#get-involved">
+          <Link className="btn btn-primary" to="/get-involved">
             Get Involved
-          </a>
-          <a className="btn btn-ghost" href="#how-it-works">
+          </Link>
+          <Link className="btn btn-ghost" to="/how-it-works">
             How It Works
-          </a>
+          </Link>
         </div>
       </div>
       </div>

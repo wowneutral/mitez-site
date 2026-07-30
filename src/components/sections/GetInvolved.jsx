@@ -1,31 +1,40 @@
+import { Link } from 'react-router-dom';
 import { TextAnimate } from '../magicui/text-animate.jsx';
 import Reveal from '../Reveal.jsx';
 
-// Real copy from the live static site's "Get Involved" section.
+// Each card deep-links to its own form on /get-involved.
+//
+// Two problems fixed at once. These were mailto: links, which is why
+// testers reported that none of the buttons here worked — a mailto: only
+// does anything if the visitor's device has a mail client configured as
+// the handler, so on a desktop browser signed into webmail, clicking one
+// is silently ignored. And the /get-involved page used to repeat these
+// same four cards, which testers also flagged. Now this section
+// summarises, and the page is where you actually fill something in.
 const CARDS = [
   {
     title: 'Learn something',
     copy: 'Tell us what you are stuck on. No cost, no age limit, no wrong subject.',
     cta: 'Ask for help',
-    href: 'mailto:hello@mitez.org?subject=I%20want%20to%20learn%20something',
+    to: '/get-involved#learn',
   },
   {
     title: 'Teach something',
     copy: 'Know a skill well enough to walk someone through it? That is enough.',
     cta: 'Become a mentor',
-    href: 'mailto:hello@mitez.org?subject=I%20want%20to%20mentor',
+    to: '/get-involved#mentor',
   },
   {
     title: 'Schools, libraries & organizations',
     copy: 'Host a workshop, send people our way, or get free help with your site.',
     cta: 'Partner with us',
-    href: 'mailto:hello@mitez.org?subject=Partnership',
+    to: '/get-involved#partner',
   },
   {
     title: 'Donors & sponsors',
     copy: 'Keep every part of this free for the people using it.',
     cta: 'Support the work',
-    href: 'mailto:hello@mitez.org?subject=Supporting%20MITEZ',
+    to: '/get-involved#donate',
   },
 ];
 
@@ -40,20 +49,20 @@ export default function GetInvolved() {
         <div className="involved-grid">
           {CARDS.map((c, i) => (
             <Reveal
-              as="a"
+              as="div"
               variant={i % 2 === 0 ? 'left' : 'right'}
               delay={i * 0.1}
               key={c.title}
-              className="involved-card"
-              href={c.href}
             >
-              <div>
-                <h3>{c.title}</h3>
-                <p>{c.copy}</p>
-              </div>
-              <span className="involved-cta">
-                {c.cta} <span>&rarr;</span>
-              </span>
+              <Link className="involved-card" to={c.to}>
+                <div>
+                  <h3>{c.title}</h3>
+                  <p>{c.copy}</p>
+                </div>
+                <span className="involved-cta">
+                  {c.cta} <span>&rarr;</span>
+                </span>
+              </Link>
             </Reveal>
           ))}
         </div>

@@ -15,9 +15,26 @@ import Contact from './pages/Contact.jsx';
 function ScrollToTop() {
   const { pathname, hash } = useLocation();
   useEffect(() => {
-    if (hash) return;
+    // With a hash, scroll to that section instead of the top. React
+    // Router does NOT do this for you — a browser only honours a hash on
+    // a real document load, and client-side navigation isn't one. Without
+    // this, /get-involved#mentor loads the page at the top and the
+    // visitor has to hunt for the form they clicked.
+    //
+    // The rAF waits one frame so the destination route has actually
+    // rendered; querying for the element during this effect would find
+    // nothing on a cross-page navigation.
+    if (hash) {
+      const id = hash.slice(1);
+      const raf = requestAnimationFrame(() => {
+        const el = document.getElementById(id);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+      return () => cancelAnimationFrame(raf);
+    }
     window.scrollTo(0, 0);
     document.body.scrollTop = 0;
+    return undefined;
   }, [pathname, hash]);
   return null;
 }
