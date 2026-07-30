@@ -1,25 +1,25 @@
 import SEO from '../components/SEO.jsx';
 import PageHeader from '../components/PageHeader.jsx';
-import TallyEmbed from '../components/TallyEmbed.jsx';
 import Footer from '../components/Footer.jsx';
 import Reveal from '../components/Reveal.jsx';
 import { TALLY } from '../config/forms.js';
 
-// This page is now the ONE place the forms live.
+// Cards that open each Tally form in a new tab — no inline embeds.
 //
-// Testers pointed out that it previously showed the same four cards as
-// the homepage section, linking out to the same four Tally forms — so
-// clicking "Get Involved" in the nav landed you on a near-identical view
-// of what you had just scrolled past, for no added value. Now the
-// homepage cards summarise and link here, and here is where you actually
-// fill something in. Each block has an id so those cards can deep-link
-// straight to the relevant form.
+// Embedding was tried and reverted twice, for good reason: the form
+// renders inside Tally's own iframe, so anything Tally puts in it (the
+// cover image and avatar on the Student/Parent form, its own spacing and
+// type) lands in the middle of the page and cannot be restyled from here
+// — it is cross-origin. Linking out keeps the page looking like the rest
+// of the site, and target="_blank" means the visitor keeps their place
+// here when they close the form.
 const BLOCKS = [
   {
     id: 'learn',
     label: '01',
     title: 'Learn something',
     copy: 'Tell us what you want to figure out. We find someone who knows it.',
+    cta: 'Ask for help',
     formId: TALLY.learn,
   },
   {
@@ -27,6 +27,7 @@ const BLOCKS = [
     label: '02',
     title: 'Teach something',
     copy: 'Know a skill well enough to walk someone through it? That is enough.',
+    cta: 'Become a mentor',
     formId: TALLY.mentor,
   },
   {
@@ -34,6 +35,7 @@ const BLOCKS = [
     label: '03',
     title: 'Partner with us',
     copy: 'Schools, libraries, and organizations — host a session or send people our way.',
+    cta: 'Partner with us',
     formId: TALLY.partner,
   },
   {
@@ -41,6 +43,7 @@ const BLOCKS = [
     label: '04',
     title: 'Support the work',
     copy: 'Help keep every part of this free for the people using it.',
+    cta: 'Support the work',
     formId: TALLY.donate,
   },
 ];
@@ -56,21 +59,37 @@ export default function GetInvolvedPage() {
       <PageHeader
         eyebrow="Get Involved"
         title="Come learn, come teach, or help us reach further."
-        lede="Pick whichever fits. Every one is free."
+        lede="Pick whichever fits. Every one is free — each opens a short form in a new tab."
       />
 
-      {BLOCKS.map((b) => (
-        <section className="section involved-block" id={b.id} key={b.id}>
-          <div className="wrap">
-            <Reveal as="div" variant="up">
-              <p className="section-label">{b.label}</p>
-              <h2>{b.title}</h2>
-              <p className="lede">{b.copy}</p>
-            </Reveal>
-            <TallyEmbed formId={b.formId} title={b.title} />
+      <section className="section">
+        <div className="wrap">
+          <div className="involved-grid">
+            {BLOCKS.map((b, i) => (
+              <Reveal
+                as="a"
+                variant={i % 2 === 0 ? 'left' : 'right'}
+                delay={i * 0.08}
+                key={b.id}
+                id={b.id}
+                className="involved-card"
+                href={`https://tally.so/r/${b.formId}`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <div>
+                  <p className="section-label">{b.label}</p>
+                  <h3>{b.title}</h3>
+                  <p>{b.copy}</p>
+                </div>
+                <span className="involved-cta">
+                  {b.cta} <span>&rarr;</span>
+                </span>
+              </Reveal>
+            ))}
           </div>
-        </section>
-      ))}
+        </div>
+      </section>
 
       <Footer />
     </main>
