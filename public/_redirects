@@ -21,7 +21,7 @@
 /get-involved.html                      /get-involved     301
 /contact.html                           /contact          301
 /pilot.html                             /about            301
-/free-student-support-gainesville.html  /                 301
+/free-student-support-gainesville.html  /gainesville      301
 
 # Extension-less twins of the above. The old site answered BOTH forms —
 # a site:mitez.org search shows Google indexed the clean URLs
@@ -34,7 +34,7 @@
 # paths are real routes in the new app.
 /mission                                /about            301
 /pilot                                  /about            301
-/free-student-support-gainesville       /                 301
+/free-student-support-gainesville       /gainesville      301
 
 # ---------------------------------------------------------------------
 # REAL ROUTES -> THEIR PRERENDERED HTML
@@ -53,6 +53,7 @@
 /how-it-works   /how-it-works/index.html   200
 /get-involved   /get-involved/index.html   200
 /contact        /contact/index.html        200
+/gainesville    /gainesville/index.html    200
 
 # ---------------------------------------------------------------------
 # SPA FALLBACK

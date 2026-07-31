@@ -37,6 +37,11 @@ export const PAGE_META = {
     description:
       'Learn something, teach something, partner as a school or organization, or support the work — every way to get involved with MITEZ is free.',
   },
+  '/gainesville': {
+    title: 'Gainesville',
+    description:
+      'Free mentorship and hands-on help started in Gainesville, Florida — run fully remote so distance does not decide who gets help. Here is exactly where the pilot stands.',
+  },
   '/contact': {
     title: 'Contact',
     description:

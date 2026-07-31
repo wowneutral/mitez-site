@@ -44,7 +44,7 @@ const FAQ = [
   },
   {
     q: 'Do I have to be in Gainesville?',
-    a: 'We are based there and work in person locally, but that is where we started, not a requirement.',
+    a: 'No. The program runs fully remote, so where you live does not decide whether you can take part. Gainesville is where we started, not a requirement.',
   },
   {
     q: 'How long does it take to hear back?',

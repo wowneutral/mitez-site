@@ -1,4 +1,4 @@
-import { motion } from 'motion/react';
+import { Link } from 'react-router-dom';
 import { TextAnimate } from '../magicui/text-animate.jsx';
 import Reveal from '../Reveal.jsx';
 
@@ -9,7 +9,7 @@ const DATA = [
   { label: 'Based In', value: 'Gainesville, Florida' },
   { label: 'Open To', value: 'Students, Adults & Organizations' },
   { label: 'Subjects', value: 'No Fixed List' },
-  { label: 'Network', value: 'Schools, Libraries & Local Partners' },
+  { label: 'Format', value: 'Fully Remote' },
 ];
 
 export default function Pilot() {
@@ -23,11 +23,12 @@ export default function Pilot() {
         <TextAnimate as="h2" by="line" animation="slideDown" duration={0.8} className="pilot-title">
           {'Rooted in Gainesville.\nOpen to anyone who asks.'}
         </TextAnimate>
-        {/* Ethos section: this is where the site earns belief by being
-            specific — a real city, real partners, in person. Kept short
-            so the specifics carry it rather than the adjectives. */}
+        {/* Ethos section. Deliberately does NOT claim in-person delivery or
+            an existing partner network — the program runs fully remote and
+            no partnerships are signed yet. Detail lives on /gainesville so
+            this stays a pointer rather than a second copy of it. */}
         <p className="lede pilot-lede">
-          Close enough to show up in person. Where we started, not where we stop.
+          Where we started, not where we stop.
         </p>
         <div className="pilot-data">
           {DATA.map((d, i) => (
@@ -37,17 +38,13 @@ export default function Pilot() {
             </Reveal>
           ))}
         </div>
+        {/* The readiness bar was invented — 62% of what, measured how? It
+            implied a tracked launch metric that does not exist. Replaced
+            with a link to the page that says plainly where things stand. */}
         <div className="pilot-readiness">
-          <span>Launch Readiness</span>
-          <div className="readiness-track">
-            <motion.div
-              className="readiness-fill"
-              initial={{ width: '0%' }}
-              whileInView={{ width: '62%' }}
-              viewport={{ once: true, amount: 0.6 }}
-              transition={{ duration: 1.4, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
-            />
-          </div>
+          <Link className="btn btn-ghost" to="/gainesville">
+            Where the pilot actually stands <span aria-hidden="true">&rarr;</span>
+          </Link>
         </div>
       </div>
     </section>

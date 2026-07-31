@@ -27,7 +27,7 @@ const ROWS = [
   {
     letter: 'C',
     role: 'Communities',
-    copy: 'Workshops and resources, brought where people already gather.',
+    copy: 'Support your community can reach, wherever people already are.',
   },
   {
     letter: 'E',

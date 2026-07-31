@@ -30,7 +30,7 @@ const CARDS = [
   },
   {
     title: 'Schools, libraries & organizations',
-    copy: 'Host a workshop, send people our way, or get free help with your site.',
+    copy: 'Send people our way, or get free help with your site and materials.',
     cta: 'Partner with us',
     href: `https://tally.so/r/${TALLY.partner}`,
   },

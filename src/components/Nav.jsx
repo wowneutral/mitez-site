@@ -4,6 +4,7 @@ import { Link, NavLink, useLocation } from 'react-router-dom';
 const LINKS = [
   { to: '/how-it-works', label: 'How It Works' },
   { to: '/about', label: 'About' },
+  { to: '/gainesville', label: 'Gainesville' },
   { to: '/get-involved', label: 'Get Involved' },
   { to: '/contact', label: 'Contact' },
 ];
