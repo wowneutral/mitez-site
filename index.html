@@ -9,19 +9,27 @@
 <!-- OpenGraph / Twitter cards: without these, any link shared to iMessage,
      Slack, WhatsApp or social renders as a bare URL with no title, blurb
      or image. Missing OG data is one of the most common "shipped fast,
-     never cleaned up" tells. og:image intentionally points at the
-     apple-touch icon that actually exists in /public rather than a
-     placeholder path — a broken image URL is worse than a modest one. -->
+     never cleaned up" tells. og:image is a purpose-built 1200x630 card
+     (/og-image.png) using the mark recoloured for the light theme; the
+     favicons and apple-touch-icon are deliberately left on the original
+     artwork. These values are the DEFAULT — scripts/prerender-meta.mjs
+     overwrites them per route at build time so shared links preview
+     correctly. -->
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="MITEZ" />
 <meta property="og:title" content="MITEZ | Learn anything, free" />
 <meta property="og:description" content="Free mentorship in whatever you want to learn. Based in Gainesville, Florida." />
-<meta property="og:image" content="/apple-touch-icon.png" />
+<meta property="og:url" content="https://mitez.org/" />
+<meta property="og:image" content="https://mitez.org/og-image.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="MITEZ — Make It Easy" />
 <meta property="og:locale" content="en_US" />
-<meta name="twitter:card" content="summary" />
+<meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="MITEZ | Learn anything, free" />
 <meta name="twitter:description" content="Free mentorship in whatever you want to learn. Based in Gainesville, Florida." />
-<meta name="twitter:image" content="/apple-touch-icon.png" />
+<meta name="twitter:image" content="https://mitez.org/og-image.png" />
+<link rel="canonical" href="https://mitez.org/" />
 <meta name="theme-color" content="#f2f2f2" />
 
 <!-- Favicons, largest first — browsers and Googlebot-Image pick the best

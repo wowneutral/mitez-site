@@ -37,12 +37,29 @@
 /free-student-support-gainesville       /                 301
 
 # ---------------------------------------------------------------------
+# REAL ROUTES -> THEIR PRERENDERED HTML
+#
+# These MUST come before the catch-all, and they are not optional.
+#
+# Cloudflare's docs are explicit: "Redirects are always followed,
+# regardless of whether or not an asset matches the incoming request."
+# So the catch-all below fires for /about even though
+# dist/about/index.html exists — the prerendered file would never be
+# served, and scripts/prerender-meta.mjs would be doing nothing at all.
+# Naming each route explicitly, above the catch-all, is what makes the
+# per-route metadata actually reach a link-preview crawler.
+# ---------------------------------------------------------------------
+/about          /about/index.html          200
+/how-it-works   /how-it-works/index.html   200
+/get-involved   /get-involved/index.html   200
+/contact        /contact/index.html        200
+
+# ---------------------------------------------------------------------
 # SPA FALLBACK
 #
 # 200 (a rewrite), not 301. React Router owns routing on the client, but
-# the server still has to answer a cold request for /about with the app
-# itself. Serving index.html at that URL lets the router take over; a
-# redirect would instead bounce the browser to / and lose the requested
-# page.
+# the server still has to answer a cold request for an unknown path with
+# the app itself, so the 404 route can render. A redirect would instead
+# bounce the browser to / and lose the requested page.
 # ---------------------------------------------------------------------
 /*    /index.html   200

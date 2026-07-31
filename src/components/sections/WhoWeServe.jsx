@@ -21,8 +21,8 @@ const ROWS = [
   },
   {
     letter: 'A',
-    role: 'Adults',
-    copy: 'The skills nobody ever sat you down and taught.',
+    role: 'Advisors',
+    copy: 'Experienced voices who mentor, shape the model, and keep it grounded.',
   },
   {
     letter: 'C',
