@@ -3,23 +3,25 @@ import SEO from '../components/SEO.jsx';
 import PageHeader from '../components/PageHeader.jsx';
 import Footer from '../components/Footer.jsx';
 import Reveal from '../components/Reveal.jsx';
+import { TextAnimate } from '../components/magicui/text-animate.jsx';
 import { TALLY } from '../config/forms.js';
 
 /**
  * The Gainesville / pilot page.
  *
- * Every claim here is one MITEZ can actually stand behind today. In
- * particular this page does NOT say: that anything is delivered in person,
- * that any partnership exists, that the organization is incorporated, or
- * that any board is seated. Those were all either absent or overstated
- * elsewhere on the site and have been corrected.
+ * Uses only classes that exist in this project's stylesheet. An earlier
+ * version of this file was written with .card, .checks, .prose and
+ * .caps-sec — those belong to a different codebase and are undefined here,
+ * so the panel rendered with no background and the list fell back to
+ * browser default bullets.
  *
- * It also deliberately avoids repeating the homepage Pilot band, which is
- * now a short teaser pointing here rather than a second copy of this
- * content.
+ * Every claim is one MITEZ can stand behind today. It does NOT say anything
+ * is delivered in person, that a partnership exists, that the organization
+ * is incorporated, or that a board is seated.
  */
 
-// What is genuinely true right now, stated plainly.
+// Honest status. Reuses the SPACE row pattern (.who-list / .who-row), which
+// is this site's established way of showing a label-plus-explanation list.
 const NOW = [
   {
     k: 'Running now',
@@ -39,15 +41,15 @@ const NOW = [
   },
 ];
 
-// Who we intend to reach. Framed as intent, because none of these are
-// agreements — naming them as partners would be false.
+// Intent, not arrangements. Rendered as .sol-cards, the site's existing
+// bordered card grid.
 const REACH = [
-  'Other nonprofits that need hands more than they need advice',
-  'Students without the resources to buy help',
-  'Students who have resources and want to go further than their school can take them',
-  'Organizations sitting on a website or materials that are holding them back',
-  'Libraries and community spaces already trusted by the people we want to reach',
-  'Universities and colleges with students who want to teach as much as learn',
+  { n: '01', t: 'Nonprofits', c: 'Organizations that need hands more than they need advice.' },
+  { n: '02', t: 'Students without resources', c: 'The people for whom paid help was never an option.' },
+  { n: '03', t: 'Students with resources', c: 'Who want to go further than their school can take them.' },
+  { n: '04', t: 'Organizations with a site problem', c: 'A website or set of materials that is holding them back.' },
+  { n: '05', t: 'Libraries and community spaces', c: 'Already trusted by the people we want to reach.' },
+  { n: '06', t: 'Universities and colleges', c: 'Students who want to teach as much as they want to learn.' },
 ];
 
 export default function Gainesville() {
@@ -57,92 +59,102 @@ export default function Gainesville() {
       <PageHeader
         eyebrow="The pilot"
         title="Started in Gainesville. Built to reach past it."
-        lede="Free mentorship and hands-on help in Gainesville, Florida — run remotely, so where you live is not the thing that decides whether you get help."
+        lede="Free mentorship and hands-on help, run remotely — so where you live is not what decides whether you get it."
       />
 
-      {/* The remote decision — the single most important fact about how this
-          works, and it appears nowhere else on the site. */}
+      {/* The remote decision. The most important fact about how this works,
+          and it appears nowhere else on the site. */}
       <section className="section">
         <div className="wrap about-lead">
           <p className="section-label">Why remote</p>
-          <h2>Distance is the first thing that decides who gets help. So we removed it.</h2>
+          <TextAnimate as="h2" by="word" animation="slideUp" duration={0.7}>
+            Distance decides who gets help. So we removed it.
+          </TextAnimate>
           <p className="lede">
-            The Make It Easy program runs completely remote. Not because it is easier to
-            operate, but because the moment help depends on getting somewhere, it stops
-            being equal. A student without a ride, a parent working through the hours a
-            tutor is free, someone in a town with nobody who knows the thing they are
-            trying to learn &mdash; remote is what puts all of them on the same footing.
+            The Make It Easy program runs completely remote &mdash; not because it is
+            easier to operate, but because the moment help depends on getting somewhere,
+            it stops being equal. A student without a ride. A parent working the hours a
+            tutor is free. Someone in a town where nobody knows the thing they are trying
+            to learn. Remote puts all of them on the same footing.
           </p>
           <p className="lede">
-            Gainesville is where this started and where we are from. It is not a
-            boundary. If you found this page from somewhere else, you are still welcome.
+            Gainesville is where this started and where we are from. It is not a boundary.
+            If you found this page from somewhere else, you are still welcome.
           </p>
         </div>
       </section>
 
-      {/* Honest status. This is the part most organizations leave vague. */}
-      <section className="section caps-sec" style={{ borderTop: '1px solid rgba(22,24,29,0.1)' }}>
+      {/* Honest status — the part most organizations leave vague.
+          Rendered with the .faq pattern (a definition list) rather than the
+          SPACE rows: those show a large single letter per row, which here
+          would spell R/L/S/N and read as an acronym that does not exist. */}
+      <section className="section about-status">
         <div className="wrap">
           <p className="section-label">Where we actually stand</p>
-          <h2>Early, and saying so.</h2>
-          <div className="who-list" style={{ marginTop: '18px' }}>
+          <TextAnimate as="h2" by="word" animation="fadeIn" duration={0.7}>
+            Early, and saying so.
+          </TextAnimate>
+          <dl className="faq">
             {NOW.map((row, i) => (
-              <Reveal as="div" variant="left" delay={i * 0.08} key={row.k} className="who-row">
-                <span className="who-idx">{String(i + 1).padStart(2, '0')}</span>
-                <span className="role">{row.k}</span>
-                <p>{row.v}</p>
+              <Reveal as="div" variant="up" delay={i * 0.06} key={row.k} className="faq-item">
+                <dt>{row.k}</dt>
+                <dd>{row.v}</dd>
               </Reveal>
             ))}
-          </div>
-          <p className="lede" style={{ marginTop: '26px' }}>
-            More on the structure and where it is going is on the{' '}
-            <Link to="/about">About page</Link>.
-          </p>
+          </dl>
         </div>
       </section>
 
-      {/* What people have actually asked for. Deliberately framed so it does
-          not read as a menu of subjects we are limited to. */}
+      {/* What people have actually asked for, framed so it does not read as
+          a menu we are limited to. */}
       <section className="section">
         <div className="wrap about-lead">
           <p className="section-label">What people have asked for</p>
-          <h2>Debate and coding got here first.</h2>
+          <TextAnimate as="h2" by="word" animation="slideUp" duration={0.7}>
+            Debate and coding got here first.
+          </TextAnimate>
           <p className="lede">
-            Those are the subjects the first people through the door happened to want.
-            They are not a list of what we do. The whole point is that there is no list
-            &mdash; if someone wants to learn it and someone can teach it, that counts.
-            Ask for the thing you actually want, not the closest thing on a menu.
+            Those are what the first people through the door happened to want. They are
+            not a list of what we do &mdash; the whole point is that there is no list. If
+            someone wants to learn it and someone can teach it, that counts. Ask for the
+            thing you actually want, not the closest thing on a menu.
           </p>
         </div>
       </section>
 
-      {/* Outreach intent — explicitly not claimed as partnerships. */}
-      <section className="section caps-sec">
+      {/* Outreach intent, explicitly not claimed as partnerships. */}
+      <section className="section">
         <div className="wrap">
-          <p className="section-label">Who we are trying to reach</p>
-          <h2>The people we are going after next.</h2>
-          <p className="lede">
-            None of these are arrangements yet. This is who we think needs this most,
-            and who we are working to get in front of.
-          </p>
-          <div className="card card-static" style={{ marginTop: '22px' }}>
-            <ul className="checks" style={{ marginTop: 0 }}>
-              {REACH.map((r) => (
-                <li key={r}>{r}</li>
-              ))}
-            </ul>
+          <div className="solution-head">
+            <p className="section-label">Who we are trying to reach</p>
+            <TextAnimate as="h2" by="word" animation="slideUp" duration={0.7}>
+              The people we are going after next.
+            </TextAnimate>
+            <p className="lede">
+              None of these are arrangements yet. This is who we think needs this most,
+              and who we are working to get in front of.
+            </p>
           </div>
-          <p className="lede" style={{ marginTop: '22px' }}>
-            If you are one of them &mdash; or you know who we should be talking to &mdash;
-            that is genuinely the most useful thing you could send us right now.
-          </p>
+          <div className="sol-cards">
+            {REACH.map((r, i) => (
+              <Reveal as="div" variant="up" delay={i * 0.08} key={r.n} className="sol-card">
+                <span className="sol-num" aria-hidden="true">{r.n}</span>
+                <h3>{r.t}</h3>
+                <p>{r.c}</p>
+              </Reveal>
+            ))}
+          </div>
         </div>
       </section>
 
       <section className="section">
         <div className="wrap page-cta">
           <h2>Small, early, and open.</h2>
-          <div className="cta-row" style={{ display: 'flex', gap: '14px', flexWrap: 'wrap', justifyContent: 'center' }}>
+          <p className="lede" style={{ marginBottom: 0 }}>
+            If you are one of the people above &mdash; or you know who we should be
+            talking to &mdash; that is the most useful thing you could send us right now.
+          </p>
+          <div className="hero-actions" style={{ justifyContent: 'center' }}>
             <a className="btn btn-primary" href={`https://tally.so/r/${TALLY.learn}`} target="_blank" rel="noreferrer">
               Ask for help
             </a>
