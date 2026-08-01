@@ -1351,3 +1351,29 @@ footer { padding: 70px 0 40px; }
   /* Two fields side by side at 390px leaves each about 165px wide. */
   .cform-row { grid-template-columns: 1fr; gap: 20px; }
 }
+
+/* ---- Support placeholder ------------------------------------------------
+   Inert until MITEZ can actually receive money. Styled to read as a label
+   rather than a button so nobody taps it expecting a payment screen. */
+.coffee { display: flex; align-items: center; gap: 11px; margin-bottom: 10px; }
+.coffee-cup {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex: none;
+  border-radius: 50%;
+  border: 1px solid rgba(22, 24, 29, 0.16);
+  color: var(--muted);
+}
+.coffee-cup svg { width: 18px; height: 18px; }
+.coffee-text { display: flex; flex-direction: column; gap: 2px; }
+.coffee-text b { font-family: var(--display); font-size: 14px; font-weight: 600; color: var(--ink); }
+.coffee-soon {
+  font-family: var(--display);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.coffee-note { font-size: 12px; line-height: 1.55; color: var(--muted); margin: 0; max-width: 30ch; }

@@ -1,0 +1,39 @@
+# Security headers for Cloudflare Pages.
+#
+# The site previously sent none of these. Everything below except the CSP is
+# safe to enforce immediately: they restrict how the page may be framed,
+# sniffed and referred, and none of them can break rendering.
+#
+# The Content-Security-Policy is deliberately Report-Only for now. A CSP that
+# is even slightly wrong takes the whole site down, and this app pulls from
+# several origins: Google Fonts for typefaces, prod.spline.design for the 3D
+# hero scene, formsubmit.co for the contact form. Watch the browser console
+# for violation reports on every page, and once it is quiet, rename the
+# header to Content-Security-Policy to start enforcing it.
+
+/*
+  # Stops the site being framed, which is how clickjacking works.
+  X-Frame-Options: DENY
+
+  # Stops a browser second-guessing a declared content type.
+  X-Content-Type-Options: nosniff
+
+  # Send the origin to other sites, never the full path. Without this, a
+  # visitor clicking a link from a form page leaks that URL to the target.
+  Referrer-Policy: strict-origin-when-cross-origin
+
+  # Nothing here uses these, so deny them outright rather than leaving the
+  # prompt available to anything injected onto the page.
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()
+
+  # Force HTTPS for two years, including subdomains.
+  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+
+  # Limit what a cross-origin window can do with a reference to this one.
+  Cross-Origin-Opener-Policy: same-origin
+
+  Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://prod.spline.design; connect-src 'self' https://formsubmit.co https://prod.spline.design; worker-src 'self' blob:; frame-src https://tally.so; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://formsubmit.co; object-src 'none'; upgrade-insecure-requests
+
+# Hashed build assets never change under the same name.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable

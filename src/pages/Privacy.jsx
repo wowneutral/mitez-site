@@ -7,14 +7,14 @@ import { CONTACT_EMAIL } from '../config/forms.js';
  * Describes what the site actually does today: Tally interest forms, a
  * FormSubmit contact form, and no analytics, cookies or tracking of any kind.
  *
- * Clause 7 asserts that no analytics run on this site. The moment analytics
- * are added that clause becomes false, and it must be updated in the same
+ * The tracking clause asserts that no analytics run on this site. The moment
+ * analytics are added that becomes false, and it must be updated in the same
  * commit that adds them.
  *
  * MITEZ collects information from people under 18, which in the United States
- * engages COPPA where a child is under 13. Clause 5 reflects the practice
- * MITEZ follows; it should be reviewed by someone qualified before the
- * programme scales.
+ * engages COPPA where a child is under 13. The children and guardian consent
+ * clause reflects the practice MITEZ follows; it should be reviewed by someone
+ * qualified before the programme scales.
  */
 
 const UPDATED = '1 August 2026';
@@ -24,7 +24,7 @@ const SECTIONS = [
     h: 'Who this policy covers',
     body: [
       'This policy explains how MITEZ ("MITEZ", "we", "us") handles personal information collected through mitez.org and in the course of running its mentorship programme.',
-      'MITEZ is a volunteer-run education initiative based in Gainesville, Florida. It is not currently incorporated as a company or non-profit entity. The people responsible for the information described here are the volunteers who run MITEZ, contactable at the address in clause 12.',
+      'MITEZ is a volunteer-run education initiative based in Gainesville, Florida. It is not currently incorporated as a company or non-profit entity. The people responsible for the information described here are the volunteers who run MITEZ, contactable at the address in the Contact clause below.',
     ],
   },
   {
@@ -68,7 +68,7 @@ const SECTIONS = [
     h: 'Who we share it with',
     body: [
       'We do not sell personal information, and we do not share it for anyone else’s marketing.',
-      'Information is seen by the volunteers running MITEZ, and by the third-party services in clause 3 that carry it to us. Where a match is made, a mentor is told what they need in order to help, which is ordinarily the student’s first name and what they want to learn.',
+      'Information is seen by the volunteers running MITEZ, and by the third-party form services described above that carry it to us. Where a match is made, a mentor is told what they need in order to help, which is ordinarily the student’s first name and what they want to learn.',
       'We may disclose information where required by law, or where necessary to protect someone from harm.',
     ],
   },
@@ -76,7 +76,14 @@ const SECTIONS = [
     h: 'Tracking, cookies and analytics',
     body: [
       'This site runs no analytics, sets no tracking cookies, and carries no advertising. We do not know who visits, what pages are read, or where visitors come from.',
-      'Third-party services linked from the Resources page, and the form services in clause 3, may set their own cookies when you interact with them. That is governed by their policies rather than ours.',
+      'Third-party services linked from the Resources page, and the form services described above, may set their own cookies when you interact with them. That is governed by their policies rather than ours.',
+    ],
+  },
+  {
+    h: 'Content loaded from other services',
+    body: [
+      'Some parts of this site are fetched from third parties when a page loads: typefaces from Google Fonts, and the 3D scene on the homepage from Spline. Your browser requests those files directly, which means those companies receive your IP address and basic request information, as they would for any site using them.',
+      'MITEZ receives nothing from those requests and does not use them to identify or track anyone. We mention it because "we collect nothing passively" is only true of us, not of every company whose file your browser fetches.',
     ],
   },
   {
@@ -90,7 +97,7 @@ const SECTIONS = [
     h: 'Your rights',
     body: [
       'You may ask us to tell you what we hold about you, provide a copy of it, correct anything inaccurate, or delete it. Where a student is under 18, a parent or guardian may exercise these rights on their behalf.',
-      'You do not need to give a reason, and asking will not affect how we treat you. Write to the address in clause 12 and we will action it and confirm.',
+      'You do not need to give a reason, and asking will not affect how we treat you. Write to the address in the Contact clause below and we will action it and confirm.',
     ],
   },
   {
@@ -109,7 +116,7 @@ const SECTIONS = [
   {
     h: 'Contact',
     body: [
-      `To ask about this policy, or to exercise any of the rights in clause 9, write to ${CONTACT_EMAIL}.`,
+      `To ask about this policy, or to exercise any of the rights set out under Your rights, write to ${CONTACT_EMAIL}.`,
     ],
   },
 ];
