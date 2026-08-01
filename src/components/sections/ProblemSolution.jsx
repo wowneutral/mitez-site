@@ -88,10 +88,13 @@ export default function ProblemSolution() {
               One point of contact instead of ten.
             </p>
           </div>
-          <div className="sol-cards">
+          {/* A track with a connecting line rather than three boxes: these
+              are the three things MITEZ does, and reading them as a related
+              sequence beats reading them as separate products. */}
+          <div className="track">
             {SOLUTIONS.map((s, i) => (
-              <Reveal as="div" variant="up" delay={i * 0.12} key={s.num} className="sol-card">
-                <span className="sol-num" aria-hidden="true">{s.num}</span>
+              <Reveal as="div" variant="up" delay={i * 0.12} key={s.num} className="track-item">
+                <span className="track-dot" aria-hidden="true">{s.num}</span>
                 <h3>{s.title}</h3>
                 <p>{s.copy}</p>
               </Reveal>

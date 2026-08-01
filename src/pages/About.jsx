@@ -58,12 +58,15 @@ export default function About() {
       <section className="section about-values">
         <div className="wrap">
           <p className="section-label">What we hold to</p>
-          <div className="values-grid">
+          {/* Set as large typographic statements rather than a card grid.
+              These are three short declarations, and putting a declaration
+              in a bordered box makes it look like a feature bullet. */}
+          <div className="manifesto">
             {VALUES.map((v, i) => (
-              <Reveal as="div" variant="up" delay={i * 0.08} key={v.num} className="value-card">
-                <span className="value-num">{v.num}</span>
-                <h3>{v.title}</h3>
-                <p>{v.copy}</p>
+              <Reveal as="div" variant="up" delay={i * 0.08} key={v.num} className="manifesto-item">
+                <span className="manifesto-num" aria-hidden="true">{v.num}</span>
+                <h3 className="manifesto-term">{v.title}</h3>
+                <p className="manifesto-note">{v.copy}</p>
               </Reveal>
             ))}
           </div>
