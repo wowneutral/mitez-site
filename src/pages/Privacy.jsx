@@ -89,11 +89,20 @@ export default function Privacy() {
           </TextAnimate>
           <dl className="faq">
             <Reveal as="div" variant="up" className="faq-item">
-              <dt>Before anything happens</dt>
+              <dt>Resources need nothing from you</dt>
               <dd>
-                If you are under 18 and ask for help, we contact a parent or guardian and
-                get their agreement before matching you with anyone. That is described in
-                full on the <Link to="/safety">safety page</Link>.
+                The <Link to="/resources">resources page</Link> is open to anyone at any
+                age. No account, no form, no permission, and we do not find out you were
+                there.
+              </dd>
+            </Reveal>
+            <Reveal as="div" variant="up" delay={0.04} className="faq-item">
+              <dt>A mentor is where consent comes in</dt>
+              <dd>
+                If you are under 18 and ask to be matched with a mentor, we contact a
+                parent or guardian and get their agreement first. That is because it puts
+                you in a room with an adult, not because of the subject. It is described
+                in full on the <Link to="/safety">safety page</Link>.
               </dd>
             </Reveal>
             <Reveal as="div" variant="up" delay={0.06} className="faq-item">

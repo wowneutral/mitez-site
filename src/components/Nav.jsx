@@ -3,6 +3,9 @@ import { Link, NavLink, useLocation } from 'react-router-dom';
 
 const LINKS = [
   { to: '/how-it-works', label: 'How It Works' },
+  // Sits high because it is the only page a first-time visitor can use
+  // immediately — no form, no waiting on a match, no consent step.
+  { to: '/resources', label: 'Resources' },
   { to: '/about', label: 'About' },
   { to: '/gainesville', label: 'Gainesville' },
   { to: '/get-involved', label: 'Get Involved' },

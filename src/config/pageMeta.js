@@ -42,6 +42,11 @@ export const PAGE_META = {
     description:
       'Free mentorship and hands-on help started in Gainesville, Florida — run fully remote so distance does not decide who gets help. Here is exactly where the pilot stands.',
   },
+  '/resources': {
+    title: 'Free Resources',
+    description:
+      'Free places to learn debate, coding, school subjects and languages. Open to anyone, no account and no permission needed — start today without waiting on us.',
+  },
   '/safety': {
     title: 'Safety',
     description:

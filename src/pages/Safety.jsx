@@ -141,6 +141,12 @@ export default function Safety() {
               These apply to every mentor, every time, with no exceptions for someone we
               like or trust. A mentor who breaks one is finished working with MITEZ.
             </p>
+            <p className="lede">
+              They govern being matched with a person. They do not apply to the{' '}
+              <Link to="/resources">resources page</Link>, which is open to anyone at any
+              age with nothing to sign — if you just want to learn one thing this week,
+              start there and skip all of this.
+            </p>
           </div>
           <div className="sol-cards">
             {SESSION_RULES.map((r, i) => (
@@ -180,7 +186,9 @@ export default function Safety() {
             <Reveal as="div" variant="up" delay={0.12} className="faq-item">
               <dt>If the student is under 18, we contact a parent or guardian</dt>
               <dd>
-                Before any match is made. If we cannot reach an adult, we do not proceed.
+                Before any match is made. If we cannot reach an adult we do not proceed,
+                though the <Link to="/resources">resources page</Link> stays open either
+                way.
               </dd>
             </Reveal>
             <Reveal as="div" variant="up" delay={0.18} className="faq-item">
