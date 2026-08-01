@@ -1,4 +1,4 @@
-import { Suspense, useRef, useEffect } from 'react';
+import { Suspense, useRef, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Canvas, useFrame } from '@react-three/fiber';
 import Scene from './Scene.jsx';
@@ -74,11 +74,46 @@ function ReadySignal({ onReady }) {
   return null;
 }
 
+/**
+ * Runs the render loop only while the element is on screen.
+ *
+ * The hero sits at the top of the homepage, so once a visitor scrolls into
+ * the content the canvas was still animating a robot nobody could see, on
+ * every frame, forever.
+ */
+function useOnScreen(ref) {
+  const [visible, setVisible] = useState(true);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof IntersectionObserver === 'undefined') return;
+    const io = new IntersectionObserver(
+      ([entry]) => setVisible(entry.isIntersecting),
+      { rootMargin: '200px' },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [ref]);
+  return visible;
+}
+
 export default function Hero({ onReady }) {
+  const canvasWrap = useRef(null);
+  const active = useOnScreen(canvasWrap);
+
   return (
     <section className="hero">
-      <div className="hero-canvas">
+      <div className="hero-canvas" ref={canvasWrap}>
         <Canvas
+          /* Two performance caps that were missing.
+             dpr: the canvas was rendering at the device's full pixel ratio,
+             which on a 3x phone is nine times the pixels of a 1x render, for
+             a scene that is decorative. Capped at 1.5.
+             frameloop: the robot's arms drift continuously, so this cannot
+             use demand rendering, but there is no reason to run the loop
+             while the hero is scrolled off screen. */
+          dpr={[1, 1.5]}
+          frameloop={active ? 'always' : 'never'}
+          gl={{ powerPreference: 'high-performance', antialias: true }}
           camera={{
             position: [-600, 220, 350],
             fov: 34,

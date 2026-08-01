@@ -1,17 +1,23 @@
-import { useEffect } from 'react';
+import { useEffect, lazy, Suspense } from 'react';
 import { Routes, Route, useLocation, Link } from 'react-router-dom';
 import SEO from './components/SEO.jsx';
 import Nav from './components/Nav.jsx';
 import Footer from './components/Footer.jsx';
+// Routes are split so a visitor reading the Terms does not download a 3D
+// engine. Home stays eagerly imported because it is the common entry point
+// and splitting it would only add a round trip before the hero appears;
+// everything it pulls in (three, drei, the Spline loader) now lives in
+// Home's chunk rather than the shared one.
 import Home from './pages/Home.jsx';
-import About from './pages/About.jsx';
-import HowItWorksPage from './pages/HowItWorksPage.jsx';
-import GetInvolvedPage from './pages/GetInvolvedPage.jsx';
-import Contact from './pages/Contact.jsx';
-import Gainesville from './pages/Gainesville.jsx';
-import Resources from './pages/Resources.jsx';
-import Terms from './pages/Terms.jsx';
-import Privacy from './pages/Privacy.jsx';
+
+const About = lazy(() => import('./pages/About.jsx'));
+const HowItWorksPage = lazy(() => import('./pages/HowItWorksPage.jsx'));
+const GetInvolvedPage = lazy(() => import('./pages/GetInvolvedPage.jsx'));
+const Contact = lazy(() => import('./pages/Contact.jsx'));
+const Gainesville = lazy(() => import('./pages/Gainesville.jsx'));
+const Resources = lazy(() => import('./pages/Resources.jsx'));
+const Terms = lazy(() => import('./pages/Terms.jsx'));
+const Privacy = lazy(() => import('./pages/Privacy.jsx'));
 
 // Without this, navigating between routes keeps the previous scroll
 // position — you click "Contact" and land halfway down the page.
@@ -65,18 +71,22 @@ export default function App() {
     <>
       <ScrollToTop />
       <Nav />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/how-it-works" element={<HowItWorksPage />} />
-        <Route path="/get-involved" element={<GetInvolvedPage />} />
-        <Route path="/gainesville" element={<Gainesville />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/resources" element={<Resources />} />
-        <Route path="/terms" element={<Terms />} />
-        <Route path="/privacy" element={<Privacy />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+      {/* A blank fallback rather than a spinner: these chunks are small and
+          a flash of loading UI is worse than a beat of nothing. */}
+      <Suspense fallback={<div style={{ minHeight: '60vh' }} />}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/how-it-works" element={<HowItWorksPage />} />
+          <Route path="/get-involved" element={<GetInvolvedPage />} />
+          <Route path="/gainesville" element={<Gainesville />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/resources" element={<Resources />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Suspense>
     </>
   );
 }
