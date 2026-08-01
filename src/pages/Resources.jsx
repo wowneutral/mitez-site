@@ -25,87 +25,83 @@ import { TALLY } from '../config/forms.js';
 
 const GROUPS = [
   {
-    label: 'Debate',
-    note: 'One of the two things people asked us for first.',
+    label: 'Debate and public speaking',
+    note: 'Beyond the obvious tournament sites.',
     items: [
-      {
-        t: 'NSDA resources',
-        u: 'https://www.speechanddebate.org/resources/',
-        c: 'Topic analysis, guides and materials from the National Speech & Debate Association.',
-      },
-      {
-        t: 'Tabroom',
-        u: 'https://www.tabroom.com/',
-        c: 'Where tournaments are posted and entries are run. Free to make an account and browse.',
-      },
-      {
-        t: 'openCaselist',
-        u: 'https://opencaselist.com/',
-        c: 'Public case and evidence archive that competitive circuits publish to.',
-      },
+      { t: 'openCaselist', u: 'https://opencaselist.com/',
+        c: 'The public case and evidence wiki competitive circuits publish to. Read what real teams are actually running.' },
+      { t: 'DebateDrills open evidence', u: 'https://www.debatedrills.com/free-resources',
+        c: 'Free drills and briefs, the sort of thing normally locked behind a paid camp.' },
+      { t: 'Michigan Debate Institutes archive', u: 'https://openev.debatecoaches.org/',
+        c: 'Years of summer camp evidence files, released free. Enormous and underused.' },
+      { t: 'Toastmasters Pathways basics', u: 'https://www.toastmasters.org/resources',
+        c: 'For speaking rather than competing. Structure for people who freeze up presenting.' },
     ],
   },
   {
-    label: 'Coding',
-    note: 'The other one. Start here if you have never written a line.',
+    label: 'Making things with code',
+    note: 'Skip the tutorial treadmill and build something.',
     items: [
-      {
-        t: 'freeCodeCamp',
-        u: 'https://www.freecodecamp.org/',
-        c: 'Full curriculum, free, no paywall. Web development through to data analysis.',
-      },
-      {
-        t: 'CS50',
-        u: 'https://cs50.harvard.edu/x/',
-        c: "Harvard's introduction to computer science, free to audit. Hard, and worth it.",
-      },
-      {
-        t: 'The Odin Project',
-        u: 'https://www.theodinproject.com/',
-        c: 'Project-driven path into web development. You build things rather than watch videos.',
-      },
-      {
-        t: 'Scratch',
-        u: 'https://scratch.mit.edu/',
-        c: 'From MIT. The easiest first step if you are younger or brand new.',
-      },
+      { t: 'The Odin Project', u: 'https://www.theodinproject.com/',
+        c: 'A full path where you build projects instead of watching videos. Free, no account needed to read it.' },
+      { t: 'Exercism', u: 'https://exercism.org/',
+        c: 'Practice problems in 70 languages with a human mentor who reviews your code, free.' },
+      { t: 'Godot', u: 'https://docs.godotengine.org/',
+        c: 'Open source game engine. Genuinely free forever, no revenue share, good docs.' },
+      { t: 'Nand2Tetris', u: 'https://www.nand2tetris.org/',
+        c: 'Build a working computer from logic gates upward. The course that makes computers stop being magic.' },
     ],
   },
   {
-    label: 'School subjects',
-    note: 'Maths, science, history, test prep.',
+    label: 'Art, music and making',
+    note: 'The subjects schools cut first.',
     items: [
-      {
-        t: 'Khan Academy',
-        u: 'https://www.khanacademy.org/',
-        c: 'Free lessons and practice across most school subjects, plus SAT prep.',
-      },
-      {
-        t: 'OpenStax',
-        u: 'https://openstax.org/',
-        c: 'Free, properly peer-reviewed textbooks you can read online or download.',
-      },
-      {
-        t: 'MIT OpenCourseWare',
-        u: 'https://ocw.mit.edu/',
-        c: 'Actual MIT course materials, free. Useful when school has stopped stretching you.',
-      },
+      { t: 'Blender tutorials', u: 'https://www.blender.org/support/tutorials/',
+        c: '3D modelling and animation, professional grade, completely free.' },
+      { t: 'MuseScore', u: 'https://musescore.org/',
+        c: 'Write and hear sheet music without buying notation software.' },
+      { t: 'Drawabox', u: 'https://drawabox.com/',
+        c: 'A brutal, effective free drawing course. Fundamentals, not tracing.' },
+      { t: 'Learning Music by Ableton', u: 'https://learningmusic.ableton.com/',
+        c: 'Interactive introduction to making music in the browser. Nothing to install.' },
     ],
   },
   {
-    label: 'Languages and reading',
-    note: 'Free, and genuinely free rather than a trial.',
+    label: 'Money, work and adult life',
+    note: 'The things nobody teaches you on purpose.',
     items: [
-      {
-        t: 'Duolingo',
-        u: 'https://www.duolingo.com/',
-        c: 'Language practice in short daily pieces.',
-      },
-      {
-        t: 'Project Gutenberg',
-        u: 'https://www.gutenberg.org/',
-        c: 'Tens of thousands of books whose copyright has expired, free to download.',
-      },
+      { t: 'FDIC Money Smart for Young People', u: 'https://www.fdic.gov/resources/consumers/money-smart/',
+        c: 'Federal government financial literacy curriculum. Dry, accurate, free.' },
+      { t: 'Consumer Financial Protection Bureau guides', u: 'https://www.consumerfinance.gov/consumer-tools/',
+        c: 'Straight answers on loans, credit and being taken advantage of.' },
+      { t: 'Federal Student Aid', u: 'https://studentaid.gov/',
+        c: 'The actual source on FAFSA and student loans, not a company selling you something.' },
+    ],
+  },
+  {
+    label: 'Science and maths, past school level',
+    note: 'For when the textbook stops being enough.',
+    items: [
+      { t: '3Blue1Brown', u: 'https://www.3blue1brown.com/',
+        c: 'Visual explanations of linear algebra and calculus that make the ideas click.' },
+      { t: 'Paul\u2019s Online Math Notes', u: 'https://tutorial.math.lamar.edu/',
+        c: 'Algebra through differential equations, worked examples throughout.' },
+      { t: 'NASA Open Data', u: 'https://data.nasa.gov/',
+        c: 'Real datasets to practise on, if you want to analyse something that is not made up.' },
+      { t: 'Protein Data Bank', u: 'https://www.rcsb.org/',
+        c: 'Every solved protein structure, free. Useful and quietly astonishing.' },
+    ],
+  },
+  {
+    label: 'Writing, history and reading',
+    note: 'Primary sources beat summaries.',
+    items: [
+      { t: 'Purdue OWL', u: 'https://owl.purdue.edu/',
+        c: 'The writing and citation reference most university courses point at.' },
+      { t: 'DPLA', u: 'https://dp.la/',
+        c: 'Millions of digitised items from American libraries and archives. Primary sources, free.' },
+      { t: 'Standard Ebooks', u: 'https://standardebooks.org/',
+        c: 'Public domain books, properly typeset rather than dumped as raw text.' },
     ],
   },
 ];
@@ -151,28 +147,24 @@ export default function Resources() {
                 {g.note}
               </TextAnimate>
             </div>
-            <div className="involved-grid">
+            {/* A link list rather than the card grid used on Get Involved.
+                Twenty-two big cards would be a wall of boxes, and each of
+                these is a link with a source worth showing, so the domain
+                sits in the row. */}
+            <ul className="res-list">
               {g.items.map((item, i) => (
-                <Reveal
-                  as="a"
-                  variant={i % 2 === 0 ? 'left' : 'right'}
-                  delay={i * 0.07}
-                  key={item.t}
-                  className="involved-card"
-                  href={item.u}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                >
-                  <div>
-                    <h3>{item.t}</h3>
-                    <p>{item.c}</p>
-                  </div>
-                  <span className="involved-cta">
-                    Open <span>&rarr;</span>
-                  </span>
+                <Reveal as="li" variant="up" delay={i * 0.05} key={item.t} className="res-row">
+                  <a href={item.u} target="_blank" rel="noreferrer noopener">
+                    <span className="res-main">
+                      <span className="res-name">{item.t}</span>
+                      <span className="res-host">{new URL(item.u).hostname.replace(/^www\./, '')}</span>
+                    </span>
+                    <span className="res-desc">{item.c}</span>
+                    <span className="res-go" aria-hidden="true">&rarr;</span>
+                  </a>
                 </Reveal>
               ))}
-            </div>
+            </ul>
           </div>
         </section>
       ))}

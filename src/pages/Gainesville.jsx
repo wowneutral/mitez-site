@@ -41,8 +41,8 @@ const NOW = [
   },
 ];
 
-// Intent, not arrangements. Rendered as .sol-cards, the site's existing
-// bordered card grid.
+// Intent, not arrangements. Rendered as .reach, a numbered list unique to
+// this page.
 const REACH = [
   { n: '01', t: 'Nonprofits', c: 'Organizations that need hands more than they need advice.' },
   { n: '02', t: 'Students without resources', c: 'The people for whom paid help was never an option.' },
@@ -135,15 +135,20 @@ export default function Gainesville() {
               and who we are working to get in front of.
             </p>
           </div>
-          <div className="sol-cards">
+          {/* Its own treatment rather than the bordered card grid, which
+              is now used only by the Response section on the homepage.
+              Oversized numerals carry the structure so no boxes are needed. */}
+          <ol className="reach">
             {REACH.map((r, i) => (
-              <Reveal as="div" variant="up" delay={i * 0.08} key={r.n} className="sol-card">
-                <span className="sol-num" aria-hidden="true">{r.n}</span>
-                <h3>{r.t}</h3>
-                <p>{r.c}</p>
+              <Reveal as="li" variant="up" delay={i * 0.07} key={r.n} className="reach-item">
+                <span className="reach-num" aria-hidden="true">{r.n}</span>
+                <span className="reach-body">
+                  <h3>{r.t}</h3>
+                  <p>{r.c}</p>
+                </span>
               </Reveal>
             ))}
-          </div>
+          </ol>
         </div>
       </section>
 

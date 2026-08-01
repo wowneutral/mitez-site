@@ -50,7 +50,7 @@ export default function GetInvolved() {
         <TextAnimate as="h2" by="word" animation="slideUp" duration={0.7}>
           Come learn, come teach, or help us reach more people.
         </TextAnimate>
-        <div className="involved-grid">
+        <div className="involved-grid involved-preview">
           {CARDS.map((c, i) => (
             <Reveal
               as="a"

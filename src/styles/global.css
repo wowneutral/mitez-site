@@ -1247,3 +1247,82 @@ footer { padding: 70px 0 40px; }
   .legal-sec { margin-bottom: 38px; }
   .legal-sec h2 { font-size: 18px; }
 }
+
+/* ---- Resource link list -------------------------------------------------
+   Used only on /resources. Get Involved keeps the large card grid; a page
+   of twenty-two links needs rows, not boxes, and each row can show where
+   the link actually goes. */
+.res-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid rgba(22, 24, 29, 0.14); }
+.res-row { border-bottom: 1px solid rgba(22, 24, 29, 0.14); }
+.res-row a {
+  display: grid;
+  grid-template-columns: minmax(0, 260px) minmax(0, 1fr) 24px;
+  gap: 8px 30px;
+  align-items: baseline;
+  padding: 22px 4px;
+  text-decoration: none;
+  color: var(--ink);
+  transition: padding-left 0.3s cubic-bezier(0.2, 0.7, 0.2, 1), background 0.25s ease;
+}
+.res-row a:hover { padding-left: 14px; background: rgba(22, 24, 29, 0.02); }
+.res-main { display: flex; flex-direction: column; gap: 3px; }
+.res-name { font-family: var(--display); font-size: 17px; font-weight: 600; line-height: 1.25; }
+.res-host { font-size: 12px; color: var(--muted); letter-spacing: 0.01em; }
+.res-desc { font-size: 14.5px; line-height: 1.6; color: var(--muted); }
+.res-go { justify-self: end; color: var(--muted); transition: transform 0.25s ease, color 0.25s ease; }
+.res-row a:hover .res-go { transform: translateX(4px); color: var(--ink); }
+
+@media (max-width: 760px) {
+  .res-row a { grid-template-columns: minmax(0, 1fr) 20px; gap: 6px 14px; padding: 18px 2px; }
+  .res-main { grid-column: 1; }
+  .res-desc { grid-column: 1 / -1; }
+  .res-go { grid-column: 2; grid-row: 1; }
+  .res-row a:hover { padding-left: 6px; }
+}
+
+/* ---- Reach list ---------------------------------------------------------
+   Gainesville only. The bordered card grid is now used solely by the
+   homepage Response section, so no two pages share it. Structure comes from
+   the numerals and a single rule, not from boxes. */
+.reach { list-style: none; margin: 0; padding: 0; counter-reset: reach; }
+.reach-item {
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr);
+  gap: 0 22px;
+  align-items: start;
+  padding: 26px 0;
+  border-top: 1px solid rgba(22, 24, 29, 0.14);
+}
+.reach-item:last-child { border-bottom: 1px solid rgba(22, 24, 29, 0.14); }
+.reach-num {
+  font-family: var(--display);
+  font-size: 44px;
+  font-weight: 300;
+  line-height: 0.9;
+  color: rgba(22, 24, 29, 0.16);
+  letter-spacing: -0.02em;
+}
+.reach-body h3 { font-family: var(--display); font-size: 19px; font-weight: 600; margin-bottom: 7px; }
+.reach-body p { font-size: 15px; line-height: 1.65; color: var(--muted); max-width: 56ch; margin: 0; }
+
+@media (max-width: 700px) {
+  .reach-item { grid-template-columns: 54px minmax(0, 1fr); gap: 0 16px; padding: 20px 0; }
+  .reach-num { font-size: 30px; }
+  .reach-body h3 { font-size: 17px; }
+}
+
+/* ---- Get Involved, homepage variant -------------------------------------
+   The homepage teaser and the Get Involved page were rendering the same
+   card at the same size, so the page felt like a repeat of a section the
+   visitor had already scrolled past. On the homepage the cards are lower,
+   quieter and sit on a rule, with the full treatment kept for the page. */
+.involved-preview { border-top: 1px solid rgba(22, 24, 29, 0.14); }
+.involved-preview .involved-card {
+  min-height: 0;
+  padding: 26px 24px 24px;
+  background: transparent;
+  border-bottom: 1px solid rgba(22, 24, 29, 0.14);
+}
+.involved-preview .involved-card:hover { background: rgba(22, 24, 29, 0.03); }
+.involved-preview .involved-card h3 { font-size: 17px; }
+.involved-preview .involved-card p { font-size: 14px; }
