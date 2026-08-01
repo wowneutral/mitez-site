@@ -47,15 +47,15 @@ export const PAGE_META = {
     description:
       'Free places to learn debate, coding, school subjects and languages. Open to anyone, no account and no permission needed — start today without waiting on us.',
   },
-  '/safety': {
-    title: 'Safety',
+  '/terms': {
+    title: 'Terms and Conditions',
     description:
-      'How MITEZ keeps sessions safe: where mentors come from, the rules for working with anyone under 18, what happens after you send a form, and what we have not built yet.',
+      'The conditions of taking part in MITEZ, including guardian consent for students under 18 and the rules that govern every mentoring session.',
   },
   '/privacy': {
-    title: 'Privacy',
+    title: 'Privacy Policy',
     description:
-      'What MITEZ collects through its forms, who holds it, how long we keep it, and how to have it deleted. No tracking, no ads, nothing sold.',
+      'What MITEZ collects, why, who sees it, how long it is kept, and how to have it removed. No tracking, no analytics, nothing sold.',
   },
   '/contact': {
     title: 'Contact',

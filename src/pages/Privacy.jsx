@@ -1,165 +1,128 @@
-import { Link } from 'react-router-dom';
-import SEO from '../components/SEO.jsx';
-import PageHeader from '../components/PageHeader.jsx';
-import Footer from '../components/Footer.jsx';
-import Reveal from '../components/Reveal.jsx';
-import { TextAnimate } from '../components/magicui/text-animate.jsx';
+import LegalDoc from '../components/LegalDoc.jsx';
 import { CONTACT_EMAIL } from '../config/forms.js';
 
 /**
- * Privacy policy, written to be read by a parent rather than a lawyer.
+ * Privacy Policy.
  *
- * Describes only what the site actually does: five Tally forms, a FormSubmit
- * contact form, and no analytics or tracking of any kind at the time of
- * writing. If analytics are added later, the "what we do not do" section
- * below stops being true and has to be updated in the same commit.
+ * Describes what the site actually does today: Tally interest forms, a
+ * FormSubmit contact form, and no analytics, cookies or tracking of any kind.
  *
- * This is a plain description of practice, not legal advice. MITEZ collects
- * information from people under 18, which carries specific obligations in the
- * US, and someone qualified should confirm what applies before the programme
- * scales.
+ * Clause 7 asserts that no analytics run on this site. The moment analytics
+ * are added that clause becomes false, and it must be updated in the same
+ * commit that adds them.
+ *
+ * MITEZ collects information from people under 18, which in the United States
+ * engages COPPA where a child is under 13. Clause 5 reflects the practice
+ * MITEZ follows; it should be reviewed by someone qualified before the
+ * programme scales.
  */
 
-const COLLECT = [
+const UPDATED = '1 August 2026';
+
+const SECTIONS = [
   {
-    k: 'What you type into a form',
-    v: 'Your name, an email address, and whatever you tell us about what you want to learn or help with. Nothing more than the form asks for.',
+    h: 'Who this policy covers',
+    body: [
+      'This policy explains how MITEZ ("MITEZ", "we", "us") handles personal information collected through mitez.org and in the course of running its mentorship programme.',
+      'MITEZ is a volunteer-run education initiative based in Gainesville, Florida. It is not currently incorporated as a company or non-profit entity. The people responsible for the information described here are the volunteers who run MITEZ, contactable at the address in clause 12.',
+    ],
   },
   {
-    k: 'Who holds it',
-    v: 'Our interest forms run on Tally, and the contact form sends email through FormSubmit. Both are outside services, so your submission passes through them on the way to us.',
+    h: 'Information we collect',
+    body: [
+      'We collect only what you type into one of our forms. Depending on the form, that may include:',
+      [
+        'Your name.',
+        'Your email address.',
+        'The name and email address of a parent or guardian, where the student is under 18.',
+        'A description of what you want to learn, teach, or ask about.',
+        'The name of your organisation, where you are contacting us on behalf of one.',
+      ],
+      'We do not ask for and do not want home addresses, dates of birth, school identification numbers, financial information, or any health or medical information. If a form appears to request something beyond what is listed above, leave it blank and tell us.',
+    ],
   },
   {
-    k: 'Where it ends up',
-    v: 'In the MITEZ inbox, read by the people who run MITEZ. We do not sell it, share it, or hand it to anyone else.',
+    h: 'How we collect it',
+    body: [
+      'Our interest forms are hosted by Tally, and our contact form transmits messages using FormSubmit. Both are third-party services, and information you submit passes through their systems on the way to us. Each operates under its own privacy policy.',
+      'We do not collect information about you passively. Visiting this site, reading any page, or following a link from the Resources page does not cause us to collect anything.',
+    ],
   },
   {
-    k: 'How long we keep it',
-    v: 'As long as we are working with you, and a while after in case you come back. Ask us to delete it and we will, and we will confirm when it is done.',
+    h: 'Why we hold it and what we use it for',
+    body: [
+      'We use the information solely to operate the programme: to reply to you, to understand what you are asking for, to contact a parent or guardian where required, to match a student with a suitable mentor, and to arrange sessions.',
+      'We do not use it for marketing, do not add you to a mailing list, and do not profile or make automated decisions about you.',
+    ],
+  },
+  {
+    h: 'Children and guardian consent',
+    body: [
+      'Where a student is under 18 and requests mentorship, we contact a parent or guardian and obtain their agreement before making any match. Consent must come from an adult we can reach and communicate with directly.',
+      'A parent or guardian may at any time ask what information we hold about their child, ask us to correct it, or ask us to delete it. We will comply and confirm when it is done.',
+      'The Resources page requires no information from anyone and is open at any age.',
+      'If we become aware that we hold information from a child under 13 that was provided without verifiable parental consent, we will delete it.',
+    ],
+  },
+  {
+    h: 'Who we share it with',
+    body: [
+      'We do not sell personal information, and we do not share it for anyone else’s marketing.',
+      'Information is seen by the volunteers running MITEZ, and by the third-party services in clause 3 that carry it to us. Where a match is made, a mentor is told what they need in order to help, which is ordinarily the student’s first name and what they want to learn.',
+      'We may disclose information where required by law, or where necessary to protect someone from harm.',
+    ],
+  },
+  {
+    h: 'Tracking, cookies and analytics',
+    body: [
+      'This site runs no analytics, sets no tracking cookies, and carries no advertising. We do not know who visits, what pages are read, or where visitors come from.',
+      'Third-party services linked from the Resources page, and the form services in clause 3, may set their own cookies when you interact with them. That is governed by their policies rather than ours.',
+    ],
+  },
+  {
+    h: 'How long we keep it',
+    body: [
+      'We keep what you send for as long as we are working with you, and for a reasonable period afterwards in case you return to us. Where a request does not lead to a match, we delete it once it is clear nothing further is happening.',
+      'You can ask us to delete it sooner at any time.',
+    ],
+  },
+  {
+    h: 'Your rights',
+    body: [
+      'You may ask us to tell you what we hold about you, provide a copy of it, correct anything inaccurate, or delete it. Where a student is under 18, a parent or guardian may exercise these rights on their behalf.',
+      'You do not need to give a reason, and asking will not affect how we treat you. Write to the address in clause 12 and we will action it and confirm.',
+    ],
+  },
+  {
+    h: 'How we protect it',
+    body: [
+      'Information reaches us over encrypted connections and is held in accounts restricted to the volunteers who run MITEZ.',
+      'We are a small volunteer group and do not operate formal information security certification. No method of transmission or storage is completely secure, and we do not claim otherwise.',
+    ],
+  },
+  {
+    h: 'Changes to this policy',
+    body: [
+      'We will update this policy as the programme develops, including if MITEZ becomes incorporated or begins using analytics. The date at the top of this page shows when it was last revised.',
+    ],
+  },
+  {
+    h: 'Contact',
+    body: [
+      `To ask about this policy, or to exercise any of the rights in clause 9, write to ${CONTACT_EMAIL}.`,
+    ],
   },
 ];
 
 export default function Privacy() {
   return (
-    <main className="page">
-      <SEO path="/privacy" />
-      <PageHeader
-        eyebrow="Privacy"
-        title="What we collect, and what we do with it."
-        lede="Short version: only what you type into a form, only so we can help you, and never sold to anyone."
-      />
-
-      <section className="section about-status">
-        <div className="wrap">
-          <p className="section-label">The whole of it</p>
-          <TextAnimate as="h2" by="word" animation="fadeIn" duration={0.7}>
-            Four things worth knowing.
-          </TextAnimate>
-          <dl className="faq">
-            {COLLECT.map((row, i) => (
-              <Reveal as="div" variant="up" delay={i * 0.06} key={row.k} className="faq-item">
-                <dt>{row.k}</dt>
-                <dd>{row.v}</dd>
-              </Reveal>
-            ))}
-          </dl>
-        </div>
-      </section>
-
-      <section className="section">
-        <div className="wrap about-lead">
-          <p className="section-label">What we do not do</p>
-          <TextAnimate as="h2" by="word" animation="slideUp" duration={0.7}>
-            No tracking, no ads, no selling.
-          </TextAnimate>
-          <p className="lede">
-            This site runs no analytics and sets no tracking cookies. We do not know who
-            you are or what you looked at unless you send us a form and tell us. There is
-            no advertising here and there never will be, and nothing you give us is
-            passed to anyone for money.
-          </p>
-        </div>
-      </section>
-
-      <section className="section about-status">
-        <div className="wrap">
-          <p className="section-label">If you are under 18</p>
-          <TextAnimate as="h2" by="word" animation="fadeIn" duration={0.7}>
-            We will want to talk to a parent.
-          </TextAnimate>
-          <dl className="faq">
-            <Reveal as="div" variant="up" className="faq-item">
-              <dt>Resources need nothing from you</dt>
-              <dd>
-                The <Link to="/resources">resources page</Link> is open to anyone at any
-                age. No account, no form, no permission, and we do not find out you were
-                there.
-              </dd>
-            </Reveal>
-            <Reveal as="div" variant="up" delay={0.04} className="faq-item">
-              <dt>A mentor is where consent comes in</dt>
-              <dd>
-                If you are under 18 and ask to be matched with a mentor, we contact a
-                parent or guardian and get their agreement first. That is because it puts
-                you in a room with an adult, not because of the subject. It is described
-                in full on the <Link to="/safety">safety page</Link>.
-              </dd>
-            </Reveal>
-            <Reveal as="div" variant="up" delay={0.06} className="faq-item">
-              <dt>A parent can ask for anything we hold</dt>
-              <dd>
-                Email us and we will tell you exactly what we have about your child and
-                delete it if you want it gone.
-              </dd>
-            </Reveal>
-            <Reveal as="div" variant="up" delay={0.12} className="faq-item">
-              <dt>Please do not send more than we need</dt>
-              <dd>
-                We do not need a home address, a school ID, a date of birth or anything
-                medical. If a form seems to be asking for more than makes sense, skip it
-                and tell us.
-              </dd>
-            </Reveal>
-          </dl>
-        </div>
-      </section>
-
-      <section className="section">
-        <div className="wrap about-lead">
-          <p className="section-label">Getting your data back or removed</p>
-          <TextAnimate as="h2" by="word" animation="slideUp" duration={0.7}>
-            Ask, and it is done.
-          </TextAnimate>
-          <p className="lede">
-            Email <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a> and ask us to
-            show you what we hold, correct it, or delete it. You do not have to give a
-            reason. We will do it and confirm back to you.
-          </p>
-          <p className="lede">
-            MITEZ is not yet an incorporated organisation. This page describes how the
-            people running it handle your information today, and it will be updated as
-            that changes.
-          </p>
-        </div>
-      </section>
-
-      <section className="section">
-        <div className="wrap page-cta">
-          <TextAnimate as="h2" by="word" animation="slideUp" duration={0.7}>
-            Anything here you want explained?
-          </TextAnimate>
-          <div className="hero-actions">
-            <Link className="btn btn-primary" to="/contact">
-              Ask us
-            </Link>
-            <Link className="btn btn-ghost" to="/safety">
-              How we keep sessions safe
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      <Footer />
-    </main>
+    <LegalDoc
+      path="/privacy"
+      eyebrow="Privacy"
+      title="Privacy Policy"
+      lede="What MITEZ collects, why, who sees it, how long it is kept, and how to have it removed."
+      updated={UPDATED}
+      sections={SECTIONS}
+    />
   );
 }

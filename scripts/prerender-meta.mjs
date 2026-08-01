@@ -111,8 +111,8 @@ import { execSync } from 'node:child_process';
 
 // Rough priority by depth: the homepage first, then real pages, with the
 // legal pages last since they are not what anyone is searching for.
-const PRIORITY = { '/': '1.0', '/privacy': '0.4', '/safety': '0.7', '/resources': '0.9' };
-const CHANGEFREQ = { '/': 'weekly', '/privacy': 'yearly', '/safety': 'monthly', '/resources': 'monthly' };
+const PRIORITY = { '/': '1.0', '/privacy': '0.4', '/terms': '0.5', '/resources': '0.9' };
+const CHANGEFREQ = { '/': 'weekly', '/privacy': 'yearly', '/terms': 'yearly', '/resources': 'monthly' };
 
 // Explicit, because two components carry a "Page" suffix that no naming
 // convention would infer (/how-it-works -> HowItWorksPage.jsx). Guessing
@@ -124,7 +124,7 @@ const ROUTE_FILES = {
   '/get-involved': 'src/pages/GetInvolvedPage.jsx',
   '/gainesville': 'src/pages/Gainesville.jsx',
   '/resources': 'src/pages/Resources.jsx',
-  '/safety': 'src/pages/Safety.jsx',
+  '/terms': 'src/pages/Terms.jsx',
   '/privacy': 'src/pages/Privacy.jsx',
   '/contact': 'src/pages/Contact.jsx',
 };

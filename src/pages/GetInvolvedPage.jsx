@@ -102,12 +102,12 @@ export default function GetInvolvedPage() {
           </TextAnimate>
           <p className="lede">
             If you are a parent, or you are about to put a student in front of a
-            volunteer, read how we handle that first. It covers where mentors come
-            from, the rules for sessions with anyone under 18, and what we have not
-            built yet.
+            volunteer, read our Terms first. They cover where mentors come from,
+            guardian consent, and the rules that govern every session with anyone
+            under 18.
           </p>
           <div className="hero-actions">
-            <Link className="btn btn-primary" to="/safety">
+            <Link className="btn btn-primary" to="/terms">
               How we keep this safe
             </Link>
             <Link className="btn btn-ghost" to="/resources">

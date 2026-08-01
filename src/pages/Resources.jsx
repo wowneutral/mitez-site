@@ -135,9 +135,9 @@ export default function Resources() {
           <p className="lede">
             Working with a mentor is different, because that puts you in a room with an
             adult. If you are under 18 that needs a parent or guardian to agree first, and
-            we explain exactly why on the{' '}
-            <Link to="/safety">safety page</Link>. It is not a hurdle we invented — it is
-            the part that keeps this safe.
+            we explain exactly why in our{' '}
+            <Link to="/terms">Terms</Link>. It is not a hurdle we invented — it is the
+            part that keeps this safe.
           </p>
         </div>
       </section>
@@ -230,7 +230,7 @@ export default function Resources() {
             >
               Ask for a mentor
             </a>
-            <Link className="btn btn-ghost" to="/safety">
+            <Link className="btn btn-ghost" to="/terms">
               How that works
             </Link>
           </div>

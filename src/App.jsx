@@ -10,7 +10,7 @@ import GetInvolvedPage from './pages/GetInvolvedPage.jsx';
 import Contact from './pages/Contact.jsx';
 import Gainesville from './pages/Gainesville.jsx';
 import Resources from './pages/Resources.jsx';
-import Safety from './pages/Safety.jsx';
+import Terms from './pages/Terms.jsx';
 import Privacy from './pages/Privacy.jsx';
 
 // Without this, navigating between routes keeps the previous scroll
@@ -73,7 +73,7 @@ export default function App() {
         <Route path="/gainesville" element={<Gainesville />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/resources" element={<Resources />} />
-        <Route path="/safety" element={<Safety />} />
+        <Route path="/terms" element={<Terms />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

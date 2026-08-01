@@ -35,6 +35,9 @@
 /mission                                /about            301
 /pilot                                  /about            301
 /free-student-support-gainesville       /gainesville      301
+# /safety was published briefly before the safeguarding rules moved into
+# the Terms as conditions of participation.
+/safety                                 /terms            301
 
 # ---------------------------------------------------------------------
 # REAL ROUTES -> THEIR PRERENDERED HTML
@@ -55,7 +58,7 @@
 /contact        /contact/index.html        200
 /gainesville    /gainesville/index.html    200
 /resources      /resources/index.html      200
-/safety         /safety/index.html         200
+/terms          /terms/index.html          200
 /privacy        /privacy/index.html        200
 
 # ---------------------------------------------------------------------
