@@ -12,7 +12,7 @@ export default function Footer() {
           </p>
         </div>
         <div className="footer-cols">
-          <div className="footer-col">
+          <div className="footer-col footer-col-site">
             <h4>Site</h4>
             <ul>
               <li><Link to="/">Home</Link></li>

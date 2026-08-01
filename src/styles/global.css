@@ -1031,8 +1031,8 @@ footer { padding: 70px 0 40px; }
     inset: auto;
     order: 2;
     flex: none;
-    height: 46vh;
-    min-height: 300px;
+    height: 52vh;
+    min-height: 340px;
   }
 
   /* No longer needed: the scrim exists to keep copy legible over the
@@ -1095,10 +1095,17 @@ footer { padding: 70px 0 40px; }
      the two halves clinging to opposite edges with a gap in between. */
   .footer-top { flex-direction: column; gap: 32px; padding-bottom: 32px; }
   .footer-mission { max-width: 100%; }
-  /* Two even columns rather than a flex row that wraps unevenly. Both
-     lists are short and fit side by side at 390px; stacking them made
-     the footer ~110px taller for no gain. */
-  .footer-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  /* There are three columns now (Site, Contact, Support) and the Site list
+     has grown to nine links, so the old two-up grid left a stray third
+     column hanging under a very tall first one. Site now spans the full
+     width with its own two-up list, and the two short columns share a row
+     underneath. */
+  .footer-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 30px 24px; }
+  .footer-col-site { grid-column: 1 / -1; }
+  .footer-col-site ul { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 20px; }
+  .footer-col h4 { margin-bottom: 12px; }
+  .footer-col a { font-size: 15px; }
+  .coffee-note { max-width: none; }
   .footer-bottom { flex-direction: column; gap: 8px; }
   footer { padding: 48px 0 32px; }
 

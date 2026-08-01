@@ -99,15 +99,26 @@ const MOBILE_BREAKPOINT = 820
 // head at y ≈ 270. A first pass at z=420 (distance ≈ 494, so ~409 units
 // visible) framed the head and shoulders only — full body needs roughly
 // 640 units, i.e. a distance around 770.
-const CAMERA_X_MOBILE = -260
-// The dolly used to start at z=120, which is close enough that the robot
-// fills the frame cropped at both shoulders. That is what a phone visitor
-// saw for the first two and a half seconds, which on mobile is most of the
-// time they spend before scrolling. Starting much nearer the end position
-// makes it a gentle push-in that is legible from the first frame.
-const CAMERA_START_MOBILE = new THREE.Vector3(CAMERA_X_MOBILE, 185, 520)
-const CAMERA_END_MOBILE = new THREE.Vector3(CAMERA_X_MOBILE, 140, 730)
-const LOOK_AT_END_MOBILE = new THREE.Vector3(0, 40, 0)
+// Reframed because the robot was rendering far too small on a phone, small
+// enough that the eyes in the Head material were only a couple of pixels
+// across and read as a blank visor.
+//
+// Working from the calibration above: the visible world height at distance D
+// is 0.828*D at the 45 degree end fov, and the robot spans roughly y=0 to
+// y=270. To fill about three quarters of the frame it needs 270/0.75 = 346
+// units visible, so D = 346/0.828 = 418. With the camera x at -150 that puts
+// z at sqrt(418^2 - 150^2) = 390.
+//
+// The x offset comes in from -260 to -150 as well. At the old distance that
+// offset was a modest angle; at this much closer distance it would swing the
+// robot into near profile, and the face is the point.
+const CAMERA_X_MOBILE = -150
+// Start further out and push in, rather than starting cropped.
+const CAMERA_START_MOBILE = new THREE.Vector3(CAMERA_X_MOBILE, 165, 519)
+const CAMERA_END_MOBILE = new THREE.Vector3(CAMERA_X_MOBILE, 150, 390)
+// Aimed at the robot's middle (it spans 0 to 270) so it sits centred rather
+// than low in frame.
+const LOOK_AT_END_MOBILE = new THREE.Vector3(0, 135, 0)
 
 // Socket-aligned articulation. Two hard-won facts drive this design:
 //
@@ -513,9 +524,9 @@ export default function Scene({ ...props }) {
                the wordmark's z=-1050 plane gives x≈374. Putting it at 0
                instead is what pushed it off to the left and clipped it on
                the screen edge. */
-            position={isNarrow ? [374, 146, -1050] : [420, 230, -1050]}
+            position={isNarrow ? [404, 150, -1050] : [420, 230, -1050]}
             rotation={[0, 0, 0]}
-            scale={isNarrow ? 0.22 : 0.3}
+            scale={isNarrow ? 0.18 : 0.3}
           >
             <Text
               font={MITEZ_FONT}
