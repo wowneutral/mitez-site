@@ -1326,3 +1326,28 @@ footer { padding: 70px 0 40px; }
 .involved-preview .involved-card:hover { background: rgba(22, 24, 29, 0.03); }
 .involved-preview .involved-card h3 { font-size: 17px; }
 .involved-preview .involved-card p { font-size: 14px; }
+
+/* ---- Mobile corrections -------------------------------------------------
+   Found by measuring every page in a 390px viewport. */
+@media (max-width: 820px) {
+  /* The menu button is the primary navigation control on a phone and it
+     was rendering 28px tall. 44 is the minimum a thumb reliably hits. */
+  .nav-toggle {
+    display: grid;
+    place-items: center;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0;
+    margin-right: -10px;
+  }
+}
+
+@media (max-width: 760px) {
+  /* iOS Safari zooms the whole viewport whenever a focused field is under
+     16px, so every tap on the contact form shifted the page. */
+  .cform input, .cform select, .cform textarea { font-size: 16px; }
+  .cform input, .cform select { min-height: 48px; }
+  .cform textarea { min-height: 150px; }
+  /* Two fields side by side at 390px leaves each about 165px wide. */
+  .cform-row { grid-template-columns: 1fr; gap: 20px; }
+}

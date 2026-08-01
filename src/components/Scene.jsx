@@ -100,7 +100,12 @@ const MOBILE_BREAKPOINT = 820
 // visible) framed the head and shoulders only — full body needs roughly
 // 640 units, i.e. a distance around 770.
 const CAMERA_X_MOBILE = -260
-const CAMERA_START_MOBILE = new THREE.Vector3(CAMERA_X_MOBILE, 235, 120)
+// The dolly used to start at z=120, which is close enough that the robot
+// fills the frame cropped at both shoulders. That is what a phone visitor
+// saw for the first two and a half seconds, which on mobile is most of the
+// time they spend before scrolling. Starting much nearer the end position
+// makes it a gentle push-in that is legible from the first frame.
+const CAMERA_START_MOBILE = new THREE.Vector3(CAMERA_X_MOBILE, 185, 520)
 const CAMERA_END_MOBILE = new THREE.Vector3(CAMERA_X_MOBILE, 140, 730)
 const LOOK_AT_END_MOBILE = new THREE.Vector3(0, 40, 0)
 
