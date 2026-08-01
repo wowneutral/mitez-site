@@ -34,13 +34,22 @@
 
 <!-- Favicons, largest first, browsers and Googlebot-Image pick the best
      available, and the order makes the intended one obvious.
-     Google's favicon docs recommend an icon LARGER than 48x48. Until now
-     the biggest thing declared as rel="icon" was 32x32, which is a likely
-     reason Search showed the generic globe instead of the MITEZ mark.
+     Google's favicon docs recommend an icon LARGER than 48x48, and sizes
+     that are multiples of 48, hence 48 / 96 / 192 below.
+
+     The icons carry an opaque dark background on purpose. The mark is a
+     white hand, and it previously shipped on transparency: on the white
+     card Google renders favicons against, the white outer hand vanished
+     and only the small dark inner hand survived, which is why Search
+     showed an unrecognisable dark blob. Baking the brand dark in makes the
+     icon read the same everywhere, and Google's circular crop then frames
+     it the way the mark was designed.
      /favicon.ico is also the path both browsers and Google probe by
      default even with no link tag present, so it should always exist. -->
 <link rel="icon" href="/favicon.ico" sizes="any" />
 <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png" />
+<link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png" />
+<link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png" />
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
 <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
