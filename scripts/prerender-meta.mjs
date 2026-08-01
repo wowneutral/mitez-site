@@ -93,3 +93,75 @@ for (const [route, meta] of Object.entries(PAGE_META)) {
   console.log(`[prerender-meta] ${route.padEnd(16)} ${fullTitle(meta.title)}`);
 }
 console.log(`[prerender-meta] wrote ${written} route(s).`);
+
+/* ---------------------------------------------------------------------
+ * Sitemap, generated from the same PAGE_META the routes and prerendering
+ * use.
+ *
+ * It was previously a hand-maintained file in public/. That made four
+ * places to remember when adding a route (the Route, PAGE_META,
+ * _redirects and the sitemap), and the sitemap is the one nobody notices
+ * has drifted, because nothing breaks visibly when it does.
+ *
+ * lastmod comes from each page's real last commit date rather than
+ * today's, so a rebuild that changed nothing does not tell search
+ * engines every page is new.
+ * ------------------------------------------------------------------- */
+import { execSync } from 'node:child_process';
+
+// Rough priority by depth: the homepage first, then real pages, with the
+// legal pages last since they are not what anyone is searching for.
+const PRIORITY = { '/': '1.0', '/privacy': '0.4', '/safety': '0.7' };
+const CHANGEFREQ = { '/': 'weekly', '/privacy': 'yearly', '/safety': 'monthly' };
+
+// Explicit, because two components carry a "Page" suffix that no naming
+// convention would infer (/how-it-works -> HowItWorksPage.jsx). Guessing
+// here silently fell back to today's date for those two routes.
+const ROUTE_FILES = {
+  '/': 'src/pages/Home.jsx',
+  '/about': 'src/pages/About.jsx',
+  '/how-it-works': 'src/pages/HowItWorksPage.jsx',
+  '/get-involved': 'src/pages/GetInvolvedPage.jsx',
+  '/gainesville': 'src/pages/Gainesville.jsx',
+  '/safety': 'src/pages/Safety.jsx',
+  '/privacy': 'src/pages/Privacy.jsx',
+  '/contact': 'src/pages/Contact.jsx',
+};
+
+function lastCommitDate(route) {
+  const file = ROUTE_FILES[route];
+  if (!file) {
+    console.warn(`[prerender-meta] no component mapped for ${route}, using today`);
+    return new Date().toISOString().slice(0, 10);
+  }
+  try {
+    const d = execSync(`git log -1 --format=%ad --date=short -- "${file}"`, {
+      cwd: ROOT, encoding: 'utf8',
+    }).trim();
+    if (d) return d;
+  } catch {
+    /* not a git checkout */
+  }
+  return new Date().toISOString().slice(0, 10);
+}
+
+const urls = Object.keys(PAGE_META)
+  .map((route) => {
+    const loc = route === '/' ? `${SITE_URL}/` : `${SITE_URL}${route}`;
+    return [
+      '  <url>',
+      `    <loc>${loc}</loc>`,
+      `    <lastmod>${lastCommitDate(route)}</lastmod>`,
+      `    <changefreq>${CHANGEFREQ[route] || 'monthly'}</changefreq>`,
+      `    <priority>${PRIORITY[route] || '0.8'}</priority>`,
+      '  </url>',
+    ].join('\n');
+  })
+  .join('\n');
+
+await writeFile(
+  join(DIST, 'sitemap.xml'),
+  `<?xml version="1.0" encoding="UTF-8"?>\n` +
+    `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`,
+);
+console.log(`[prerender-meta] sitemap.xml regenerated with ${Object.keys(PAGE_META).length} url(s).`);
