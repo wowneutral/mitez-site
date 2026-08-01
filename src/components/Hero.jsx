@@ -145,7 +145,7 @@ export default function Hero({ onReady }) {
           duration={0.7}
           delay={2.3}
         >
-          MITEZ connects you with people who will teach you what you actually want to know — whatever the skill, whoever you are. Free.
+          MITEZ connects you with people who will teach you what you actually want to know, whatever the skill, whoever you are. Free.
         </TextAnimate>
 
         {/* Real routes, not same-page anchors.

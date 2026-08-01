@@ -38,7 +38,7 @@ export default function ContactForm() {
       <div className="form-done" role="status">
         <h3>Message sent.</h3>
         <p>
-          Thanks for reaching out — we&rsquo;ll get back to you as soon as we can.
+          Thanks for reaching out, we&rsquo;ll get back to you as soon as we can.
         </p>
         <button type="button" className="btn btn-ghost" onClick={() => setStatus('idle')}>
           Send another

@@ -31,7 +31,7 @@ export default function Home() {
   return (
     <main>
       <SEO
-        description="MITEZ is free mentorship and hands-on support for anything you want to learn — tutoring, life skills, career skills, and more. Based in Gainesville, Florida, open to anyone who asks."
+        description="MITEZ is free mentorship and hands-on support for anything you want to learn, tutoring, life skills, career skills, and more. Based in Gainesville, Florida, open to anyone who asks."
         path="/"
       />
       <Preloader ready={ready} />
@@ -53,7 +53,7 @@ export default function Home() {
             Free. Any skill. Anyone who asks.
           </TextAnimate>
           <TextAnimate as="p" className="lede" by="line" animation="fadeIn" duration={0.6} delay={0.6}>
-            No waitlist, no paperwork, no cost — and no list of approved
+            No waitlist, no paperwork, no cost, and no list of approved
             subjects to pick from.
           </TextAnimate>
         </div>

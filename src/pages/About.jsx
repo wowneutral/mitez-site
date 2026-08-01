@@ -39,7 +39,7 @@ export default function About() {
       <PageHeader
         eyebrow="About"
         title="Make It Easy."
-        lede="One place to learn anything — instead of ten."
+        lede="One place to learn anything, instead of ten."
       />
 
       <section className="section">

@@ -20,7 +20,7 @@ export const PAGE_META = {
   '/': {
     title: null, // homepage uses DEFAULT_TITLE as-is
     description:
-      'MITEZ is free mentorship and hands-on support for anything you want to learn — tutoring, life skills, career skills, and more. Based in Gainesville, Florida, open to anyone who asks.',
+      'MITEZ is free mentorship and hands-on support for anything you want to learn, tutoring, life skills, career skills, and more. Based in Gainesville, Florida, open to anyone who asks.',
   },
   '/about': {
     title: 'About',
@@ -30,22 +30,22 @@ export const PAGE_META = {
   '/how-it-works': {
     title: 'How It Works',
     description:
-      'Tell us what you want to learn, get matched with someone who knows it, and work through it together — free, with no fixed subject list.',
+      'Tell us what you want to learn, get matched with someone who knows it, and work through it together, free, with no fixed subject list.',
   },
   '/get-involved': {
     title: 'Get Involved',
     description:
-      'Learn something, teach something, partner as a school or organization, or support the work — every way to get involved with MITEZ is free.',
+      'Learn something, teach something, partner as a school or organization, or support the work, every way to get involved with MITEZ is free.',
   },
   '/gainesville': {
     title: 'Gainesville',
     description:
-      'Free mentorship and hands-on help started in Gainesville, Florida — run fully remote so distance does not decide who gets help. Here is exactly where the pilot stands.',
+      'Free mentorship and hands-on help started in Gainesville, Florida, run fully remote so distance does not decide who gets help. Here is exactly where the pilot stands.',
   },
   '/resources': {
     title: 'Free Resources',
     description:
-      'Free places to learn debate, coding, school subjects and languages. Open to anyone, no account and no permission needed — start today without waiting on us.',
+      'Free places to learn debate, coding, school subjects and languages. Open to anyone, no account and no permission needed, start today without waiting on us.',
   },
   '/terms': {
     title: 'Terms and Conditions',
@@ -60,7 +60,7 @@ export const PAGE_META = {
   '/contact': {
     title: 'Contact',
     description:
-      'Questions, ideas, or something you want to learn — get in touch with MITEZ. We read everything and usually reply within a few days.',
+      'Questions, ideas, or something you want to learn, get in touch with MITEZ. We read everything and usually reply within a few days.',
   },
 };
 

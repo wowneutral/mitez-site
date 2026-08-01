@@ -7,7 +7,7 @@ export default function Footer() {
         <div>
           <div className="footer-logo">MITEZ</div>
           <p className="footer-mission">
-            Making it easy to learn anything — free mentorship for anyone who
+            Making it easy to learn anything, free mentorship for anyone who
             asks.
           </p>
         </div>

@@ -36,7 +36,7 @@ const BLOCKS = [
     id: 'partner',
     label: '03',
     title: 'Partner with us',
-    copy: 'Schools, libraries, and organizations — host a session or send people our way.',
+    copy: 'Schools, libraries, and organizations, host a session or send people our way.',
     cta: 'Partner with us',
     formId: TALLY.partner,
   },
@@ -55,13 +55,13 @@ export default function GetInvolvedPage() {
     <main className="page">
       <SEO
         title="Get Involved"
-        description="Learn something, teach something, partner as a school or organization, or support the work — every way to get involved with MITEZ is free."
+        description="Learn something, teach something, partner as a school or organization, or support the work, every way to get involved with MITEZ is free."
         path="/get-involved"
       />
       <PageHeader
         eyebrow="Get Involved"
         title="Come learn, come teach, or help us reach further."
-        lede="Pick whichever fits. Every one is free — each opens a short form in a new tab."
+        lede="Pick whichever fits. Every one is free, each opens a short form in a new tab."
       />
 
       <section className="section">

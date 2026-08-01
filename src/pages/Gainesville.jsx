@@ -25,7 +25,7 @@ import { TALLY } from '../config/forms.js';
 const NOW = [
   {
     k: 'Running now',
-    v: 'We are already answering people and helping with what they bring us — one request at a time, informally.',
+    v: 'We are already answering people and helping with what they bring us, one request at a time, informally.',
   },
   {
     k: 'Lined up',
@@ -59,7 +59,7 @@ export default function Gainesville() {
       <PageHeader
         eyebrow="The pilot"
         title="Started in Gainesville. Built to reach past it."
-        lede="Free mentorship and hands-on help, run remotely — so where you live is not what decides whether you get it."
+        lede="Free mentorship and hands-on help, run remotely, so where you live is not what decides whether you get it."
       />
 
       {/* The remote decision. The most important fact about how this works,
@@ -71,7 +71,7 @@ export default function Gainesville() {
             Distance decides who gets help. So we removed it.
           </TextAnimate>
           <p className="lede">
-            The Make It Easy program runs completely remote &mdash; not because it is
+            The Make It Easy program runs completely remote, not because it is
             easier to operate, but because the moment help depends on getting somewhere,
             it stops being equal. A student without a ride. A parent working the hours a
             tutor is free. Someone in a town where nobody knows the thing they are trying
@@ -115,7 +115,7 @@ export default function Gainesville() {
           </TextAnimate>
           <p className="lede">
             Those are what the first people through the door happened to want. They are
-            not a list of what we do &mdash; the whole point is that there is no list. If
+            not a list of what we do, the whole point is that there is no list. If
             someone wants to learn it and someone can teach it, that counts. Ask for the
             thing you actually want, not the closest thing on a menu.
           </p>
@@ -151,8 +151,8 @@ export default function Gainesville() {
         <div className="wrap page-cta">
           <h2>Small, early, and open.</h2>
           <p className="lede" style={{ marginBottom: 0 }}>
-            If you are one of the people above &mdash; or you know who we should be
-            talking to &mdash; that is the most useful thing you could send us right now.
+            If you are one of the people above, or you know who we should be
+            talking to, that is the most useful thing you could send us right now.
           </p>
           <div className="hero-actions" style={{ justifyContent: 'center' }}>
             <a className="btn btn-primary" href={`https://tally.so/r/${TALLY.learn}`} target="_blank" rel="noreferrer">

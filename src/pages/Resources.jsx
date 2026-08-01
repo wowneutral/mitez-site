@@ -117,7 +117,7 @@ export default function Resources() {
       <PageHeader
         eyebrow="Resources"
         title="Start now, without waiting on anyone."
-        lede="If you want to learn one thing quickly, you should not have to wait for us. Everything here is free, open to anyone, and needs nothing from you — no account with us, no form, no permission."
+        lede="If you want to learn one thing quickly, you should not have to wait for us. Everything here is free, open to anyone, and needs nothing from you, no account with us, no form, no permission."
       />
 
       {/* The distinction that makes this page exist. */}
@@ -136,7 +136,7 @@ export default function Resources() {
             Working with a mentor is different, because that puts you in a room with an
             adult. If you are under 18 that needs a parent or guardian to agree first, and
             we explain exactly why in our{' '}
-            <Link to="/terms">Terms</Link>. It is not a hurdle we invented — it is the
+            <Link to="/terms">Terms</Link>. It is not a hurdle we invented, it is the
             part that keeps this safe.
           </p>
         </div>

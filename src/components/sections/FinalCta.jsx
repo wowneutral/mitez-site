@@ -32,7 +32,7 @@ export default function FinalCta() {
           <a className="btn btn-ghost" href={`https://tally.so/r/${TALLY.partner}`} target="_blank" rel="noreferrer">Partner With Us</a>
           <Link className="btn btn-ghost" to="/contact">Contact MITEZ</Link>
         </Reveal>
-        <p className="final-signature">Gainesville, Florida — 2026</p>
+        <p className="final-signature">Gainesville, Florida, 2026</p>
         <div className="final-divider" />
         <p className="final-tagline">Free. No limit on what counts as learning.</p>
       </div>

@@ -9,7 +9,7 @@ export default function Contact() {
     <main className="page">
       <SEO
         title="Contact"
-        description="Questions, ideas, or something you want to learn — get in touch with MITEZ. We read everything and usually reply within a few days."
+        description="Questions, ideas, or something you want to learn, get in touch with MITEZ. We read everything and usually reply within a few days."
         path="/contact"
       />
       <PageHeader

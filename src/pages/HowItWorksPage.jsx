@@ -15,7 +15,7 @@ const STEPS = [
   {
     num: '02',
     title: 'Connect',
-    copy: 'We match you with someone who already knows it — a person, not a chatbot.',
+    copy: 'We match you with someone who already knows it, a person, not a chatbot.',
   },
   {
     num: '03',
@@ -67,7 +67,7 @@ export default function HowItWorksPage() {
     <main className="page">
       <SEO
         title="How It Works"
-        description="Tell us what you want to learn, get matched with someone who knows it, and work through it together — free, with no fixed subject list."
+        description="Tell us what you want to learn, get matched with someone who knows it, and work through it together, free, with no fixed subject list."
         path="/how-it-works"
       />
       <PageHeader

@@ -42,7 +42,7 @@ export default function WhoWeServe() {
       <div className="wrap">
         <p className="section-label">Who MITEZ Serves</p>
         <TextAnimate as="h2" by="word" animation="fadeIn" duration={0.7}>
-          Anyone with something they want to learn — or teach.
+          Anyone with something they want to learn, or teach.
         </TextAnimate>
         <div className="who-list">
           {ROWS.map((row, i) => (
