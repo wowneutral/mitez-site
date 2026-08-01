@@ -9,6 +9,8 @@ import HowItWorksPage from './pages/HowItWorksPage.jsx';
 import GetInvolvedPage from './pages/GetInvolvedPage.jsx';
 import Contact from './pages/Contact.jsx';
 import Gainesville from './pages/Gainesville.jsx';
+import Safety from './pages/Safety.jsx';
+import Privacy from './pages/Privacy.jsx';
 
 // Without this, navigating between routes keeps the previous scroll
 // position — you click "Contact" and land halfway down the page.
@@ -69,6 +71,8 @@ export default function App() {
         <Route path="/get-involved" element={<GetInvolvedPage />} />
         <Route path="/gainesville" element={<Gainesville />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/safety" element={<Safety />} />
+        <Route path="/privacy" element={<Privacy />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>

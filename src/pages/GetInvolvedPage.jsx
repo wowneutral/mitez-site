@@ -1,7 +1,9 @@
+import { Link } from 'react-router-dom';
 import SEO from '../components/SEO.jsx';
 import PageHeader from '../components/PageHeader.jsx';
 import Footer from '../components/Footer.jsx';
 import Reveal from '../components/Reveal.jsx';
+import { TextAnimate } from '../components/magicui/text-animate.jsx';
 import { TALLY } from '../config/forms.js';
 
 // Cards that open each Tally form in a new tab — no inline embeds.
@@ -87,6 +89,30 @@ export default function GetInvolvedPage() {
                 </span>
               </Reveal>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Signing-up is exactly the moment someone wants to know how this is
+          kept safe, so the link sits here rather than only in the footer. */}
+      <section className="section">
+        <div className="wrap page-cta">
+          <TextAnimate as="h2" by="word" animation="slideUp" duration={0.7}>
+            Before you sign anyone up.
+          </TextAnimate>
+          <p className="lede">
+            If you are a parent, or you are about to put a student in front of a
+            volunteer, read how we handle that first. It covers where mentors come
+            from, the rules for sessions with anyone under 18, and what we have not
+            built yet.
+          </p>
+          <div className="hero-actions">
+            <Link className="btn btn-primary" to="/safety">
+              How we keep this safe
+            </Link>
+            <Link className="btn btn-ghost" to="/privacy">
+              What we do with your data
+            </Link>
           </div>
         </div>
       </section>

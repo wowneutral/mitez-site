@@ -42,6 +42,16 @@ export const PAGE_META = {
     description:
       'Free mentorship and hands-on help started in Gainesville, Florida — run fully remote so distance does not decide who gets help. Here is exactly where the pilot stands.',
   },
+  '/safety': {
+    title: 'Safety',
+    description:
+      'How MITEZ keeps sessions safe: where mentors come from, the rules for working with anyone under 18, what happens after you send a form, and what we have not built yet.',
+  },
+  '/privacy': {
+    title: 'Privacy',
+    description:
+      'What MITEZ collects through its forms, who holds it, how long we keep it, and how to have it deleted. No tracking, no ads, nothing sold.',
+  },
   '/contact': {
     title: 'Contact',
     description:
