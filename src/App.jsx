@@ -15,7 +15,6 @@ const HowItWorksPage = lazy(() => import('./pages/HowItWorksPage.jsx'));
 const GetInvolvedPage = lazy(() => import('./pages/GetInvolvedPage.jsx'));
 const Contact = lazy(() => import('./pages/Contact.jsx'));
 const Gainesville = lazy(() => import('./pages/Gainesville.jsx'));
-const Resources = lazy(() => import('./pages/Resources.jsx'));
 const Terms = lazy(() => import('./pages/Terms.jsx'));
 const Privacy = lazy(() => import('./pages/Privacy.jsx'));
 
@@ -81,7 +80,6 @@ export default function App() {
           <Route path="/get-involved" element={<GetInvolvedPage />} />
           <Route path="/gainesville" element={<Gainesville />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/resources" element={<Resources />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="*" element={<NotFound />} />

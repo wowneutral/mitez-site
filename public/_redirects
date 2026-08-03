@@ -57,16 +57,25 @@
 /get-involved   /get-involved/index.html   200
 /contact        /contact/index.html        200
 /gainesville    /gainesville/index.html    200
-/resources      /resources/index.html      200
 /terms          /terms/index.html          200
 /privacy        /privacy/index.html        200
 
 # ---------------------------------------------------------------------
-# SPA FALLBACK
+# NO SPA CATCH-ALL — DELIBERATE
 #
-# 200 (a rewrite), not 301. React Router owns routing on the client, but
-# the server still has to answer a cold request for an unknown path with
-# the app itself, so the 404 route can render. A redirect would instead
-# bounce the browser to / and lose the requested page.
+# There used to be a `/*  /index.html  200` rule here. It answered every
+# unknown URL with the app and an HTTP 200, so /resources, /blog, or any
+# typo rendered "That page does not exist." while telling Google the page
+# was fine. That is a soft 404: the URL stays indexed, and the ranking
+# signals of genuinely dead pages never get released.
+#
+# Without the catch-all, Cloudflare Pages serves dist/404.html with a real
+# 404 status for anything unmatched. That file is the same app shell, so
+# React still boots and renders the NotFound route — identical to look at,
+# honest to a crawler.
+#
+# THE TRADE: every real route must be listed above. A new route that is
+# added to App.jsx but not to this file will 404 on a cold load (it will
+# still work when reached by clicking through the site, which is what
+# makes the mistake easy to miss). Add the route here at the same time.
 # ---------------------------------------------------------------------
-/*    /index.html   200

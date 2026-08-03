@@ -95,6 +95,41 @@ for (const [route, meta] of Object.entries(PAGE_META)) {
 console.log(`[prerender-meta] wrote ${written} route(s).`);
 
 /* ---------------------------------------------------------------------
+ * 404.html
+ *
+ * public/_redirects deliberately has no SPA catch-all, so Cloudflare Pages
+ * answers anything it cannot match with this file AND a real 404 status.
+ * It is the same app shell, so React boots and the NotFound route renders:
+ * a visitor sees the normal page, a crawler sees a 404.
+ *
+ * noindex is belt and braces. A 404 status is already enough for Google to
+ * drop the URL, but the tag means nothing can index this shell if it is
+ * ever served some other way.
+ * ------------------------------------------------------------------- */
+{
+  let html = shell;
+  html = html.replace(
+    /<title>[\s\S]*?<\/title>/i,
+    '<title>Page Not Found | MITEZ</title>',
+  );
+  html = setMeta(
+    html,
+    'name',
+    'description',
+    'That page does not exist. The link may be out of date, or the page may have moved.',
+  );
+  // The canonical in the shell points at the homepage, which would be a
+  // lie on an error page. Drop it rather than rewrite it.
+  html = html.replace(/<link\s+rel="canonical"[^>]*>\s*/i, '');
+  html = html.replace(
+    '</head>',
+    '<meta name="robots" content="noindex, nofollow" />\n</head>',
+  );
+  await writeFile(join(DIST, '404.html'), html);
+  console.log('[prerender-meta] wrote 404.html');
+}
+
+/* ---------------------------------------------------------------------
  * Sitemap, generated from the same PAGE_META the routes and prerendering
  * use.
  *
@@ -111,8 +146,8 @@ import { execSync } from 'node:child_process';
 
 // Rough priority by depth: the homepage first, then real pages, with the
 // legal pages last since they are not what anyone is searching for.
-const PRIORITY = { '/': '1.0', '/privacy': '0.4', '/terms': '0.5', '/resources': '0.9' };
-const CHANGEFREQ = { '/': 'weekly', '/privacy': 'yearly', '/terms': 'yearly', '/resources': 'monthly' };
+const PRIORITY = { '/': '1.0', '/privacy': '0.4', '/terms': '0.5' };
+const CHANGEFREQ = { '/': 'weekly', '/privacy': 'yearly', '/terms': 'yearly' };
 
 // Explicit, because two components carry a "Page" suffix that no naming
 // convention would infer (/how-it-works -> HowItWorksPage.jsx). Guessing
@@ -123,7 +158,6 @@ const ROUTE_FILES = {
   '/how-it-works': 'src/pages/HowItWorksPage.jsx',
   '/get-involved': 'src/pages/GetInvolvedPage.jsx',
   '/gainesville': 'src/pages/Gainesville.jsx',
-  '/resources': 'src/pages/Resources.jsx',
   '/terms': 'src/pages/Terms.jsx',
   '/privacy': 'src/pages/Privacy.jsx',
   '/contact': 'src/pages/Contact.jsx',

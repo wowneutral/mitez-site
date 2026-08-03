@@ -110,8 +110,8 @@ export default function GetInvolvedPage() {
             <Link className="btn btn-primary" to="/terms">
               How we keep this safe
             </Link>
-            <Link className="btn btn-ghost" to="/resources">
-              Or start on your own
+            <Link className="btn btn-ghost" to="/how-it-works">
+              How a match works
             </Link>
           </div>
         </div>
