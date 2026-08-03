@@ -22,7 +22,7 @@ import { CONTACT_EMAIL } from '../config/forms.js';
  * cannot lean on as heavily as a company can.
  */
 
-const UPDATED = '1 August 2026';
+const UPDATED = '3 August 2026';
 
 const SECTIONS = [
   {
@@ -41,14 +41,13 @@ const SECTIONS = [
         '"Mentor" means any volunteer who provides that support.',
         '"Guardian" means a parent or legal guardian of a Student who is under 18.',
         '"Session" means any scheduled meeting between a Mentor and a Student.',
-        '"Resources" means the third-party links listed on the Resources page.',
       ],
     ],
   },
   {
     h: 'What MITEZ provides',
     body: [
-      'MITEZ matches Students with Mentors who volunteer their time, and provides a list of free third-party learning Resources. All of it is provided free of charge. We do not charge Students, Guardians, Mentors or organisations, and we do not accept payment in exchange for a match.',
+      'MITEZ matches Students with Mentors who volunteer their time. All of it is provided free of charge. We do not charge Students, Guardians, Mentors or organisations, and we do not accept payment in exchange for a match.',
       'MITEZ is not a school, a tutoring company, a licensed educational institution, or a childcare provider. Nothing we provide is accredited, and participation does not confer any qualification or credit.',
       'We do not guarantee that a Mentor will be available for any particular subject, within any particular timeframe, or at all. Matching depends entirely on volunteer availability.',
     ],
@@ -56,9 +55,8 @@ const SECTIONS = [
   {
     h: 'Eligibility and Guardian consent',
     body: [
-      'Resources are open to anyone. They involve no contact with MITEZ or with any Mentor, require no account, and are not conditional on consent.',
-      'Mentorship is different. Where a Student is under 18, MITEZ will contact a Guardian and obtain their agreement before any match is made and before any Session takes place. Consent must come from an adult we are able to reach and communicate with directly. A checkbox on a form is not sufficient and will not be treated as consent.',
-      'If we are unable to reach a Guardian, or a Guardian declines, MITEZ will not proceed with a match. The Student remains free to use the Resources.',
+      'Where a Student is under 18, MITEZ will contact a Guardian and obtain their agreement before any match is made and before any Session takes place. Consent must come from an adult we are able to reach and communicate with directly. A checkbox on a form is not sufficient and will not be treated as consent.',
+      'If we are unable to reach a Guardian, or a Guardian declines, MITEZ will not proceed with a match.',
       'A Guardian may withdraw consent at any time, for any reason, without notice, and Sessions will stop immediately.',
     ],
   },
@@ -115,13 +113,6 @@ const SECTIONS = [
     body: [
       'MITEZ may suspend or remove any participant at any time, without notice and without being required to give a reason, where we consider it necessary or appropriate.',
       'A Mentor found to have breached clause 6 or clause 7 will be removed from the programme. Where conduct appears to involve a risk to a child, MITEZ will report the matter to the appropriate authorities.',
-    ],
-  },
-  {
-    h: 'Third-party Resources',
-    body: [
-      'The Resources page links to services operated by third parties. MITEZ has no affiliation, partnership, sponsorship or other relationship with any of them, receives nothing in connection with listing them, and exercises no control over their content, availability or practices.',
-      'Those services are governed by their own terms and privacy policies, which you should read. MITEZ accepts no responsibility for them.',
     ],
   },
   {

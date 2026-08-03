@@ -17,7 +17,7 @@ import { CONTACT_EMAIL } from '../config/forms.js';
  * qualified before the programme scales.
  */
 
-const UPDATED = '1 August 2026';
+const UPDATED = '3 August 2026';
 
 const SECTIONS = [
   {
@@ -45,7 +45,7 @@ const SECTIONS = [
     h: 'How we collect it',
     body: [
       'Our interest forms are hosted by Tally, and our contact form transmits messages using FormSubmit. Both are third-party services, and information you submit passes through their systems on the way to us. Each operates under its own privacy policy.',
-      'We do not collect information about you passively. Visiting this site, reading any page, or following a link from the Resources page does not cause us to collect anything.',
+      'We do not collect information about you passively. Visiting this site or reading any page does not cause us to collect anything.',
     ],
   },
   {
@@ -60,7 +60,6 @@ const SECTIONS = [
     body: [
       'Where a student is under 18 and requests mentorship, we contact a parent or guardian and obtain their agreement before making any match. Consent must come from an adult we can reach and communicate with directly.',
       'A parent or guardian may at any time ask what information we hold about their child, ask us to correct it, or ask us to delete it. We will comply and confirm when it is done.',
-      'The Resources page requires no information from anyone and is open at any age.',
       'If we become aware that we hold information from a child under 13 that was provided without verifiable parental consent, we will delete it.',
     ],
   },
@@ -76,7 +75,7 @@ const SECTIONS = [
     h: 'Tracking, cookies and analytics',
     body: [
       'This site runs no analytics, sets no tracking cookies, and carries no advertising. We do not know who visits, what pages are read, or where visitors come from.',
-      'Third-party services linked from the Resources page, and the form services described above, may set their own cookies when you interact with them. That is governed by their policies rather than ours.',
+      'The form services described above may set their own cookies when you interact with them. That is governed by their policies rather than ours.',
     ],
   },
   {
