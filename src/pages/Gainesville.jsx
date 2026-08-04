@@ -3,8 +3,8 @@ import SEO from '../components/SEO.jsx';
 import PageHeader from '../components/PageHeader.jsx';
 import Footer from '../components/Footer.jsx';
 import Reveal from '../components/Reveal.jsx';
-import { TextAnimate } from '../components/magicui/text-animate.jsx';
 import { TALLY } from '../config/forms.js';
+import RiseText from '../components/RiseText.jsx';
 
 /**
  * The Gainesville / pilot page.
@@ -67,9 +67,7 @@ export default function Gainesville() {
       <section className="section">
         <div className="wrap about-lead">
           <p className="section-label">Why remote</p>
-          <TextAnimate as="h2" by="word" animation="slideUp" duration={0.7}>
-            Distance decides who gets help. So we removed it.
-          </TextAnimate>
+          <RiseText as="h2">Distance decides who gets help. So we removed it.</RiseText>
           <p className="lede">
             The Make It Easy program runs completely remote, not because it is
             easier to operate, but because the moment help depends on getting somewhere,
@@ -91,9 +89,7 @@ export default function Gainesville() {
       <section className="section about-status">
         <div className="wrap">
           <p className="section-label">Where we actually stand</p>
-          <TextAnimate as="h2" by="word" animation="fadeIn" duration={0.7}>
-            Early, and saying so.
-          </TextAnimate>
+          <RiseText as="h2">Early, and saying so.</RiseText>
           <dl className="faq">
             {NOW.map((row, i) => (
               <Reveal as="div" variant="up" delay={i * 0.06} key={row.k} className="faq-item">
@@ -110,9 +106,7 @@ export default function Gainesville() {
       <section className="section">
         <div className="wrap about-lead">
           <p className="section-label">What people have asked for</p>
-          <TextAnimate as="h2" by="word" animation="slideUp" duration={0.7}>
-            Debate and coding got here first.
-          </TextAnimate>
+          <RiseText as="h2">Debate and coding got here first.</RiseText>
           <p className="lede">
             Those are what the first people through the door happened to want. They are
             not a list of what we do, the whole point is that there is no list. If
@@ -127,9 +121,7 @@ export default function Gainesville() {
         <div className="wrap">
           <div className="solution-head">
             <p className="section-label">Who we are trying to reach</p>
-            <TextAnimate as="h2" by="word" animation="slideUp" duration={0.7}>
-              The people we are going after next.
-            </TextAnimate>
+            <RiseText as="h2">The people we are going after next.</RiseText>
             <p className="lede">
               None of these are arrangements yet. This is who we think needs this most,
               and who we are working to get in front of.

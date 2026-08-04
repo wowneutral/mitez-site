@@ -3,6 +3,8 @@ import { Routes, Route, useLocation, Link } from 'react-router-dom';
 import SEO from './components/SEO.jsx';
 import Nav from './components/Nav.jsx';
 import Footer from './components/Footer.jsx';
+import ScrollProgress from './components/ScrollProgress.jsx';
+import { useSmoothScroll, getLenis } from './lib/smoothScroll.js';
 // Routes are split so a visitor reading the Terms does not download a 3D
 // engine. Home stays eagerly imported because it is the common entry point
 // and splitting it would only add a round trip before the hero appears;
@@ -33,16 +35,31 @@ function ScrollToTop() {
     // The rAF waits one frame so the destination route has actually
     // rendered; querying for the element during this effect would find
     // nothing on a cross-page navigation.
+    // With Lenis running, the browser's own scrolling is being driven by
+    // an animation loop. Calling scrollIntoView or window.scrollTo behind
+    // its back sets a position Lenis immediately animates away from, so
+    // both jumps have to be handed to it instead.
+    const lenis = getLenis();
+
     if (hash) {
       const id = hash.slice(1);
       const raf = requestAnimationFrame(() => {
         const el = document.getElementById(id);
-        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (!el) return;
+        if (lenis) lenis.scrollTo(el, { offset: -20 });
+        else el.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
       return () => cancelAnimationFrame(raf);
     }
-    window.scrollTo(0, 0);
-    document.body.scrollTop = 0;
+
+    if (lenis) {
+      // immediate: a route change is a cut, not a scroll. Easing a new
+      // page up from the bottom of the last one would be seasickness.
+      lenis.scrollTo(0, { immediate: true });
+    } else {
+      window.scrollTo(0, 0);
+      document.body.scrollTop = 0;
+    }
     return undefined;
   }, [pathname, hash]);
   return null;
@@ -66,9 +83,12 @@ function NotFound() {
 }
 
 export default function App() {
+  useSmoothScroll();
+
   return (
     <>
       <ScrollToTop />
+      <ScrollProgress />
       <Nav />
       {/* A blank fallback rather than a spinner: these chunks are small and
           a flash of loading UI is worse than a beat of nothing. */}

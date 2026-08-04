@@ -12,6 +12,7 @@ import FounderNote from '../components/sections/FounderNote.jsx';
 import GetInvolved from '../components/sections/GetInvolved.jsx';
 import FinalCta from '../components/sections/FinalCta.jsx';
 import Footer from '../components/Footer.jsx';
+import RiseText from '../components/RiseText.jsx';
 
 // Every section below Hero uses real copy carried over from the live
 // static site (mission, problem/gap, response, who-we-serve, how-it-works,
@@ -49,9 +50,7 @@ export default function Home() {
           {/* Blur is now reserved for the hero headline alone — it was on
               four separate headings, which turned a signature effect into
               the site's default. */}
-          <TextAnimate as="h2" className="tagline" by="word" animation="slideUp" duration={0.8} delay={0.15}>
-            Free. Any skill. Anyone who asks.
-          </TextAnimate>
+          <RiseText as="h2" className="tagline" delay={0.15}>Free. Any skill. Anyone who asks.</RiseText>
           <TextAnimate as="p" className="lede" by="line" animation="fadeIn" duration={0.6} delay={0.6}>
             No waitlist, no paperwork, no cost, and no list of approved
             subjects to pick from.

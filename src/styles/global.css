@@ -115,11 +115,61 @@
   .preloader-inner { transition: none; }
 }
 
-html { scroll-behavior: smooth; }
+/* Native smooth scrolling now only applies when Lenis is NOT running.
+   Lenis adds .lenis to <html> when it starts, and the two systems must
+   never both be animating the same scroll position — that fight is what
+   produces the stutter people describe as "jittery" smooth scroll.
+   Reduced motion keeps the plain jump. */
+html:not(.lenis) { scroll-behavior: smooth; }
 section[id] { scroll-margin-top: 32px; }
+
+/* Required by Lenis: it manages scroll on the window, so the document
+   must be free to be as tall as it is. */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-stopped { overflow: hidden; }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
+}
+
+/* ---------- Reading progress ----------------------------------------
+   Fixed hairline across the top. Sits above the nav's own stacking
+   context so it stays visible once the nav picks up its background. */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  z-index: 70;
+  background: var(--ink);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  pointer-events: none;
+}
+
+/* ---------- Masked word reveal (RiseText) ---------------------------
+   The mask is the whole point: the word is clipped by its own box and
+   rises into it, so nothing is ever visible in a wrong position.
+
+   The padding/margin pair matters more than it looks. overflow: hidden
+   on a tight line-height clips descenders, so "Anything you ask" loses
+   the tails of its g and y for the length of the animation. The padding
+   gives the mask room to contain them and the equal negative margin
+   takes that space back out of the layout, so the type sits exactly
+   where it did before. */
+.rise-word {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+  padding-bottom: 0.16em;
+  margin-bottom: -0.16em;
+}
+
+.rise-word-in {
+  display: inline-block;
+  will-change: transform;
 }
 
 .sr-only {
@@ -429,7 +479,28 @@ body {
 
 .how-rows { display: flex; flex-direction: column; gap: 40px; }
 
-.how-row { display: flex; gap: 22px; align-items: flex-start; }
+/* Steps recede until the scroll progress reaches them. The shift is
+   small on purpose: enough that the eye is led down the list, not so
+   much that the copy is unreadable before you get there. Everything is
+   still fully legible at rest, and the transition is long enough that
+   scrubbing the page never makes it flicker. */
+.how-row {
+  display: flex;
+  gap: 22px;
+  align-items: flex-start;
+  opacity: 0.44;
+  transform: translateX(-6px);
+  transition: opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.how-row.is-current { opacity: 1; transform: none; }
+
+.how-row.is-current .num { color: var(--ink); }
+
+@media (prefers-reduced-motion: reduce) {
+  .how-row { opacity: 1; transform: none; }
+}
 
 .how-row .num {
   font-family: var(--display);

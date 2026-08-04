@@ -1,6 +1,6 @@
-import { TextAnimate } from '../magicui/text-animate.jsx';
 import Reveal from '../Reveal.jsx';
 import { TALLY } from '../../config/forms.js';
+import RiseText from '../RiseText.jsx';
 
 // Each card opens its Tally form directly — one click from the homepage
 // to the thing you actually fill in, no intermediate page.
@@ -47,9 +47,7 @@ export default function GetInvolved() {
     <section className="section involved" id="get-involved">
       <div className="wrap">
         <p className="section-label">Get Involved</p>
-        <TextAnimate as="h2" by="word" animation="slideUp" duration={0.7}>
-          Come learn, come teach, or help us reach more people.
-        </TextAnimate>
+        <RiseText as="h2">Come learn, come teach, or help us reach more people.</RiseText>
         <div className="involved-grid involved-preview">
           {CARDS.map((c, i) => (
             <Reveal

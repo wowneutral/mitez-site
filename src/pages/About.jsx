@@ -3,7 +3,7 @@ import SEO from '../components/SEO.jsx';
 import PageHeader from '../components/PageHeader.jsx';
 import Footer from '../components/Footer.jsx';
 import Reveal from '../components/Reveal.jsx';
-import { TextAnimate } from '../components/magicui/text-animate.jsx';
+import RiseText from '../components/RiseText.jsx';
 
 const VALUES = [
   {
@@ -44,9 +44,7 @@ export default function About() {
 
       <section className="section">
         <div className="wrap about-lead">
-          <TextAnimate as="h2" by="word" animation="slideUp" duration={0.7}>
-            Learning something new should not depend on who you already know.
-          </TextAnimate>
+          <RiseText as="h2">Learning something new should not depend on who you already know.</RiseText>
           <p className="lede">
             Most people give up on a skill long before they lose interest. They give
             up because help was scattered, expensive, or behind a connection they did

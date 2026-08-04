@@ -1,5 +1,5 @@
-import { TextAnimate } from '../magicui/text-animate.jsx';
 import Reveal from '../Reveal.jsx';
+import RiseText from '../RiseText.jsx';
 
 // SPACE — the original acronym, kept. Copy widened past tutoring so each
 // row covers any skill rather than only coursework, but deliberately left
@@ -41,9 +41,7 @@ export default function WhoWeServe() {
     <section className="section who" id="who-we-serve">
       <div className="wrap">
         <p className="section-label">Who MITEZ Serves</p>
-        <TextAnimate as="h2" by="word" animation="fadeIn" duration={0.7}>
-          Anyone with something they want to learn, or teach.
-        </TextAnimate>
+        <RiseText as="h2">Anyone with something they want to learn, or teach.</RiseText>
         <div className="who-list">
           {ROWS.map((row, i) => (
             <Reveal as="div" variant="left" delay={i * 0.08} key={row.letter} className="who-row">

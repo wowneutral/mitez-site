@@ -1,5 +1,5 @@
-import { TextAnimate } from '../magicui/text-animate.jsx';
 import Reveal from '../Reveal.jsx';
+import RiseText from '../RiseText.jsx';
 
 // Real copy from the live static site's Problem ("The Gap") and Solution
 // ("The Response") sections — carried over, not newly generated.
@@ -53,9 +53,7 @@ export default function ProblemSolution() {
         <div className="wrap problem-grid">
           <div className="problem-left">
             <p className="section-label">The Gap</p>
-            <TextAnimate as="h2" by="word" animation="slideRight" duration={0.7}>
-              Wanting to learn is easy. Finding someone to teach you is not.
-            </TextAnimate>
+            <RiseText as="h2">Wanting to learn is easy. Finding someone to teach you is not.</RiseText>
             {/* Shortened, and the "knowing the right person" clause cut —
                 that was the third appearance of the same idea on one
                 page. The three cards to the right already make the point
@@ -81,9 +79,7 @@ export default function ProblemSolution() {
             <p className="section-label">The Response</p>
             {/* "One place…" belongs here and only here — the homepage
                 intro used to open with the same sentence. */}
-            <TextAnimate as="h2" by="word" animation="slideUp" duration={0.7}>
-              One place, whatever you came to learn.
-            </TextAnimate>
+            <RiseText as="h2">One place, whatever you came to learn.</RiseText>
             <p className="lede">
               One point of contact instead of ten.
             </p>

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Canvas, useFrame } from '@react-three/fiber';
 import Scene from './Scene.jsx';
 import { TextAnimate } from './magicui/text-animate.jsx';
+import RiseText from './RiseText.jsx';
 
 // Target intensities for the hero's three lights — used both as the
 // steady-state value and as the fade-up target below.
@@ -161,16 +162,7 @@ export default function Hero({ onReady }) {
           THE FUTURE OF EDUCATION
         </TextAnimate>
 
-        <TextAnimate
-          as="h1"
-          className="hero-title"
-          by="word"
-          animation="blurInUp"
-          duration={0.9}
-          delay={1.5}
-        >
-          Learning something new shouldn&rsquo;t be this hard.
-        </TextAnimate>
+        <RiseText as="h1" className="hero-title" delay={1.5}>Learning something new shouldn&rsquo;t be this hard.</RiseText>
 
         <TextAnimate
           as="p"

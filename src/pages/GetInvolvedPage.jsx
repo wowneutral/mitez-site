@@ -3,8 +3,8 @@ import SEO from '../components/SEO.jsx';
 import PageHeader from '../components/PageHeader.jsx';
 import Footer from '../components/Footer.jsx';
 import Reveal from '../components/Reveal.jsx';
-import { TextAnimate } from '../components/magicui/text-animate.jsx';
 import { TALLY } from '../config/forms.js';
+import RiseText from '../components/RiseText.jsx';
 
 // Cards that open each Tally form in a new tab — no inline embeds.
 //
@@ -97,9 +97,7 @@ export default function GetInvolvedPage() {
           kept safe, so the link sits here rather than only in the footer. */}
       <section className="section">
         <div className="wrap page-cta">
-          <TextAnimate as="h2" by="word" animation="slideUp" duration={0.7}>
-            Before you sign anyone up.
-          </TextAnimate>
+          <RiseText as="h2">Before you sign anyone up.</RiseText>
           <p className="lede">
             If you are a parent, or you are about to put a student in front of a
             volunteer, read our Terms first. They cover where mentors come from,
