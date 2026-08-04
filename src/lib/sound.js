@@ -34,6 +34,8 @@
  * nobody asked for.
  */
 
+import { soundWasOn, rememberSound } from './session.js';
+
 let ctx = null;
 let master = null;
 let wet = null;
@@ -181,6 +183,71 @@ export function click() {
   osc.stop(now + 0.45);
 }
 
+/**
+ * A wipe. Filtered noise swept downward in pitch, which is what a
+ * physical thing moving past you actually sounds like.
+ *
+ * This is the sound effect the score was missing. Music alone makes a
+ * room; it does not make an event. When five panels sweep off the screen
+ * in silence the biggest move on the site has no weight, and the ear
+ * notices the absence even when the eye does not.
+ */
+export function whoosh() {
+  if (!enabled || !ctx) return;
+  const now = ctx.currentTime;
+  const dur = 1.1;
+
+  const buffer = ctx.createBuffer(1, ctx.sampleRate * dur, ctx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < data.length; i += 1) data[i] = Math.random() * 2 - 1;
+
+  const src = ctx.createBufferSource();
+  src.buffer = buffer;
+
+  // The sweep is the whole effect. A static band of noise is a hiss; one
+  // that falls from 1.8kHz to 180Hz is something passing.
+  const filter = ctx.createBiquadFilter();
+  filter.type = 'bandpass';
+  filter.Q.value = 0.8;
+  filter.frequency.setValueAtTime(1800, now);
+  filter.frequency.exponentialRampToValueAtTime(180, now + dur);
+
+  const gain = ctx.createGain();
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.linearRampToValueAtTime(0.05, now + 0.14);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+
+  src.connect(filter);
+  filter.connect(gain);
+  gain.connect(master);
+  if (ctx.__convolver) gain.connect(ctx.__convolver);
+  src.start(now);
+  src.stop(now + dur);
+}
+
+/**
+ * Pointer entering a real control. Deliberately low, short and quiet —
+ * the version that got scrapped was a 1180Hz ping, which is the register
+ * a smoke alarm uses and about as welcome. This sits under the music
+ * rather than on top of it, and only fires on buttons and calls to
+ * action, never on nav links or headings.
+ */
+export function hover() {
+  if (!enabled || !ctx) return;
+  const now = ctx.currentTime;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = 'sine';
+  osc.frequency.value = 392;
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.linearRampToValueAtTime(0.016, now + 0.01);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.13);
+  osc.connect(gain);
+  gain.connect(master);
+  osc.start(now);
+  osc.stop(now + 0.15);
+}
+
 export function isEnabled() {
   return enabled;
 }
@@ -226,6 +293,34 @@ export function toggle() {
     setTimeout(stopScore, 1700);
   }
 
+  rememberSound(enabled);
   listeners.forEach((fn) => fn(enabled));
   return enabled;
+}
+
+/**
+ * Bring the music back after a reload.
+ *
+ * A refresh destroys the audio context, and no browser will let a fresh
+ * page start audio on its own — so "the music should not stop when I
+ * refresh" cannot be honoured literally. What can be honoured: if this
+ * tab had sound on, wait silently for the next thing the visitor does
+ * and resume on that. In practice the music returns on the first scroll
+ * or click, a second or two in, with nothing to click and no second
+ * ENTER screen.
+ *
+ * The listeners are once-only and passive, and they remove themselves
+ * whichever one fires.
+ */
+export function resumeIfPreviouslyOn() {
+  if (!soundWasOn() || enabled) return () => {};
+
+  const events = ['pointerdown', 'keydown', 'wheel', 'touchstart'];
+  const start = () => {
+    events.forEach((e) => window.removeEventListener(e, start));
+    if (!enabled) toggle();
+  };
+  events.forEach((e) => window.addEventListener(e, start, { once: true, passive: true }));
+
+  return () => events.forEach((e) => window.removeEventListener(e, start));
 }

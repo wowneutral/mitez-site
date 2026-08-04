@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import SoundToggle from './SoundToggle.jsx';
+import { triggerSweep } from './PanelSweep.jsx';
 
 const LINKS = [
   { to: '/how-it-works', label: 'How It Works' },
@@ -45,7 +46,18 @@ export default function Nav() {
   return (
     <header className={`nav${scrolled ? ' is-scrolled' : ''}`}>
       <div className="wrap nav-inner">
-        <Link to="/" className="nav-logo" aria-label="MITEZ home">
+        {/* The logo always plays the reveal, including when it is
+            clicked from the homepage. React Router reports no change in
+            that case and the route effect would never fire, but the
+            visitor asked for something and should see it happen. */}
+        <Link
+          to="/"
+          className="nav-logo"
+          aria-label="MITEZ home"
+          onClick={() => {
+            if (pathname === '/') triggerSweep();
+          }}
+        >
           MITEZ
         </Link>
 

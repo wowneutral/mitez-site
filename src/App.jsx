@@ -5,7 +5,9 @@ import SEO from './components/SEO.jsx';
 import Nav from './components/Nav.jsx';
 import Footer from './components/Footer.jsx';
 import ScrollProgress from './components/ScrollProgress.jsx';
+import PanelSweep from './components/PanelSweep.jsx';
 import { useSmoothScroll, getLenis } from './lib/smoothScroll.js';
+import { resumeIfPreviouslyOn, hover, click } from './lib/sound.js';
 // Routes are split so a visitor reading the Terms does not download a 3D
 // engine. Home stays eagerly imported because it is the common entry point
 // and splitting it would only add a round trip before the hero appears;
@@ -87,10 +89,49 @@ export default function App() {
   useSmoothScroll();
   const { pathname } = useLocation();
 
+  // A reload destroys the audio context and no browser will let a fresh
+  // page start audio unprompted, so the music genuinely cannot survive a
+  // refresh. What it can do is come back on its own: if this tab had
+  // sound on, the next scroll or click resumes it, with nothing to press
+  // and no second entry screen.
+  useEffect(() => resumeIfPreviouslyOn(), []);
+
+  // Button sounds, by delegation.
+  //
+  // Two listeners on the document rather than handlers on every button:
+  // the previous version attached its own to each control, which meant
+  // React state and event wiring per element, and the buttons on this
+  // site are created in half a dozen different components. Delegation
+  // also means anything added later is covered without being told.
+  //
+  // Only .btn — real calls to action. Nav links, headings and cards stay
+  // silent. Sound on everything is what made the last attempt a rattle.
+  useEffect(() => {
+    const onOver = (e) => {
+      const btn = e.target.closest?.('.btn');
+      if (!btn) return;
+      // pointerover fires again for every child element inside the
+      // button. Ignoring moves that stay within the same control is what
+      // stops one hover making three sounds.
+      if (btn.contains(e.relatedTarget)) return;
+      hover();
+    };
+    const onClick = (e) => {
+      if (e.target.closest?.('.btn')) click();
+    };
+    document.addEventListener('pointerover', onOver, { passive: true });
+    document.addEventListener('click', onClick, { passive: true });
+    return () => {
+      document.removeEventListener('pointerover', onOver);
+      document.removeEventListener('click', onClick);
+    };
+  }, []);
+
   return (
     <>
       <ScrollToTop />
       <ScrollProgress />
+      <PanelSweep />
       <Nav />
       {/* A blank fallback rather than a spinner: these chunks are small and
           a flash of loading UI is worse than a beat of nothing. */}

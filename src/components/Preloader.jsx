@@ -1,61 +1,66 @@
 import { useEffect, useRef, useState } from 'react';
 import { enable as enableSound } from '../lib/sound.js';
+import { hasEntered, markEntered } from '../lib/session.js';
 
 /**
  * The intro.
  *
- * WHY THIS IS AN ENTRY SCREEN AND NOT A LOADING SCREEN.
- * The two previous versions were loading screens: something to look at
- * while you wait, which then gets out of the way. That is why they read
- * as generic no matter what shape was drawn on them — a spinner, a bar
- * and a ring are all the same idea.
+ * WHY AN ENTRY SCREEN AND NOT A LOADING SCREEN. A loading screen is
+ * something to look at while you wait, which then gets out of the way —
+ * a spinner, a bar and a centred ring are all the same idea. This is a
+ * threshold instead: the site loads, then it waits for YOU, and the
+ * click that crosses it is what starts the music. That is not
+ * decoration. Browsers block audio until a real user gesture, so a site
+ * with intro music must have a button, which means the button may as
+ * well be the best moment on the page.
  *
- * The studio sites do something structurally different. They make the
- * wait into a threshold you cross deliberately: the site loads, and then
- * it waits for YOU, and the click that begins it also begins the music.
- * That is not decoration, it is the only way the music can exist at all.
- * Every browser blocks audio until a real user gesture, so a site with
- * intro music must have a button, and the button therefore has to be
- * designed rather than apologised for. The entry screen is what turns a
- * technical constraint into the best moment on the page.
+ * THE COMPOSITION. The previous version put a small wordmark dead centre
+ * and a dial in one corner, and it looked like two unrelated objects
+ * floating in an empty field, because that is what it was. This is built
+ * on the same margin the rest of the site uses, with four anchors:
  *
- * THE SHAPE OF IT
- *  - Wordmark centred, letters drawing together.
- *  - A progress circle in the bottom left, with the count inside it. It
- *    runs to a genuine 100 and holds there.
- *  - At 100 the circle becomes the ENTER button. The same object that
- *    measured the wait is the one you press: nothing new appears, it
- *    changes state. That is what makes it feel like one designed thing
- *    instead of a loader followed by a prompt.
- *  - Clicking it starts the score and lifts five vertical panels off the
- *    screen in sequence, revealing a hero that is already in motion.
- *    Panels rather than a fade because a fade is one event, and five
- *    staggered panels are a move with a direction.
+ *    top left      the wordmark, letters drawing together
+ *    centre        the promise, one line, at real size
+ *    bottom left   where and what, in small caps
+ *    bottom right  the dial: progress, then ENTER
  *
- * THE SAFETY VALVE
- * An entry screen that requires a click is a wall for anyone who does
- * not click: a parent who opened this on a phone, put it down and came
- * back, or anyone using assistive tech that lands somewhere unexpected.
- * So after 10 seconds sitting at 100 it enters itself, silently. The
- * door opens on its own if nobody opens it.
+ * Corners hold a composition together the way a frame does. Two floating
+ * elements read as unfinished no matter how nicely each one is drawn,
+ * and that was the actual problem — not the shape of the circle.
+ *
+ * ONCE PER TAB. Crossing it again because you pressed reload is a toll
+ * booth, so a refresh skips straight through and PanelSweep plays the
+ * short version instead.
  */
-const MIN_MS = 1400;
+const MIN_MS = 1500;
 const MAX_MS = 9000;
 const AUTO_ENTER_MS = 10000;
 const EXIT_MS = 1500;
 
-const R = 32;
+const R = 34;
 const CIRC = 2 * Math.PI * R;
 
 export default function Preloader({ ready, onEnter }) {
+  // Read once, on mount, so the value cannot change under the component
+  // mid-sequence.
+  const skip = useRef(hasEntered());
+
   const [minElapsed, setMinElapsed] = useState(false);
   const [timedOut, setTimedOut] = useState(false);
   const [progress, setProgress] = useState(0);
   const [entering, setEntering] = useState(false);
-  const [unmounted, setUnmounted] = useState(false);
+  const [unmounted, setUnmounted] = useState(skip.current);
   const enterRef = useRef(null);
 
+  // Returning within the same tab: no gate, no counter, nothing to
+  // press. The page is simply there.
   useEffect(() => {
+    if (!skip.current) return;
+    onEnter?.();
+  }, [onEnter]);
+
+  useEffect(() => {
+    if (skip.current) return undefined;
     const a = setTimeout(() => setMinElapsed(true), MIN_MS);
     const b = setTimeout(() => setTimedOut(true), MAX_MS);
     return () => {
@@ -67,17 +72,17 @@ export default function Preloader({ ready, onEnter }) {
   const loaded = (ready && minElapsed) || timedOut;
 
   // Real progress. It eases toward 92 while the Spline scene streams,
-  // then runs all the way to a hard 100 once the page actually is ready
-  // — and it must be seen to arrive. A progress indicator that stops at
-  // 92 and disappears is worse than no indicator, because the one thing
-  // it promised is the one thing it did not do.
+  // then runs hard to a genuine 100 once the page is ready. A progress
+  // indicator that stops short and disappears is worse than none at all,
+  // because the single thing it promised is the thing it did not do.
   useEffect(() => {
+    if (skip.current) return undefined;
     let frame;
     const tick = () => {
       setProgress((p) => {
         const ceiling = loaded ? 100 : 92;
-        const next = p + (ceiling - p) * (loaded ? 0.12 : 0.035);
-        return next > 99.5 ? 100 : next;
+        const next = p + (ceiling - p) * (loaded ? 0.14 : 0.035);
+        return next > 99.4 ? 100 : next;
       });
       frame = requestAnimationFrame(tick);
     };
@@ -87,8 +92,6 @@ export default function Preloader({ ready, onEnter }) {
 
   const complete = progress >= 100;
 
-  // Move focus to the button the moment it becomes one, so the intro can
-  // be crossed with a keyboard without hunting for what to press.
   useEffect(() => {
     if (complete && !entering) enterRef.current?.focus({ preventScroll: true });
   }, [complete, entering]);
@@ -101,16 +104,14 @@ export default function Preloader({ ready, onEnter }) {
 
   useEffect(() => {
     if (!entering) return undefined;
-    // Told once, from here, so the click path and the auto-enter
-    // failsafe both announce the crossing the same way.
+    markEntered();
     onEnter?.();
     const t = setTimeout(() => setUnmounted(true), EXIT_MS);
     return () => clearTimeout(t);
   }, [entering, onEnter]);
 
-  // Nothing scrolls until the threshold is crossed.
   useEffect(() => {
-    if (entering) return undefined;
+    if (skip.current || entering) return undefined;
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     return () => {
@@ -120,13 +121,20 @@ export default function Preloader({ ready, onEnter }) {
 
   function handleEnter() {
     if (entering) return;
-    // Order matters: the audio context has to be created inside the
-    // handler for the browser to accept the gesture as permission.
+    // The audio context must be created inside the handler for the
+    // browser to accept the gesture as permission.
     enableSound();
     setEntering(true);
   }
 
   if (unmounted) return null;
+
+  // Snapped to exactly zero at completion rather than left to arithmetic.
+  // The ring was ending a few degrees short: the dash offset was
+  // computed from a progress value that only asymptotically approached
+  // its ceiling, so the last fraction of a percent, invisible in the
+  // number, was very visible as a gap in the stroke.
+  const dashOffset = complete ? 0 : CIRC * (1 - progress / 100);
 
   return (
     <div
@@ -134,15 +142,27 @@ export default function Preloader({ ready, onEnter }) {
       role="dialog"
       aria-label="Enter MITEZ"
     >
-      {/* The panels ARE the screen. Each lifts on its own delay. */}
       <div className="intro-panels" aria-hidden="true">
         <i /><i /><i /><i /><i />
       </div>
 
       <div className="intro-ui">
-        <div className="intro-word">MITEZ</div>
+        <div className="intro-mark">MITEZ</div>
+
+        <p className="intro-line">
+          <span>Free mentorship</span>
+          <span>in anything you</span>
+          <span>want to learn.</span>
+        </p>
+
+        <div className="intro-meta">
+          <span>Gainesville, Florida</span>
+          <span>Est. 2026</span>
+        </div>
 
         <div className="intro-corner">
+          <p className="intro-hint">{complete ? 'Best with sound' : 'Loading'}</p>
+
           <button
             type="button"
             ref={enterRef}
@@ -151,26 +171,22 @@ export default function Preloader({ ready, onEnter }) {
             disabled={!complete}
             aria-label={complete ? 'Enter, with sound' : 'Loading'}
           >
-            <svg viewBox="0 0 80 80" aria-hidden="true">
-              <g transform="rotate(-90 40 40)">
-                <circle className="intro-dial-bg" cx="40" cy="40" r={R} />
+            <svg viewBox="0 0 84 84" aria-hidden="true">
+              <g transform="rotate(-90 42 42)">
+                <circle className="intro-dial-bg" cx="42" cy="42" r={R} />
                 <circle
                   className="intro-dial-fg"
-                  cx="40"
-                  cy="40"
+                  cx="42"
+                  cy="42"
                   r={R}
                   strokeDasharray={CIRC}
-                  strokeDashoffset={CIRC * (1 - progress / 100)}
+                  strokeDashoffset={dashOffset}
                 />
               </g>
             </svg>
             <span className="intro-num" aria-hidden="true">{Math.round(progress)}</span>
             <span className="intro-enter" aria-hidden="true">Enter</span>
           </button>
-
-          <p className="intro-hint" aria-hidden="true">
-            {complete ? 'Best with sound' : 'Loading'}
-          </p>
         </div>
       </div>
     </div>
