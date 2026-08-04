@@ -190,6 +190,16 @@ export function subscribe(fn) {
   return () => listeners.delete(fn);
 }
 
+/**
+ * Turn the score on directly, rather than flipping whatever the current
+ * state is. The intro uses this: clicking ENTER must always start the
+ * music, never stop it.
+ */
+export function enable() {
+  if (enabled) return true;
+  return toggle();
+}
+
 export function toggle() {
   enabled = !enabled;
 

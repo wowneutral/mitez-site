@@ -25,65 +25,116 @@
    in. Uses the site's own background colour so the handoff to the loaded
    page is a dissolve rather than a colour change. pointer-events drop as
    soon as it starts fading so it never blocks a click during the fade. */
-.preloader {
+/* ============================================================
+   THE INTRO
+   Not a loading screen. A threshold: the site loads, then waits
+   for you, and the click that crosses it is what starts the
+   music. Browsers block audio until a real gesture, so a site
+   with intro music must have a button — this makes that button
+   the best moment on the page instead of an apology.
+   ============================================================ */
+.intro {
   position: fixed;
   inset: 0;
   z-index: 100;
+  overflow: hidden;
+}
+
+.intro.is-entering { pointer-events: none; }
+
+/* ---- The panels ----------------------------------------------------
+   Five columns that together make the screen. On exit each lifts on its
+   own delay, left to right, so the reveal has a direction and a rhythm.
+   A single fading panel is one event; five staggered ones are a move.
+
+   translateY only, so this is compositor work: the panels are drawn once
+   and then moved, which is why it stays smooth while the Spline scene is
+   still settling underneath. */
+.intro-panels {
+  position: absolute;
+  inset: 0;
   display: flex;
-  align-items: center;
-  justify-content: center;
+}
+
+.intro-panels i {
+  flex: 1;
   background: var(--bg-deep);
-
-  /* THE APERTURE.
-     The overlay is clipped to a circle centred where the ring sits. At
-     rest that circle is bigger than the screen, so the overlay is simply
-     a full-bleed panel and nothing looks clipped. On exit the circle
-     shrinks to nothing, so the loading screen closes down onto its own
-     ring like a lens rather than fading or sliding out of the way.
-
-     The hero underneath is already a second into its own entrance by
-     then, so what you see is one continuous move that happens to pass
-     through both, instead of a loader ending and a page starting.
-
-     clip-path animates on the compositor, so this costs nothing to run
-     even while the Spline scene is streaming behind it. */
-  clip-path: circle(150% at 50% 50%);
-  transition: clip-path 1.5s cubic-bezier(0.76, 0, 0.24, 1),
-              opacity 0.4s ease 1.2s;
+  transform: translateY(0);
+  transition: transform 1.15s cubic-bezier(0.76, 0, 0.24, 1);
+  /* A hairline of overlap. Sub-pixel rounding between five flex children
+     otherwise leaves visible seams as they move. */
+  margin-right: -1px;
 }
 
-.preloader.is-done {
-  clip-path: circle(0% at 50% 50%);
-  opacity: 0;
-  pointer-events: none;
-}
+.intro.is-entering .intro-panels i { transform: translateY(-101%); }
+.intro.is-entering .intro-panels i:nth-child(1) { transition-delay: 0s; }
+.intro.is-entering .intro-panels i:nth-child(2) { transition-delay: 0.06s; }
+.intro.is-entering .intro-panels i:nth-child(3) { transition-delay: 0.12s; }
+.intro.is-entering .intro-panels i:nth-child(4) { transition-delay: 0.18s; }
+.intro.is-entering .intro-panels i:nth-child(5) { transition-delay: 0.24s; }
 
-/* The contents leave slightly ahead of the aperture closing. That small
-   offset between the two is what reads as a camera move rather than one
-   element being switched off. */
-.preloader-inner {
-  transition: opacity 0.6s ease, transform 1s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.preloader.is-done .preloader-inner {
-  opacity: 0;
-  transform: scale(0.92);
-}
-
-/* ---- The ring ------------------------------------------------------
-   A shape rather than a readout. A bar filling left to right is the most
-   generic loading graphic there is, and a large percentage counter is
-   the second; both also point sideways, which fights the reveal that
-   follows. This points nowhere, and it becomes the aperture. */
-.preloader-ring {
-  position: relative;
-  width: clamp(120px, 22vw, 190px);
-  height: clamp(120px, 22vw, 190px);
+/* ---- Everything on top of them -------------------------------------- */
+.intro-ui {
+  position: absolute;
+  inset: 0;
   display: grid;
   place-items: center;
+  transition: opacity 0.5s ease, transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.preloader-ring svg {
+/* The UI leaves before the panels do. That head start is what makes the
+   panels read as a curtain rather than as boxes with text on them. */
+.intro.is-entering .intro-ui {
+  opacity: 0;
+  transform: translateY(-14px);
+}
+
+.intro-word {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: clamp(15px, 2vw, 20px);
+  letter-spacing: 0.28em;
+  text-indent: 0.28em;
+  color: var(--ink);
+  opacity: 0;
+  animation: intro-word-in 1.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes intro-word-in {
+  from { opacity: 0; letter-spacing: 0.62em; text-indent: 0.62em; }
+  to { opacity: 1; letter-spacing: 0.28em; text-indent: 0.28em; }
+}
+
+/* ---- Bottom left ---------------------------------------------------- */
+.intro-corner {
+  position: absolute;
+  left: clamp(24px, 6vw, 80px);
+  bottom: clamp(24px, 6vw, 64px);
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+/* The dial measures the wait and then becomes the way through it. The
+   same object doing both jobs is what stops this reading as a loader
+   followed by a prompt. */
+.intro-dial {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  cursor: default;
+  border-radius: 50%;
+}
+
+.intro.is-complete .intro-dial { cursor: pointer; }
+
+.intro-dial svg {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -91,207 +142,90 @@
   overflow: visible;
 }
 
-.preloader-ring circle {
+.intro-dial circle {
   fill: none;
   stroke-width: 1.25;
   vector-effect: non-scaling-stroke;
 }
 
-.preloader-ring-bg { stroke: rgba(22, 24, 29, 0.13); }
+.intro-dial-bg { stroke: rgba(22, 24, 29, 0.14); }
 
-.preloader-ring-fg {
+.intro-dial-fg {
   stroke: var(--ink);
   stroke-linecap: round;
-  /* No CSS transition on the dash offset: it is driven every frame from
-     real load progress, and a transition on top of that would smear two
-     easings together and always lag the truth. */
+  /* No transition: the offset is driven every frame from real progress,
+     and easing on top of that would always lag the truth. */
 }
 
-/* Letters start wide and draw together as they fade up — a restrained
-   title-card feel, no bounce or overshoot. */
-.preloader-word {
+/* A disc that grows from the centre on hover, behind the label. */
+.intro-dial::before {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border-radius: 50%;
+  background: var(--ink);
+  transform: scale(0);
+  transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.intro.is-complete .intro-dial:hover::before,
+.intro.is-complete .intro-dial:focus-visible::before { transform: scale(1); }
+
+.intro.is-complete .intro-dial:hover .intro-enter,
+.intro.is-complete .intro-dial:focus-visible .intro-enter { color: var(--bg-deep); }
+
+.intro-dial:focus-visible { outline: none; }
+
+/* The count and the word occupy the same spot and swap. The number
+   counts up, hits 100, holds for a beat, and is replaced in place by the
+   thing you press. */
+.intro-num,
+.intro-enter {
+  position: relative;
   font-family: var(--display);
   font-weight: 600;
-  font-size: clamp(13px, 1.6vw, 16px);
-  letter-spacing: 0.28em;
-  text-indent: 0.28em;
-  color: var(--ink);
-  opacity: 0;
-  animation: preloader-word-in 1.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-
-@keyframes preloader-word-in {
-  from { opacity: 0; letter-spacing: 0.62em; text-indent: 0.62em; }
-  to { opacity: 1; letter-spacing: 0.28em; text-indent: 0.28em; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .preloader { transition: opacity 0.3s ease; clip-path: none; }
-  .preloader.is-done { clip-path: none; }
-  .preloader-word { animation: none; opacity: 1; }
-  .preloader-inner { transition: none; }
-}
-
-html:not(.lenis) { scroll-behavior: smooth; }
-section[id] { scroll-margin-top: 32px; }
-
-/* Required by Lenis: it manages scroll on the window, so the document
-   must be free to be as tall as it is. */
-html.lenis, html.lenis body { height: auto; }
-.lenis.lenis-smooth { scroll-behavior: auto !important; }
-.lenis.lenis-stopped { overflow: hidden; }
-
-@media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
-}
-
-/* ---------- Reading progress ----------------------------------------
-   Fixed hairline across the top. Sits above the nav's own stacking
-   context so it stays visible once the nav picks up its background. */
-.scroll-progress {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  z-index: 70;
-  background: var(--ink);
-  transform: scaleX(0);
-  transform-origin: 0 50%;
-  pointer-events: none;
-}
-
-/* ---------- Masked word reveal (RiseText) ---------------------------
-   The mask is the whole point: the word is clipped by its own box and
-   rises into it, so nothing is ever visible in a wrong position.
-
-   The padding/margin pair matters more than it looks. overflow: hidden
-   on a tight line-height clips descenders, so "Anything you ask" loses
-   the tails of its g and y for the length of the animation. The padding
-   gives the mask room to contain them and the equal negative margin
-   takes that space back out of the layout, so the type sits exactly
-   where it did before. */
-.rise-word {
-  display: inline-block;
-  overflow: hidden;
-  vertical-align: bottom;
-  padding-bottom: 0.16em;
-  margin-bottom: -0.16em;
-}
-
-/* No will-change here, deliberately, and this was a real bug rather than
-   a preference. will-change promotes an element to its own compositor
-   layer and keeps it there. Every word of every heading on the site is
-   one of these, well over a hundred elements, so a hint meant to smooth
-   one animation was instead holding a hundred-odd GPU layers resident
-   for the life of the page. That is a permanent memory and compositing
-   cost paid for an animation that runs once, and it is one of the more
-   common ways to make a page slower by trying to make it faster. Motion
-   promotes what it is animating only while it animates it. */
-.rise-word-in {
-  display: inline-block;
-}
-
-/* ---------- Scroll band ----------------------------------------------
-   Full-bleed type that travels sideways as the page travels down. It is
-   texture rather than content: low contrast, aria-hidden, and it must
-   never be mistaken for something to read. The overflow clip on the
-   parent is what lets the track be wider than the screen without
-   producing a horizontal scrollbar. */
-.band {
-  overflow: hidden;
-  width: 100%;
-  padding: clamp(28px, 5vw, 60px) 0;
-  pointer-events: none;
-  user-select: none;
-  /* Nothing inside can affect layout or painting outside it, so a very
-     wide moving strip does not drag the rest of the page into its work
-     on every frame. */
-  contain: layout paint;
-}
-
-.band-track {
-  display: flex;
-  align-items: center;
-  gap: clamp(24px, 4vw, 60px);
-  width: max-content;
-  transform: translateZ(0);
-}
-
-.band-item {
-  display: inline-flex;
-  align-items: center;
-  gap: clamp(24px, 4vw, 60px);
-  white-space: nowrap;
-  font-family: var(--display);
-  /* Capped well below the old 132px. A strip this wide rasterises as one
-     very large texture and the cost scales with its area, so this
-     ceiling is a performance number as much as a typographic one. */
-  font-size: clamp(34px, 6vw, 88px);
-  font-weight: 300;
   line-height: 1;
-  letter-spacing: -0.02em;
-  /* Low enough to sit behind the reading, high enough to register as
-     deliberate rather than as a rendering artefact. */
-  color: rgba(22, 24, 29, 0.11);
+  transition: opacity 0.45s ease, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.band-dot { font-size: 0.4em; color: rgba(22, 24, 29, 0.16); }
+.intro-num {
+  font-size: 26px;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
 
-/* On the dark Pilot/Final sections the same band has to invert. */
-.band-on-dark .band-item { color: rgba(242, 242, 242, 0.13); }
-.band-on-dark .band-dot { color: rgba(242, 242, 242, 0.18); }
-
-/* ---------- Sound toggle ---------------------------------------------
-   Off / On stated as words. A speaker icon with a slash through it is
-   ambiguous — it reads equally as "sound is muted" and as "click to
-   mute" — and this control is the one thing on the page that must not
-   be ambiguous, because the wrong guess makes noise in a quiet room. */
-.sound-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  background: none;
-  border: none;
-  padding: 6px 2px;
-  cursor: pointer;
-  font-family: var(--display);
+.intro-enter {
+  position: absolute;
   font-size: 12px;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.45s ease 0.35s, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.35s, color 0.4s ease;
+}
+
+.intro.is-complete .intro-num { opacity: 0; transform: translateY(-8px); }
+.intro.is-complete .intro-enter { opacity: 1; transform: translateY(0); }
+
+.intro-hint {
+  font-family: var(--display);
+  font-size: 11px;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--muted);
-  transition: color 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.sound-toggle:hover { color: var(--ink); }
-.sound-toggle.is-on { color: var(--ink); }
-
-.sound-bars { display: flex; align-items: flex-end; gap: 2px; height: 11px; }
-
-.sound-bars i {
-  width: 2px;
-  height: 3px;
-  background: currentColor;
-  transition: height 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-/* The bars only move while sound is actually on, so the control doubles
-   as an indicator you can read from across the page. */
-.sound-toggle.is-on .sound-bars i { animation: sound-eq 0.9s ease-in-out infinite alternate; }
-.sound-toggle.is-on .sound-bars i:nth-child(2) { animation-delay: 0.15s; }
-.sound-toggle.is-on .sound-bars i:nth-child(3) { animation-delay: 0.3s; }
-
-@keyframes sound-eq {
-  from { height: 3px; }
-  to { height: 11px; }
+  transition: opacity 0.4s ease;
 }
 
 @media (max-width: 640px) {
-  .sound-label { display: none; }
+  .intro-dial { width: 82px; height: 82px; }
+  .intro-hint { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .sound-toggle.is-on .sound-bars i { animation: none; height: 8px; }
+  .intro-panels i { transition: opacity 0.4s ease; }
+  .intro.is-entering .intro-panels i { transform: none; opacity: 0; }
+  .intro-word { animation: none; opacity: 1; }
+  .intro-num, .intro-enter, .intro-ui, .intro-dial::before { transition: none; }
 }
 
 .sr-only {
@@ -1108,7 +1042,16 @@ footer { padding: 70px 0 40px; }
 .tally-loading-bar { display: block; width: 160px; height: 2px; background: rgba(22,24,29,0.12); overflow: hidden; position: relative; }
 .tally-loading-bar::after {
   content: ""; position: absolute; inset: 0; width: 40%; background: var(--ink);
-  animation: preloader-sweep 1.6s ease-in-out infinite;
+  animation: sweep 1.6s ease-in-out infinite;
+}
+
+/* Defined here rather than borrowed from the intro, which is where this
+   keyframe used to live. The intro no longer has a sweeping bar, and a
+   shared name across two unrelated components is how an animation
+   quietly stops working when the other one is rewritten. */
+@keyframes sweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(350%); }
 }
 .tally-fallback { color: var(--muted); font-size: 14px; margin-top: 10px; }
 .tally-placeholder {

@@ -30,14 +30,27 @@ export default function Home() {
   // Stable identity so ReadySignal's effect doesn't re-fire on every render.
   const handleReady = useCallback(() => setReady(true), []);
 
+  // Crossing the intro threshold replays the hero's entrance.
+  //
+  // Without this the hero animates on mount, behind the panels, and has
+  // long finished by the time anyone presses Enter — so the curtain
+  // lifts on a hero sitting perfectly still, which is the exact opposite
+  // of the handoff the intro is for.
+  //
+  // It is a remount rather than a delayed render on purpose: the copy is
+  // in the DOM the whole time either way, so a crawler that never clicks
+  // Enter still sees the h1 and the lede.
+  const [entered, setEntered] = useState(false);
+  const handleEnter = useCallback(() => setEntered(true), []);
+
   return (
     <main>
       <SEO
         description="MITEZ is free mentorship and hands-on support for anything you want to learn, tutoring, life skills, career skills, and more. Based in Gainesville, Florida, open to anyone who asks."
         path="/"
       />
-      <Preloader ready={ready} />
-      <Hero onReady={handleReady} />
+      <Preloader ready={ready} onEnter={handleEnter} />
+      <Hero onReady={handleReady} started={entered} />
 
       <section className="section">
         <div className="wrap">

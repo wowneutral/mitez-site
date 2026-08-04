@@ -97,7 +97,7 @@ function useOnScreen(ref) {
   return visible;
 }
 
-export default function Hero({ onReady }) {
+export default function Hero({ onReady, started = false }) {
   const canvasWrap = useRef(null);
   const active = useOnScreen(canvasWrap);
 
@@ -150,7 +150,12 @@ export default function Hero({ onReady }) {
           eyebrow arrives as the lights finish fading up, title mid-dolly,
           lede and actions as the camera settles into its final frame. */}
       <div className="wrap">
-      <div className="hero-content">
+      {/* Keyed on the intro. Crossing the threshold remounts this block,
+          which restarts the copy's entrance so it plays as the panels
+          lift rather than having finished behind them. The text is
+          rendered in both states, so nothing is hidden from a crawler
+          that never presses Enter. */}
+      <div className="hero-content" key={started ? 'entered' : 'initial'}>
         <TextAnimate
           as="p"
           className="eyebrow"
