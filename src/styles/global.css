@@ -34,12 +34,19 @@
   justify-content: center;
   background: var(--bg-deep);
   opacity: 1;
-  /* Slow, eased dissolve rather than a quick cut. */
-  transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  /* The exit is long, and it moves. A dissolve alone is a cut with a
+     fade on it; adding a slow drift and a fractional scale means the
+     overlay leaves like a camera pulling back off the shot, while the
+     hero underneath is already partway through its own entrance. The
+     two overlap, which is what makes it read as one continuous move. */
+  transform: scale(1);
+  transition: opacity 1.5s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 1.6s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .preloader.is-done {
   opacity: 0;
+  transform: scale(1.06) translateY(-2.5%);
   pointer-events: none;
 }
 
@@ -94,12 +101,34 @@
 
 /* Indeterminate: the scene's load has no real progress events to read, so
    showing a fake percentage would be dishonest. This sweeps instead. */
+/* Was an indeterminate sweep, which is decoration: it moves whether or
+   not anything is happening. This is now driven by the real counter, so
+   the bar is a measurement. An honest progress bar is worth more than a
+   pretty one — the sweep implied progress it had no knowledge of. */
 .preloader-fill {
   display: block;
-  width: 40%;
+  width: 100%;
   height: 100%;
   background: var(--ink);
-  animation: preloader-sweep 1.6s ease-in-out infinite;
+  transform-origin: 0 50%;
+  transform: scaleX(0);
+}
+
+/* The number sits in the corner rather than under the wordmark, so the
+   composition has two anchors instead of one centred stack. */
+.preloader-count {
+  position: absolute;
+  right: clamp(24px, 6vw, 80px);
+  bottom: clamp(24px, 6vw, 64px);
+  font-family: var(--display);
+  font-size: clamp(40px, 9vw, 104px);
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  opacity: 0;
+  animation: preloader-track-in 0.9s ease 0.35s forwards;
+  font-variant-numeric: tabular-nums;
 }
 
 @keyframes preloader-sweep {
@@ -170,6 +199,104 @@ html.lenis, html.lenis body { height: auto; }
 .rise-word-in {
   display: inline-block;
   will-change: transform;
+}
+
+/* ---------- Scroll band ----------------------------------------------
+   Full-bleed type that travels sideways as the page travels down. It is
+   texture rather than content: low contrast, aria-hidden, and it must
+   never be mistaken for something to read. The overflow clip on the
+   parent is what lets the track be wider than the screen without
+   producing a horizontal scrollbar. */
+.band {
+  overflow: hidden;
+  width: 100%;
+  padding: clamp(28px, 5vw, 60px) 0;
+  pointer-events: none;
+  user-select: none;
+}
+
+.band-track {
+  display: flex;
+  align-items: center;
+  gap: clamp(24px, 4vw, 60px);
+  width: max-content;
+  will-change: transform;
+}
+
+.band-item {
+  display: inline-flex;
+  align-items: center;
+  gap: clamp(24px, 4vw, 60px);
+  white-space: nowrap;
+  font-family: var(--display);
+  font-size: clamp(40px, 9vw, 132px);
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  /* Low enough to sit behind the reading, high enough to register as
+     deliberate rather than as a rendering artefact. */
+  color: rgba(22, 24, 29, 0.11);
+}
+
+.band-dot { font-size: 0.4em; color: rgba(22, 24, 29, 0.16); }
+
+/* On the dark Pilot/Final sections the same band has to invert. */
+.band-on-dark .band-item { color: rgba(242, 242, 242, 0.13); }
+.band-on-dark .band-dot { color: rgba(242, 242, 242, 0.18); }
+
+/* ---------- Magnetic controls ---------------------------------------- */
+.magnetic { display: inline-block; will-change: transform; }
+
+/* ---------- Sound toggle ---------------------------------------------
+   Off / On stated as words. A speaker icon with a slash through it is
+   ambiguous — it reads equally as "sound is muted" and as "click to
+   mute" — and this control is the one thing on the page that must not
+   be ambiguous, because the wrong guess makes noise in a quiet room. */
+.sound-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  background: none;
+  border: none;
+  padding: 6px 2px;
+  cursor: pointer;
+  font-family: var(--display);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  transition: color 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.sound-toggle:hover { color: var(--ink); }
+.sound-toggle.is-on { color: var(--ink); }
+
+.sound-bars { display: flex; align-items: flex-end; gap: 2px; height: 11px; }
+
+.sound-bars i {
+  width: 2px;
+  height: 3px;
+  background: currentColor;
+  transition: height 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* The bars only move while sound is actually on, so the control doubles
+   as an indicator you can read from across the page. */
+.sound-toggle.is-on .sound-bars i { animation: sound-eq 0.9s ease-in-out infinite alternate; }
+.sound-toggle.is-on .sound-bars i:nth-child(2) { animation-delay: 0.15s; }
+.sound-toggle.is-on .sound-bars i:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes sound-eq {
+  from { height: 3px; }
+  to { height: 11px; }
+}
+
+@media (max-width: 640px) {
+  .sound-label { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sound-toggle.is-on .sound-bars i { animation: none; height: 8px; }
 }
 
 .sr-only {

@@ -4,6 +4,7 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import Scene from './Scene.jsx';
 import { TextAnimate } from './magicui/text-animate.jsx';
 import RiseText from './RiseText.jsx';
+import Magnetic from './Magnetic.jsx';
 
 // Target intensities for the hero's three lights — used both as the
 // steady-state value and as the fade-up target below.
@@ -183,12 +184,16 @@ export default function Hero({ onReady }) {
             the dedicated pages instead means the destination is a whole
             page about that subject, and Back returns them here. */}
         <div className="hero-actions hero-actions-reveal">
-          <Link className="btn btn-primary" to="/get-involved">
-            Get Involved
-          </Link>
-          <Link className="btn btn-ghost" to="/how-it-works">
-            How It Works
-          </Link>
+          <Magnetic>
+            <Link className="btn btn-primary" to="/get-involved">
+              Get Involved
+            </Link>
+          </Magnetic>
+          <Magnetic>
+            <Link className="btn btn-ghost" to="/how-it-works">
+              How It Works
+            </Link>
+          </Magnetic>
         </div>
       </div>
       </div>

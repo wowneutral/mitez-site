@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
+import SoundToggle from './SoundToggle.jsx';
+import { play } from '../lib/sound.js';
 
 const LINKS = [
   { to: '/how-it-works', label: 'How It Works' },
@@ -53,11 +55,13 @@ export default function Nav() {
             <NavLink
               key={l.to}
               to={l.to}
+              onPointerEnter={() => play('hover')}
               className={({ isActive }) => `nav-link${isActive ? ' is-active' : ''}`}
             >
               {l.label}
             </NavLink>
           ))}
+          <SoundToggle />
         </nav>
 
         <button

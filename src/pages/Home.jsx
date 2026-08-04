@@ -12,6 +12,7 @@ import FounderNote from '../components/sections/FounderNote.jsx';
 import GetInvolved from '../components/sections/GetInvolved.jsx';
 import FinalCta from '../components/sections/FinalCta.jsx';
 import Footer from '../components/Footer.jsx';
+import ScrollBand from '../components/ScrollBand.jsx';
 import RiseText from '../components/RiseText.jsx';
 
 // Every section below Hero uses real copy carried over from the live
@@ -72,9 +73,21 @@ export default function Home() {
             Final CTA  — pathos close */}
       <Mission />
       <ProblemSolution />
+
+      {/* Two bands, placed at the joins between sections rather than
+          inside them. Each one travels sideways while the page travels
+          down, which is the second axis the site never had — and the
+          reason scrolling now feels like moving through something
+          rather than past it. Both reuse words already on the site;
+          neither introduces a new claim. */}
+      <ScrollBand text="Free. Any skill. Anyone who asks." speed={26} />
+
       <GetInvolved />
       <WhoWeServe />
       <HowItWorks />
+
+      <ScrollBand text="Make it easy" speed={34} />
+
       <Pilot />
       <FounderNote />
       <FinalCta />
