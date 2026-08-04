@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import {
-  toggleMusic, toggleSfx, isMusicOn, isSfxOn, subscribe, click, setScene,
+  toggleMusic, toggleSfx, isMusicOn, isSfxOn, subscribe, click, setScene, startAudio,
 } from '../lib/sound.js';
 import { markEntered } from '../lib/session.js';
 import { lockScroll, unlockScroll } from '../lib/smoothScroll.js';
@@ -30,13 +30,16 @@ import { lockScroll, unlockScroll } from '../lib/smoothScroll.js';
  * without a user gesture, so it is the moment the score can legally
  * begin.
  *
- * SOUND IS OFF UNTIL ASKED, AND THE ASKING HAPPENS HERE. The toggle sits
- * top right, before the threshold, so the choice is made on a quiet
- * screen rather than discovered after something has already started
- * playing. Default off, always: someone opening this in a classroom or
- * a library should never have to lunge for a mute button. Entering
- * without touching it gets a silent site, and the nav toggle still owns
- * the setting afterwards.
+ * SOUND IS ON BY DEFAULT, AND SWITCHED HERE. Both controls sit top
+ * right, above the way in, reading as on from the first frame — and
+ * "Best with sound on" sits under the button. Nothing actually makes a
+ * noise until Enter is pressed, because no browser permits it before a
+ * gesture, so the sequence is: see that sound is on, see it recommended,
+ * choose to press the button anyway. Nobody is ambushed by a site that
+ * told them what it was going to do and waited to be let in.
+ *
+ * Anyone who would rather not can turn either off before entering, and
+ * both switches live in the nav afterwards.
  *
  * The earlier attempts failed for one reason worth remembering — they
  * offered sound inside an overlay that dissolved on its own after a
@@ -138,6 +141,12 @@ export default function Preloader({ ready, onEnter }) {
   }, [entering]);
 
   function handleEnter() {
+    // THE UNLOCK. This is the only gesture a browser will accept as
+    // permission to make noise, so everything audio has to happen from
+    // inside this handler. Order matters: unlock first, so the click
+    // below is the first thing you hear rather than the first thing
+    // that is silently dropped.
+    startAudio();
     // The click fires before anything moves, so the sound belongs to the
     // press rather than to the animation that follows it.
     click();
@@ -188,15 +197,32 @@ export default function Preloader({ ready, onEnter }) {
       </div>
 
 
-      <button
-        type="button"
-        ref={enterRef}
-        className="intro-enter"
-        onClick={handleEnter}
-        disabled={!complete}
-      >
-        Click to enter
-      </button>
+      <div className="intro-way-in">
+        <button
+          type="button"
+          ref={enterRef}
+          className="intro-enter"
+          onClick={handleEnter}
+          disabled={!complete}
+        >
+          Click to enter
+        </button>
+
+        {/* Said plainly, under the way in, where it is read at the moment
+            it is actionable. Both switches are already on and sit above
+            this — so it is a recommendation about how to listen, not a
+            request for permission we have not asked for. */}
+        <p className={`intro-phones${snd.music || snd.sfx ? '' : ' is-muted'}`}>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            {/* Headband and two cups. Stroked, no fill, so it sits at the
+                same visual weight as the type beside it. */}
+            <path d="M4 14v-2a8 8 0 0 1 16 0v2" />
+            <path d="M4 14h2.2a1 1 0 0 1 1 1v3.2a1 1 0 0 1-1 1H5.4A1.4 1.4 0 0 1 4 17.8V14Z" />
+            <path d="M20 14h-2.2a1 1 0 0 0-1 1v3.2a1 1 0 0 0 1 1h.8a1.4 1.4 0 0 0 1.4-1.4V14Z" />
+          </svg>
+          Best with sound on
+        </p>
+      </div>
 
       {/* The row. Everything on one baseline. */}
       <div className="intro-row">

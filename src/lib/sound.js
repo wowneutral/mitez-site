@@ -39,8 +39,25 @@ let musicBus = null;
 let sfxBus = null;
 let convolver = null;
 
-let musicOn = false;
-let sfxOn = false;
+// ON BY DEFAULT — but read this before changing it.
+//
+// No browser will start audio before a user gesture, so "on by default"
+// cannot mean "playing on arrival"; nothing is allowed to make a sound
+// until someone clicks something. What it means here is ARMED: both
+// switches read as on from the first frame, the intro says the site is
+// best with sound, and the Enter click is the gesture that unlocks the
+// context and starts everything at once.
+//
+// That is also why this is not the reckless version of the setting. The
+// only way in is a button, and the state of both switches is visible
+// above it before it is pressed — so nobody is ambushed, they are told
+// what will happen and then choose to do it.
+let musicOn = true;
+let sfxOn = true;
+
+// Whether a gesture has actually unlocked the audio context yet. Before
+// that, the switches are intent only.
+let started = false;
 let scene = 'intro';
 let playing = null; // { name, gain, stop() }
 
@@ -67,11 +84,11 @@ function ensureContext() {
   master.connect(ctx.destination);
 
   musicBus = ctx.createGain();
-  musicBus.gain.value = musicOn ? MUSIC_LEVEL : 0;
+  musicBus.gain.value = 0; // raised by startAudio once a gesture unlocks it
   musicBus.connect(master);
 
   sfxBus = ctx.createGain();
-  sfxBus.gain.value = sfxOn ? SFX_LEVEL : 0;
+  sfxBus.gain.value = 0; // ditto
   sfxBus.connect(master);
 
   // Reverb from an impulse of exponentially decaying noise. This is the
@@ -387,11 +404,19 @@ export function subscribe(fn) {
 }
 
 export function toggleMusic() {
-  const c = ensureContext();
-  if (!c) return false;
-  if (c.state === 'suspended') c.resume();
-
   musicOn = !musicOn;
+
+  // Pressed on the intro, before anything has unlocked audio: record the
+  // choice and stop. startAudio() applies it on the way in.
+  if (!started) {
+    writeSound({ music: musicOn, sfx: sfxOn });
+    notify();
+    return musicOn;
+  }
+
+  const c = ensureContext();
+  if (!c) return musicOn;
+  if (c.state === 'suspended') c.resume();
   const now = c.currentTime;
   musicBus.gain.cancelScheduledValues(now);
   musicBus.gain.setValueAtTime(musicBus.gain.value, now);
@@ -414,11 +439,17 @@ export function toggleMusic() {
 }
 
 export function toggleSfx() {
-  const c = ensureContext();
-  if (!c) return false;
-  if (c.state === 'suspended') c.resume();
-
   sfxOn = !sfxOn;
+
+  if (!started) {
+    writeSound({ music: musicOn, sfx: sfxOn });
+    notify();
+    return sfxOn;
+  }
+
+  const c = ensureContext();
+  if (!c) return sfxOn;
+  if (c.state === 'suspended') c.resume();
   const now = c.currentTime;
   sfxBus.gain.cancelScheduledValues(now);
   sfxBus.gain.setValueAtTime(sfxBus.gain.value, now);
@@ -435,6 +466,37 @@ export function toggleSfx() {
 }
 
 /**
+ * Unlock audio. Must be called from inside a user gesture handler —
+ * the Enter click, or the first interaction after a reload.
+ *
+ * This is the moment both switches stop being intent and start being
+ * sound. Whatever they were set to on the intro is what begins here, so
+ * pressing Enter with both on starts the room tone and arms the effects
+ * in the same instant.
+ */
+export function startAudio() {
+  if (started) return;
+  const c = ensureContext();
+  if (!c) return;
+  if (c.state === 'suspended') c.resume();
+  started = true;
+
+  const now = c.currentTime;
+
+  musicBus.gain.cancelScheduledValues(now);
+  musicBus.gain.setValueAtTime(0.0001, now);
+  sfxBus.gain.cancelScheduledValues(now);
+  sfxBus.gain.setValueAtTime(sfxOn ? SFX_LEVEL : 0, now);
+
+  if (musicOn) {
+    // Six seconds to full, so the score seems to have been playing
+    // before you arrived rather than starting when you knocked.
+    musicBus.gain.linearRampToValueAtTime(MUSIC_LEVEL, now + 6);
+    crossfadeTo(scene === 'site' ? 'pads' : 'room');
+  }
+}
+
+/**
  * Bring sound back after a reload.
  *
  * A refresh destroys the audio context, and no browser lets a fresh page
@@ -445,13 +507,19 @@ export function toggleSfx() {
  */
 export function resumeIfPreviouslyOn() {
   const saved = readSound();
-  if (!saved.music && !saved.sfx) return () => {};
+  if (!saved.music && !saved.sfx) {
+    musicOn = false;
+    sfxOn = false;
+    return () => {};
+  }
+
+  musicOn = saved.music;
+  sfxOn = saved.sfx;
 
   const events = ['pointerdown', 'keydown', 'wheel', 'touchstart'];
   const start = () => {
     events.forEach((e) => window.removeEventListener(e, start));
-    if (saved.music && !musicOn) toggleMusic();
-    if (saved.sfx && !sfxOn) toggleSfx();
+    startAudio();
   };
   events.forEach((e) => window.addEventListener(e, start, { once: true, passive: true }));
   return () => events.forEach((e) => window.removeEventListener(e, start));

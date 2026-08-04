@@ -61,7 +61,11 @@ export function markEntered() {
  * should not have to make that choice again on every reload.
  */
 export function readSound() {
-  return { music: read(MUSIC) === '1', sfx: read(SFX) === '1' };
+  // Absent means never chosen, and the default is on — so a first visit
+  // and a reload before touching anything both arrive armed. Only an
+  // explicit '0' turns something off, which is the difference between
+  // "not set" and "set to off".
+  return { music: read(MUSIC) !== '0', sfx: read(SFX) !== '0' };
 }
 
 export function writeSound({ music, sfx }) {
