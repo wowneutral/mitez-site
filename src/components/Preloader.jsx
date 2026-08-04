@@ -8,12 +8,19 @@ import { lockScroll, unlockScroll } from '../lib/smoothScroll.js';
  *
  * THE LAYOUT. Everything structural sits on one row along the bottom of
  * the screen — wordmark, a hairline that fills, a percentage — with the
- * promise set large on the left and the way in placed centre. That row
+ * way in placed centre and nothing else on it. That row
  * is what makes it feel composed rather than assembled: three things
  * sharing a baseline read as one object, where the same three floating
  * in separate corners read as leftovers. It is also the layout
  * Immersive Garden actually uses, which is what we were chasing all
  * along.
+ *
+ * NO STATEMENT ON IT. An earlier pass set the tagline large on the left,
+ * which was filler invented for a mockup rather than copy from the site,
+ * and it collided with the hero headline arriving two seconds later. The
+ * reference does not do it either: their loading state carries the logo,
+ * the line and the sound offer, and nothing else. The words belong to
+ * the page, not to the door.
  *
  * WHAT IT ASKS OF YOU. Nothing until it is loaded. Then a small centred
  * "Click to enter", and only then does the site open. That click is
@@ -39,7 +46,6 @@ const MIN_MS = 1500;
 const MAX_MS = 9000;
 const FADE_MS = 900;
 
-const LINES = ['Free mentorship', 'in anything you', 'want to learn.'];
 
 export default function Preloader({ ready, onEnter }) {
   const [minElapsed, setMinElapsed] = useState(false);
@@ -125,13 +131,6 @@ export default function Preloader({ ready, onEnter }) {
         Sound {soundOn ? 'on' : 'off'}
       </button>
 
-      <p className="intro-lines" aria-hidden="true">
-        {LINES.map((line, i) => (
-          <span key={line}>
-            <i style={{ transitionDelay: `${0.15 + i * 0.08}s` }}>{line}</i>
-          </span>
-        ))}
-      </p>
 
       <button
         type="button"

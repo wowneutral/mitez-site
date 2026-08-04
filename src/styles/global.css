@@ -50,34 +50,6 @@
   pointer-events: none;
 }
 
-/* ---- The promise, left, masked lines rising ------------------------- */
-.intro-lines {
-  position: absolute;
-  left: clamp(24px, 6vw, 80px);
-  top: 50%;
-  transform: translateY(-50%);
-  font-family: var(--display);
-  font-weight: 600;
-  font-size: clamp(30px, 5vw, 72px);
-  line-height: 1.04;
-  letter-spacing: -0.02em;
-  max-width: 14ch;
-}
-
-.intro-lines span { display: block; overflow: hidden; padding-bottom: 0.08em; margin-bottom: -0.08em; }
-
-.intro-lines i {
-  display: block;
-  font-style: normal;
-  transform: translateY(110%);
-  transition: transform 1.05s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-/* One frame after mount is enough for the transition to have something
-   to move from; without it the browser paints the end state directly. */
-.intro-lines i { animation: intro-line-in 0.01s 0.05s forwards; }
-@keyframes intro-line-in { to { transform: translateY(0); } }
-
 /* ---- The way in, centred -------------------------------------------- */
 .intro-enter {
   position: absolute;
@@ -202,13 +174,11 @@
 }
 
 @media (max-width: 720px) {
-  .intro-lines { font-size: clamp(26px, 8vw, 40px); top: 44%; }
   .intro-row { gap: 16px; }
   .intro-mark { font-size: 12px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .intro-lines i { animation: none; transform: none; }
   .intro { transition: opacity 0.3s ease; }
   .intro-snd.is-on .intro-snd-bars i { animation: none; height: 8px; }
 }
