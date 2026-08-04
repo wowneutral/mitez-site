@@ -124,6 +124,64 @@ function ensureContext() {
   return ctx;
 }
 
+/**
+ * The reason there was no sound on an iPhone.
+ *
+ * Two iOS behaviours, neither of which shows up on a desktop:
+ *
+ *  1. Web Audio output is filed under the "ambient" audio session, which
+ *     the physical mute switch silences. A phone in silent mode — which
+ *     is most phones, most of the time — plays nothing at all, with no
+ *     error and no clue as to why. Playing a silent looping <audio>
+ *     element promotes the page to the "playback" session, and the Web
+ *     Audio graph goes with it.
+ *  2. The context can be created suspended and only truly starts inside
+ *     a gesture, so this has to be called from the same handler as
+ *     everything else.
+ *
+ * The clip is a 0.05s silent WAV built here rather than fetched: it is
+ * about a hundred bytes, and a file for this would be a request, a cache
+ * entry and a thing to lose.
+ *
+ * If any of it fails the site simply carries on quietly, which is the
+ * same outcome as not trying.
+ */
+let silentEl = null;
+
+function unlockIOS() {
+  if (silentEl) return;
+  try {
+    const rate = 8000;
+    const frames = Math.floor(rate * 0.05);
+    const bytes = 44 + frames * 2;
+    const buf = new ArrayBuffer(bytes);
+    const view = new DataView(buf);
+    const str = (off, t) => [...t].forEach((ch, i) => view.setUint8(off + i, ch.charCodeAt(0)));
+    str(0, 'RIFF');
+    view.setUint32(4, bytes - 8, true);
+    str(8, 'WAVEfmt ');
+    view.setUint32(16, 16, true);
+    view.setUint16(20, 1, true);
+    view.setUint16(22, 1, true);
+    view.setUint32(24, rate, true);
+    view.setUint32(28, rate * 2, true);
+    view.setUint16(32, 2, true);
+    view.setUint16(34, 16, true);
+    str(36, 'data');
+    view.setUint32(40, frames * 2, true);
+
+    const blob = new Blob([buf], { type: 'audio/wav' });
+    silentEl = new Audio(URL.createObjectURL(blob));
+    silentEl.loop = true;
+    silentEl.volume = 0.001;
+    silentEl.setAttribute('playsinline', '');
+    const p = silentEl.play();
+    if (p && p.catch) p.catch(() => {});
+  } catch {
+    silentEl = null;
+  }
+}
+
 function notify() {
   listeners.forEach((fn) => fn({ music: musicOn, sfx: sfxOn }));
 }
@@ -491,6 +549,7 @@ export function startAudio() {
   const c = ensureContext();
   if (!c) return;
   if (c.state === 'suspended') c.resume();
+  unlockIOS();
   started = true;
 
   const now = c.currentTime;
@@ -537,7 +596,16 @@ export function resumeIfPreviouslyOn() {
   // has already clicked around this site will usually be allowed to
   // resume a context without a fresh gesture. Safari and Firefox will
   // not. So: attempt it, and see whether it actually took.
-  const c = ensureContext();
+  //
+  // NOT ON TOUCH DEVICES. iOS wants the AudioContext CREATED inside a
+  // user gesture, not merely resumed in one — building it here on load
+  // and resuming it later at the Enter click leaves some versions
+  // permanently silent, with no error. On a phone we skip straight to
+  // the listeners below, so the context is constructed inside the first
+  // real touch. This is one of the two reasons there was no sound on
+  // mobile; the other is the silent switch, handled in unlockIOS.
+  const canTryNow = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  const c = canTryNow ? ensureContext() : null;
   if (c) {
     const attempt = c.resume?.();
     Promise.resolve(attempt)

@@ -38,9 +38,42 @@ function useOnScreen(ref) {
   return visible;
 }
 
+/**
+ * Is this a phone?
+ *
+ * Read once, not on resize. Rotating a handset should not tear down a
+ * WebGL context, and nobody drags a desktop window narrow enough to
+ * matter and then expects the 3D to vanish.
+ */
+function isHandset() {
+  if (typeof window === 'undefined') return false;
+  return window.matchMedia('(max-width: 760px)').matches
+    || window.matchMedia('(pointer: coarse) and (max-width: 900px)').matches;
+}
+
 export default function Hero({ onReady, started = false }) {
   const canvasWrap = useRef(null);
   const active = useOnScreen(canvasWrap);
+  const [handset] = useState(isHandset);
+
+  // NO ROBOT ON A PHONE, and this is the right call rather than a
+  // retreat. The scene was drawn and framed for a wide viewport: on a
+  // narrow one it is cropped to a slice of a torso, rendered at 1x into
+  // a small canvas so the edges alias badly, and the face lands outside
+  // the frame — which is why it had no eyes. A pixelated, decapitated,
+  // half-visible robot is worse than no robot.
+  //
+  // It is also the single largest thing a phone downloads and the
+  // heaviest thing it runs: skipping it means the 2MB three.js chunk is
+  // never fetched at all on mobile, not merely deferred.
+  //
+  // The Preloader waits on a ready signal that used to come from inside
+  // the scene. With no scene there is nothing to wait for, so say so
+  // immediately rather than leaving the intro to time out after nine
+  // seconds — which is what a phone was doing.
+  useEffect(() => {
+    if (handset) onReady?.();
+  }, [handset, onReady]);
 
   return (
     <section className="hero">
@@ -48,9 +81,11 @@ export default function Hero({ onReady, started = false }) {
         {/* No fallback: the hero's copy is the important thing and it is
             already on screen. A spinner behind the headline would be
             drawing attention to the one part that has not arrived. */}
-        <Suspense fallback={null}>
-          <HeroScene onReady={onReady} active={active} />
-        </Suspense>
+        {!handset && (
+          <Suspense fallback={null}>
+            <HeroScene onReady={onReady} active={active} />
+          </Suspense>
+        )}
       </div>
 
       <div className="hero-scrim" aria-hidden="true" />

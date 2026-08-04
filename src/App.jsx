@@ -4,7 +4,7 @@ import SEO from './components/SEO.jsx';
 import Nav from './components/Nav.jsx';
 import Footer from './components/Footer.jsx';
 import ScrollProgress from './components/ScrollProgress.jsx';
-import PanelSweep from './components/PanelSweep.jsx';
+import PageTransition from './components/PageTransition.jsx';
 import { useSmoothScroll, getLenis } from './lib/smoothScroll.js';
 import { resumeIfPreviouslyOn, hover, click, setScene } from './lib/sound.js';
 import { transitionTo } from './lib/transition.js';
@@ -199,10 +199,10 @@ export default function App() {
       <a className="skip-link" href="#main">Skip to content</a>
       <ScrollToTop />
       <ScrollProgress />
-      <PanelSweep />
       <Nav />
       {/* A blank fallback rather than a spinner: these chunks are small and
           a flash of loading UI is worse than a beat of nothing. */}
+      <PageTransition>
       <Suspense fallback={<div style={{ minHeight: '60vh' }} />}>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -216,6 +216,7 @@ export default function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
+      </PageTransition>
     </>
   );
 }

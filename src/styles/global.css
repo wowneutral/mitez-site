@@ -263,53 +263,39 @@
 }
 
 /* ============================================================
-   PAGE TRANSITION
-   Five panels down, the route changes behind them, and they
-   carry on off the bottom. A curtain that retreats the way it
-   came is an interruption; one that keeps going is a move.
+   PAGE TRANSITION — no panel
+   The content leaves and the next one arrives. Nothing covers
+   the screen, which makes it the fastest option and the one
+   that has to be built most carefully: with a curtain, any jank
+   during the swap is hidden. Here it is the whole effect.
 
-   The navigation fires at the covered frame, not before it.
-   The first version ran off the route change, so the new page
-   appeared, got wiped, and appeared again — the transition
-   playing after the thing it existed to hide.
+   Only opacity and transform, both compositor properties, so
+   neither half triggers layout or paint. Out is brisk and in is
+   unhurried — equal halves feel mechanical, and nobody wants to
+   watch a page they have finished with leave slowly.
    ============================================================ */
-.sweep {
-  position: fixed;
-  inset: 0;
-  z-index: 90;
-  display: flex;
-  pointer-events: none;
+.route-fx { will-change: opacity; }
+
+.route-fx.is-out {
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.65, 0, 0.2, 1);
 }
 
-.sweep i {
-  flex: 1;
-  background: var(--bg-deep);
-  transform: translateY(-101%);
-  /* Sub-pixel rounding between five flex children shows as seams while
-     they move. */
-  margin-right: -1px;
+.route-fx.is-in {
+  animation: route-in 0.52s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-.sweep.is-idle { visibility: hidden; }
-
-.sweep.is-cover i {
-  transform: translateY(0);
-  transition: transform 0.56s cubic-bezier(0.76, 0, 0.24, 1);
+@keyframes route-in {
+  /* 10px, not 30. Large travel with nothing covering the screen reads
+     as the layout being thrown around rather than as a page arriving. */
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
 }
-
-.sweep.is-clear i {
-  transform: translateY(101%);
-  transition: transform 0.72s cubic-bezier(0.76, 0, 0.24, 1);
-}
-
-.sweep.is-cover i:nth-child(1), .sweep.is-clear i:nth-child(1) { transition-delay: 0s; }
-.sweep.is-cover i:nth-child(2), .sweep.is-clear i:nth-child(2) { transition-delay: 0.035s; }
-.sweep.is-cover i:nth-child(3), .sweep.is-clear i:nth-child(3) { transition-delay: 0.07s; }
-.sweep.is-cover i:nth-child(4), .sweep.is-clear i:nth-child(4) { transition-delay: 0.105s; }
-.sweep.is-cover i:nth-child(5), .sweep.is-clear i:nth-child(5) { transition-delay: 0.14s; }
 
 @media (prefers-reduced-motion: reduce) {
-  .sweep { display: none; }
+  .route-fx.is-out { opacity: 0; transform: none; transition: opacity 0.15s ease; }
+  .route-fx.is-in { animation: none; }
 }
 
 html:not(.lenis) { scroll-behavior: smooth; }
@@ -1879,4 +1865,95 @@ footer { padding: 70px 0 40px; }
   .track-dot { margin-bottom: 0; }
   .track-item h3 { grid-column: 2; }
   .track-item p { grid-column: 2; margin-top: 6px; }
+}
+
+
+/* ============================================================
+   MOBILE PASS
+   Written last so it wins on specificity, and kept in one block
+   so the phone layout can be read in one place instead of being
+   reconstructed from twelve scattered breakpoints.
+
+   Everything here is a fix for something that was actually
+   wrong on a handset, not defensive padding.
+   ============================================================ */
+@media (max-width: 760px) {
+  /* ---- The bar -----------------------------------------------------
+     Three groups were competing for one row: wordmark, two sound
+     controls and the menu button. With the labels hidden the controls
+     became two unlabelled glyphs sitting almost on top of the hamburger,
+     which is why they read as overlapping. Give the row a real gap, and
+     the controls a touch target that is not a coin toss. */
+  .nav-inner { height: 60px; gap: 12px; }
+  .nav-right { gap: 2px; }
+  .sound-pair { gap: 0; }
+  .sound-toggle { padding: 13px 11px; }
+  .nav-toggle { padding: 13px 6px 13px 12px; }
+  .nav-logo { font-size: 13px; letter-spacing: 0.22em; }
+
+  /* ---- The intro ---------------------------------------------------
+     The two controls were pinned top right and the enter button dead
+     centre, which on a short screen put them within a few pixels of each
+     other. They now sit on their own line, and the whole screen is laid
+     out as a column rather than as four absolutely positioned corners
+     that were only ever going to collide. */
+  .intro { display: flex; flex-direction: column; justify-content: space-between; padding: 22px; }
+
+  .intro-audio {
+    position: static;
+    flex-direction: row;
+    justify-content: flex-end;
+    gap: 18px;
+  }
+
+  .intro-way-in { position: static; transform: none; align-self: center; margin: auto 0; }
+  .intro-enter { padding: 18px 20px; font-size: 11.5px; }
+  .intro-phones { font-size: 9.5px; letter-spacing: 0.12em; }
+
+  .intro-row { position: static; gap: 14px; }
+  .intro-mark { font-size: 11.5px; letter-spacing: 0.24em; }
+  .intro-pct { font-size: 11px; }
+
+  /* ---- The hero ----------------------------------------------------
+     No robot here (see Hero.jsx), so the canvas layer and the scrim that
+     existed to hold copy off it are both dead weight — and the scrim was
+     laying a gradient over a column of text for no reason. */
+  .hero-canvas, .hero-scrim { display: none; }
+  .hero { min-height: auto; padding: 14vh 0 10vh; }
+  .hero-content { max-width: 100%; }
+  .hero-title { font-size: clamp(32px, 9vw, 44px); }
+
+  /* Without the 3D there is nothing to wait for, so the copy should not
+     be sitting on delays timed to a camera move that never happens. */
+  .hero-actions-reveal { animation-delay: 0.6s; }
+
+  /* ---- Bands -------------------------------------------------------
+     A strip of 88px type sliding sideways on a 390px screen is most of a
+     phone's compositing budget spent on decoration. */
+  .band-item { font-size: clamp(26px, 11vw, 44px); }
+
+  /* ---- Reading -----------------------------------------------------
+     Long measures and tight leading are harder to read on a phone held
+     at arm's length than on a laptop at desk distance. */
+  .lede { font-size: 16.5px; line-height: 1.65; }
+  .wrap { padding: 0 22px; }
+}
+
+/* Anything that has to survive a 320px-wide phone. */
+@media (max-width: 380px) {
+  .intro-audio { gap: 12px; }
+  .sound-toggle { padding: 12px 8px; }
+  .nav-logo { font-size: 12px; }
+}
+
+/* ---- Touch, at every width ------------------------------------------
+   Hover styles latch on a touchscreen: tap something with a :hover rule
+   and it stays in the hovered state until you tap elsewhere, which looks
+   like a stuck button. Confining them to devices that actually have a
+   pointer is the fix. */
+@media (hover: none) {
+  .btn:hover, .nav-link:hover, .sound-toggle:hover,
+  .intro-snd:hover, .intro-enter:hover { transition: none; }
+  .nav-link:hover::after { transform: scaleX(0); }
+  .nav-link.is-active::after { transform: scaleX(1); }
 }
