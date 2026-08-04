@@ -5,6 +5,7 @@ import Nav from './components/Nav.jsx';
 import Footer from './components/Footer.jsx';
 import ScrollProgress from './components/ScrollProgress.jsx';
 import PanelSweep from './components/PanelSweep.jsx';
+import SoundPrompt from './components/SoundPrompt.jsx';
 import { useSmoothScroll, getLenis } from './lib/smoothScroll.js';
 import { resumeIfPreviouslyOn, hover, click } from './lib/sound.js';
 import { transitionTo } from './lib/transition.js';
@@ -167,6 +168,7 @@ export default function App() {
       <ScrollToTop />
       <ScrollProgress />
       <PanelSweep />
+      <SoundPrompt />
       <Nav />
       {/* A blank fallback rather than a spinner: these chunks are small and
           a flash of loading UI is worse than a beat of nothing. */}

@@ -38,6 +38,8 @@ import { soundWasOn, rememberSound } from './session.js';
 
 let ctx = null;
 let master = null;
+let musicBus = null;
+let sfxBus = null;
 let wet = null;
 let scheduler = null;
 let chordIndex = 0;
@@ -57,6 +59,29 @@ const CHORDS = [
 
 const CHORD_MS = 8000;
 
+// The score was too loud, which is a specific failure rather than a
+// preference: ambient music that you actively notice has stopped being
+// atmosphere and started being content, and it competes with the thing
+// the visitor came to read. This sits it under everything.
+const MUSIC_LEVEL = 0.42;
+const DUCK_LEVEL = 0.16;
+
+/**
+ * Pull the score down for a moment so an interface sound can be heard
+ * over it, then bring it back. This is what broadcast does under a voice
+ * and it is the reason the click reads as a response rather than as
+ * another layer of noise. The recovery is slow (1.2s) so the music
+ * swells back rather than snapping.
+ */
+function duck() {
+  if (!ctx || !musicBus) return;
+  const now = ctx.currentTime;
+  musicBus.gain.cancelScheduledValues(now);
+  musicBus.gain.setValueAtTime(musicBus.gain.value, now);
+  musicBus.gain.linearRampToValueAtTime(DUCK_LEVEL, now + 0.06);
+  musicBus.gain.linearRampToValueAtTime(MUSIC_LEVEL, now + 1.2);
+}
+
 function ensureContext() {
   if (ctx) return ctx;
   const AC = window.AudioContext || window.webkitAudioContext;
@@ -66,6 +91,19 @@ function ensureContext() {
   master = ctx.createGain();
   master.gain.value = 0;
   master.connect(ctx.destination);
+
+  // Two buses, because a single output makes the score and the interface
+  // fight each other. The music sat at the same level as the click, so
+  // the click had nowhere to be heard from — it was not too quiet, it was
+  // buried. Splitting them means the score can be pulled down for a
+  // moment whenever the interface needs to say something.
+  musicBus = ctx.createGain();
+  musicBus.gain.value = MUSIC_LEVEL;
+  musicBus.connect(master);
+
+  sfxBus = ctx.createGain();
+  sfxBus.gain.value = 1;
+  sfxBus.connect(master);
 
   // Reverb from a generated impulse: exponentially decaying noise. This
   // is what stops the pad sounding like a synth in a vacuum — the tail
@@ -104,8 +142,8 @@ function pad(freq, holdMs) {
 
   const gain = ctx.createGain();
   gain.gain.setValueAtTime(0.0001, now);
-  gain.gain.linearRampToValueAtTime(0.05, now + attack);
-  gain.gain.setValueAtTime(0.05, now + hold);
+  gain.gain.linearRampToValueAtTime(0.038, now + attack);
+  gain.gain.setValueAtTime(0.038, now + hold);
   gain.gain.exponentialRampToValueAtTime(0.0001, now + hold + release);
 
   const filter = ctx.createBiquadFilter();
@@ -126,7 +164,7 @@ function pad(freq, holdMs) {
   a.connect(filter);
   b.connect(filter);
   filter.connect(gain);
-  gain.connect(master);
+  gain.connect(musicBus);
   if (ctx.__convolver) gain.connect(ctx.__convolver);
 
   a.start(now);
@@ -174,10 +212,11 @@ export function click() {
   // reads as an object settling.
   osc.frequency.exponentialRampToValueAtTime(174.61, now + 0.22);
   gain.gain.setValueAtTime(0.0001, now);
-  gain.gain.linearRampToValueAtTime(0.06, now + 0.012);
+  gain.gain.linearRampToValueAtTime(0.075, now + 0.012);
   gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.42);
+  duck();
   osc.connect(gain);
-  gain.connect(master);
+  gain.connect(sfxBus);
   if (ctx.__convolver) gain.connect(ctx.__convolver);
   osc.start(now);
   osc.stop(now + 0.45);
@@ -217,9 +256,10 @@ export function whoosh() {
   gain.gain.linearRampToValueAtTime(0.05, now + 0.14);
   gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
 
+  duck();
   src.connect(filter);
   filter.connect(gain);
-  gain.connect(master);
+  gain.connect(sfxBus);
   if (ctx.__convolver) gain.connect(ctx.__convolver);
   src.start(now);
   src.stop(now + dur);
@@ -243,7 +283,7 @@ export function hover() {
   gain.gain.linearRampToValueAtTime(0.016, now + 0.01);
   gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.13);
   osc.connect(gain);
-  gain.connect(master);
+  gain.connect(sfxBus);
   osc.start(now);
   osc.stop(now + 0.15);
 }

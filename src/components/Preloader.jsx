@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import { toggle as toggleSound, isEnabled } from '../lib/sound.js';
 import { hasEntered, markEntered } from '../lib/session.js';
 import { lockScroll, unlockScroll } from '../lib/smoothScroll.js';
 
@@ -45,7 +44,6 @@ export default function Preloader({ ready, onEnter }) {
   const [minElapsed, setMinElapsed] = useState(false);
   const [timedOut, setTimedOut] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [soundOn, setSoundOn] = useState(isEnabled());
   const [unmounted, setUnmounted] = useState(skip.current);
 
   // Returning within the same tab: no intro at all.
@@ -108,17 +106,9 @@ export default function Preloader({ ready, onEnter }) {
 
   return (
     <div className={`intro${complete ? ' is-done' : ''}`} role="status" aria-label="Loading MITEZ">
-      {/* Centre, small, grey: an offer, not a turnstile. Browsers need a
-          gesture before audio can start, so this is the gesture — but
-          ignoring it costs nothing and the site opens regardless. */}
-      <button
-        type="button"
-        className={`intro-sound${soundOn ? ' is-on' : ''}`}
-        onClick={() => setSoundOn(toggleSound())}
-      >
-        {soundOn ? 'Sound on' : 'Click to enable sound'}
-      </button>
-
+      {/* Nothing else. The sound offer used to live here and only
+          survived as long as the overlay did, which is why it could not
+          be clicked — it now sits at app level and waits. */}
       <div className="intro-foot">
         <span className="intro-mark">MITEZ</span>
         {/* The hairline, drawing to the right of the wordmark. The whole

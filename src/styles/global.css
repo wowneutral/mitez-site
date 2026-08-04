@@ -56,28 +56,6 @@
   pointer-events: none;
 }
 
-/* Small, grey, centred. An offer in passing. It has to be a click
-   because every browser requires a gesture before audio, but ignoring it
-   costs nothing and the site opens anyway. */
-.intro-sound {
-  background: none;
-  border: 0;
-  padding: 8px 12px;
-  cursor: pointer;
-  font-family: var(--sans);
-  font-weight: 300;
-  font-size: 14px;
-  color: var(--muted);
-  opacity: 0;
-  animation: intro-fade 1s ease 0.5s forwards;
-  transition: color 0.4s ease;
-}
-
-.intro-sound:hover { color: var(--ink); }
-.intro-sound.is-on { color: var(--ink); }
-
-@keyframes intro-fade { to { opacity: 1; } }
-
 /* Bottom left, on the site's own margin, at the size the nav wordmark
    uses — so when the overlay dissolves the eye has nothing to re-find. */
 .intro-foot {
@@ -128,8 +106,80 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .intro-sound, .intro-foot { animation: none; opacity: 1; }
+  .intro-foot { animation: none; opacity: 1; }
   .intro { transition: opacity 0.3s ease; }
+}
+
+
+/* ============================================================
+   SOUND PROMPT
+   Sits in the middle of the page, over the hero, and waits.
+
+   It used to live inside the loading overlay, which meant it
+   existed for about a second and a half and then dissolved —
+   visible, but gone before you could reach it. An offer you
+   cannot accept is worse than no offer. The reference keeps
+   theirs on screen over the fully loaded homepage, and that is
+   the point: it is not part of the loader at all.
+   ============================================================ */
+.sound-prompt {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  display: grid;
+  place-items: center;
+  /* Only the label takes clicks. Anything else here would put an
+     invisible sheet over the entire page. */
+  pointer-events: none;
+  transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.sound-prompt.is-hidden {
+  opacity: 0;
+  transform: translateY(-6px);
+  visibility: hidden;
+}
+
+.sound-prompt-btn {
+  position: relative;
+  pointer-events: auto;
+  background: none;
+  border: 0;
+  padding: 10px 4px;
+  cursor: pointer;
+  font-family: var(--sans);
+  font-weight: 300;
+  font-size: 14px;
+  letter-spacing: 0.01em;
+  color: var(--muted);
+  transition: color 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* It reads as plain text until the pointer arrives, then a rule draws
+   under it from the left. That is the whole affordance: enough to say
+   "this is clickable" on approach, not enough to become a button
+   sitting in the middle of the hero. */
+.sound-prompt-btn::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  bottom: 6px;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.sound-prompt-btn:hover,
+.sound-prompt-btn:focus-visible { color: var(--ink); outline: none; }
+
+.sound-prompt-btn:hover::after,
+.sound-prompt-btn:focus-visible::after { transform: scaleX(1); }
+
+@media (prefers-reduced-motion: reduce) {
+  .sound-prompt { transition: opacity 0.2s ease; }
 }
 
 /* ============================================================
