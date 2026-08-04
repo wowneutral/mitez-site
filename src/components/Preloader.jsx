@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import {
   toggleMusic, toggleSfx, isMusicOn, isSfxOn, subscribe, click, setScene,
 } from '../lib/sound.js';
-import { hasEntered, markEntered } from '../lib/session.js';
+import { markEntered } from '../lib/session.js';
 import { lockScroll, unlockScroll } from '../lib/smoothScroll.js';
 
 /**
@@ -50,12 +50,20 @@ const FADE_MS = 900;
 
 
 export default function Preloader({ ready, onEnter }) {
-  // ONCE PER TAB. Crossing a threshold is meaningful the first time; on
-  // the fourth reload it is a toll booth. A refresh skips straight
-  // through and the panel sweep plays the short version instead. The
-  // sound choice does not go with it — both switches live in the nav
-  // too, so nothing is only reachable from a screen you have passed.
-  const skip = useRef(hasEntered());
+  // EVERY LOAD, not once per tab.
+  //
+  // It was gated on hasEntered() for a while, on the reasoning that a
+  // threshold you cross on every reload is a toll booth. That reasoning
+  // is sound and it was still the wrong call: the intro is the piece
+  // Seth has iterated on hardest, it is the first thing anyone sees, and
+  // hiding it from the person building the site — and from anyone who
+  // reloads — to save them a second and a half is a trade nobody asked
+  // for.
+  //
+  // MIN_MS keeps it short, and it is the only ceremony on the site.
+  // hasEntered() is left in session.js: if a returning-visitor skip ever
+  // earns its place, it is one line away.
+  const skip = useRef(false);
 
   const [minElapsed, setMinElapsed] = useState(false);
   const [timedOut, setTimedOut] = useState(false);
