@@ -82,6 +82,16 @@ for (const [route, meta] of Object.entries(PAGE_META)) {
     html = html.replace('</head>', `<link rel="canonical" href="${url}" />\n</head>`);
   }
 
+  // Per-route structured data, baked in rather than added by the app.
+  // Google does run JavaScript, but it runs it on its own schedule and
+  // in a second pass; anything in the served HTML is understood on the
+  // first. For markup whose whole job is to be read by a crawler, that
+  // difference is the point.
+  if (meta.jsonLd) {
+    const block = `<script type="application/ld+json">\n${JSON.stringify(meta.jsonLd, null, 2)}\n</script>\n`;
+    html = html.replace('</head>', `${block}</head>`);
+  }
+
   if (route === '/') {
     await writeFile(join(DIST, 'index.html'), html);
   } else {

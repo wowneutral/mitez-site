@@ -12,6 +12,24 @@
 # header to Content-Security-Policy to start enforcing it.
 
 /*
+  # HTML MUST REVALIDATE, and this is not a precaution — it is the fix
+  # for a live bug. mitez.org/resources was returning 200 with the
+  # deleted page's HTML, three days stale, carrying a <script> tag for a
+  # bundle that no longer exists — so the browser fetched a 404 for the
+  # JavaScript and rendered nothing. A white page.
+  #
+  # Measured rather than assumed: fetching it with cache: 'no-store'
+  # returned a correct 404, while a normal fetch returned
+  #   200, age: 266900, cache-control: public, s-maxage=604800
+  # A week of shared-cache lifetime on a document that names
+  # content-hashed assets is a guarantee that any deploy which changes a
+  # bundle filename will white-screen anyone holding a cached copy.
+  #
+  # Assets stay immutable below: they are content-hashed, so their names
+  # change when they do. Only the documents that POINT at them need to
+  # be re-checked.
+  Cache-Control: public, max-age=0, must-revalidate
+
   # Stops the site being framed, which is how clickjacking works.
   X-Frame-Options: DENY
 

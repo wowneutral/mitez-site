@@ -31,6 +31,31 @@ export const PAGE_META = {
     title: 'How It Works',
     description:
       'Tell us what you want to learn, get matched with someone who knows it, and work through it together, free, with no fixed subject list.',
+    // Real questions with real answers, already on the page as a
+    // definition list. Marking them up is the one piece of structured
+    // data here that can actually change how the site appears in
+    // search rather than only how it is understood: FAQ markup is
+    // eligible to be shown expanded under the result.
+    //
+    // The wording is copied from the page verbatim on purpose. Schema
+    // that does not match the visible text is a guidelines violation,
+    // and the fix for drift is that these two live in the same repo and
+    // get changed together.
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: [
+        ['What can I ask about?', 'Anything you want to learn. There is no fixed list of subjects.'],
+        ['Who is this for?', 'Students, adults, parents, educators, and organizations. There is no age limit.'],
+        ['What does it cost?', 'Nothing.'],
+        ['Do I have to be in Gainesville?', 'No. The program runs fully remote, so where you live does not decide whether you can take part. Gainesville is where we started, not a requirement.'],
+        ['How long does it take to hear back?', 'Usually a few days.'],
+      ].map(([q, a]) => ({
+        '@type': 'Question',
+        name: q,
+        acceptedAnswer: { '@type': 'Answer', text: a },
+      })),
+    },
   },
   '/get-involved': {
     title: 'Get Involved',

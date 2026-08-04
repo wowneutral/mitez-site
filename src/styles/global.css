@@ -1261,8 +1261,13 @@ footer { padding: 70px 0 40px; }
   position: sticky;
   top: 0;
   z-index: 60;
-  background: rgba(242, 242, 242, 0.82);
-  backdrop-filter: blur(10px);
+  /* NO backdrop-filter. A blur on a full-width bar that is pinned over
+     moving content has to re-sample everything behind it on every
+     frame the page scrolls, which is one of the most expensive things
+     CSS can ask for and it is happening for the entire length of every
+     scroll. At 0.94 alpha over a flat light page the difference is
+     almost invisible; the cost is not. */
+  background: rgba(242, 242, 242, 0.94);
   border-bottom: 1px solid transparent;
   transition: border-color .3s ease, background .3s ease;
 }

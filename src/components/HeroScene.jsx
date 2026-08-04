@@ -127,9 +127,18 @@ export default function HeroScene({ onReady, active }) {
 
   return (
     <Canvas
-      dpr={mobile ? 1 : [1, 1.5]}
+      /* dpr and antialias are the two dials that matter here, and both
+         were set too high.
+
+         A full-viewport canvas at 1.5x on a retina display is 2.25x the
+         fragments of a 1x render, and multisampling on top of that is
+         the single most expensive thing this page asks a GPU to do.
+         1.25x with MSAA off is roughly a third of the work, and at this
+         size the difference is hard to see on a dark matte model with
+         no hard edges against the background. */
+      dpr={mobile ? 1 : [1, 1.25]}
       frameloop={active ? 'always' : 'never'}
-      gl={{ powerPreference: 'high-performance', antialias: !mobile }}
+      gl={{ powerPreference: 'high-performance', antialias: false }}
       camera={{ position: [-600, 220, 350], fov: 34, near: 70, far: 100000 }}
     >
       <IntroLights />
