@@ -46,6 +46,16 @@
      it the way the mark was designed.
      /favicon.ico is also the path both browsers and Google probe by
      default even with no link tag present, so it should always exist. -->
+<!-- SVG first, and it is doing real work rather than being modern for
+     its own sake. The mark is now transparent, and a transparent WHITE
+     hand is invisible on a white surface — which is exactly the failure
+     the old opaque dark square was added to solve. Instead of bringing
+     that square back, this file carries both marks and switches on
+     prefers-color-scheme: the white hand on a dark tab strip, the black
+     hand on a light one. Any browser that supports SVG icons (Chrome,
+     Edge, Firefox, Safari 16.4+) uses this and is never caught out. The
+     PNGs below remain the fallback for everything else. -->
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 <link rel="icon" href="/favicon.ico" sizes="any" />
 <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png" />
 <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png" />
