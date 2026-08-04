@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import {
   toggleMusic, toggleSfx, isMusicOn, isSfxOn, subscribe, click, setScene, startAudio,
 } from '../lib/sound.js';
-import { markEntered } from '../lib/session.js';
+import { markEntered, shouldPlayIntro } from '../lib/session.js';
 import { lockScroll, unlockScroll } from '../lib/smoothScroll.js';
 
 /**
@@ -53,20 +53,14 @@ const FADE_MS = 900;
 
 
 export default function Preloader({ ready, onEnter }) {
-  // EVERY LOAD, not once per tab.
+  // ONCE PER PAGE LOAD, not once per mount.
   //
-  // It was gated on hasEntered() for a while, on the reasoning that a
-  // threshold you cross on every reload is a toll booth. That reasoning
-  // is sound and it was still the wrong call: the intro is the piece
-  // Seth has iterated on hardest, it is the first thing anyone sees, and
-  // hiding it from the person building the site — and from anyone who
-  // reloads — to save them a second and a half is a trade nobody asked
-  // for.
-  //
-  // MIN_MS keeps it short, and it is the only ceremony on the site.
-  // hasEntered() is left in session.js: if a returning-visitor skip ever
-  // earns its place, it is one line away.
-  const skip = useRef(false);
+  // Home is a route, so clicking the logo from another page remounts it
+  // — and the intro was running again every time, with the room tone
+  // restarting over the pads. Now it plays on a real load of the
+  // homepage and never on a navigation to it; the panel sweep already
+  // covers that journey, which is what a logo click should feel like.
+  const skip = useRef(!shouldPlayIntro());
 
   const [minElapsed, setMinElapsed] = useState(false);
   const [timedOut, setTimedOut] = useState(false);

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import SoundToggle from './SoundToggle.jsx';
-import { transitionTo } from '../lib/transition.js';
+import { hover } from '../lib/sound.js';
 
 const LINKS = [
   { to: '/how-it-works', label: 'How It Works' },
@@ -73,15 +73,7 @@ export default function Nav() {
           to="/"
           className="nav-logo"
           aria-label="MITEZ home"
-          onClick={(e) => {
-            // Only handled here when already home: the router reports no
-            // change, so App's interceptor lets it through and nothing
-            // would happen at all. Everywhere else the interceptor has
-            // it, and adding a second trigger would play the sweep twice.
-            if (pathname !== '/') return;
-            e.preventDefault();
-            transitionTo(() => {});
-          }}
+          onPointerEnter={hover}
         >
           MITEZ
         </Link>
@@ -91,6 +83,7 @@ export default function Nav() {
             <NavLink
               key={l.to}
               to={l.to}
+              onPointerEnter={hover}
               className={({ isActive }) => `nav-link${isActive ? ' is-active' : ''}`}
             >
               {l.label}

@@ -516,6 +516,32 @@ export function resumeIfPreviouslyOn() {
   musicOn = saved.music;
   sfxOn = saved.sfx;
 
+  // TRY IMMEDIATELY FIRST.
+  //
+  // Refreshing a page that is not the homepage was leaving the site
+  // silent: there is no intro there, so there was no Enter click, and
+  // the only path back to sound was a gesture listener nobody knew about
+  // — you had to click something before the music came back.
+  //
+  // Chrome and Edge keep a per-origin autoplay score, so a visitor who
+  // has already clicked around this site will usually be allowed to
+  // resume a context without a fresh gesture. Safari and Firefox will
+  // not. So: attempt it, and see whether it actually took.
+  const c = ensureContext();
+  if (c) {
+    const attempt = c.resume?.();
+    Promise.resolve(attempt)
+      .then(() => {
+        if (c.state === 'running') startAudio();
+      })
+      .catch(() => {
+        /* not permitted — the listeners below cover it */
+      });
+  }
+
+  // The fallback, for the browsers that refused. First scroll, click or
+  // key brings it back, which in practice is a second or two later and
+  // costs the visitor nothing.
   const events = ['pointerdown', 'keydown', 'wheel', 'touchstart'];
   const start = () => {
     events.forEach((e) => window.removeEventListener(e, start));

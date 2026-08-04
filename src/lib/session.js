@@ -56,6 +56,31 @@ export function markEntered() {
 }
 
 /**
+ * Has the intro already run in THIS page load?
+ *
+ * Deliberately a module variable and not storage, because the rule is
+ * about page loads rather than about visits:
+ *
+ *   reload the homepage, or arrive at it fresh  ->  intro plays
+ *   click the logo from another page            ->  no intro, just the
+ *                                                   page transition
+ *
+ * A module variable is exactly that distinction. It resets when the
+ * document does and survives every client-side navigation in between,
+ * which is precisely the line between "loaded the site" and "moved
+ * around inside it". sessionStorage would wrongly suppress the intro on
+ * a genuine reload; nothing at all would wrongly replay it every time
+ * the logo is clicked, which is what was happening.
+ */
+let introPlayed = false;
+
+export function shouldPlayIntro() {
+  if (introPlayed) return false;
+  introPlayed = true;
+  return true;
+}
+
+/**
  * Music and effects are remembered separately, because they are
  * separate choices. Someone who wants the clicks and not the score
  * should not have to make that choice again on every reload.

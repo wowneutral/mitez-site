@@ -918,24 +918,16 @@ body {
 
 .pilot-readiness { max-width: 420px; margin: 0 auto; }
 
-.pilot-readiness span {
-  display: block;
-  font-family: var(--display);
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.45);
-  margin-bottom: 10px;
-}
+/* The old readiness bar is gone — it claimed "62% ready", which was a
+   tracked launch metric that did not exist. Its label and track styles
+   outlived it, and .pilot-readiness span was still matching: it turned
+   the arrow inside the replacement link into a faint white BLOCK
+   element, while the button's own dark ink was invisible against the
+   near-black section. Between them, the link to /gainesville rendered as
+   an empty box with a floating arrow in it.
 
-.readiness-track {
-  height: 3px;
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 2px;
-  overflow: hidden;
-}
-
-.readiness-fill { height: 100%; background: #f2f2f2; border-radius: 2px; }
+   Deleted rather than adjusted. Styles that outlive their markup do not
+   sit quietly; they wait for the next element that happens to match. */
 
 /* ---------- Founder's note — quote spread ---------- */
 .founder-grid {
@@ -1052,8 +1044,24 @@ body {
 
 .final-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; margin-bottom: 50px; }
 
-.final .btn-ghost { color: #f2f2f2; border-color: rgba(255, 255, 255, 0.25); }
-.final .btn-ghost:hover { border-color: rgba(255, 255, 255, 0.55); }
+/* Buttons on the dark sections.
+   .btn-ghost is dark ink with a dark border, which on the near-black
+   Pilot and Final sections rendered as an empty box with a barely
+   visible arrow in it — the link to /gainesville was effectively
+   invisible. The Final section had an override; Pilot never did.
+   Listed together so the next dark section inherits the fix by being
+   added to this one line rather than by someone noticing. */
+.final .btn-ghost,
+.pilot .btn-ghost {
+  color: #f2f2f2;
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.final .btn-ghost:hover,
+.pilot .btn-ghost:hover { border-color: rgba(255, 255, 255, 0.55); }
+
+/* The arrow inside it, same treatment. */
+.pilot .btn-ghost span { color: inherit; }
 
 .final-signature {
   font-family: var(--display);

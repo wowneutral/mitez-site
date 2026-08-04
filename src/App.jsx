@@ -6,7 +6,7 @@ import Footer from './components/Footer.jsx';
 import ScrollProgress from './components/ScrollProgress.jsx';
 import PanelSweep from './components/PanelSweep.jsx';
 import { useSmoothScroll, getLenis } from './lib/smoothScroll.js';
-import { resumeIfPreviouslyOn, hover, click } from './lib/sound.js';
+import { resumeIfPreviouslyOn, hover, click, setScene } from './lib/sound.js';
 import { transitionTo } from './lib/transition.js';
 // Routes are split so a visitor reading the Terms does not download a 3D
 // engine. Home stays eagerly imported because it is the common entry point
@@ -99,11 +99,20 @@ export default function App() {
   // components needing to know a transition exists.
   useEffect(() => {
     const onClick = (e) => {
-      // Leave alone anything the browser or the visitor means specially:
-      // new tabs, downloads, modifier-clicks, middle clicks, external
-      // hosts. Hijacking a cmd-click is the fastest way to make a fancy
-      // site infuriating.
-      if (e.defaultPrevented || e.button !== 0) return;
+      // CAPTURE PHASE, and that is the whole fix.
+      //
+      // This listener used to run on the bubble phase, which meant React
+      // Router's own handler had already fired: it calls preventDefault
+      // and navigates, so by the time this saw the click the route had
+      // changed and e.defaultPrevented was true — and the guard below
+      // sent it straight back out. The transition simply stopped
+      // happening on every internal link, which is every link in the
+      // nav.
+      //
+      // Capturing on the document runs before React's root listener, so
+      // this gets the click first, stops it reaching the router, and
+      // performs the navigation itself at the covered frame.
+      if (e.button !== 0) return;
       if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
 
       const a = e.target.closest?.('a[href]');
@@ -117,11 +126,24 @@ export default function App() {
       if (url.pathname === window.location.pathname && url.hash) return;
 
       e.preventDefault();
-      transitionTo(() => navigate(url.pathname + url.search + url.hash));
+      // Stops the event reaching React, so the router cannot navigate
+      // early behind our back. It also means the sound this control
+      // would have made has to be made here.
+      e.stopPropagation();
+
+      if (a.closest('.btn') || a.classList.contains('btn')) click();
+
+      const samePage = url.pathname === window.location.pathname;
+      transitionTo(() => {
+        // Clicking the logo while already home still plays the sweep —
+        // the visitor asked for something and should see it happen — but
+        // there is nowhere to navigate to.
+        if (!samePage) navigate(url.pathname + url.search + url.hash);
+      });
     };
 
-    document.addEventListener('click', onClick);
-    return () => document.removeEventListener('click', onClick);
+    document.addEventListener('click', onClick, true);
+    return () => document.removeEventListener('click', onClick, true);
   }, [navigate]);
 
   // A reload destroys the audio context and no browser will let a fresh
@@ -129,7 +151,14 @@ export default function App() {
   // refresh. What it can do is come back on its own: if this tab had
   // sound on, the next scroll or click resumes it, with nothing to press
   // and no second entry screen.
-  useEffect(() => resumeIfPreviouslyOn(), []);
+  useEffect(() => {
+    // Landing anywhere but the homepage means there is no intro to cross,
+    // so the site score is the right one from the start. Without this,
+    // refreshing /about and resuming would have brought back the intro's
+    // room tone and left it playing over an interior page.
+    if (window.location.pathname !== '/') setScene('site');
+    return resumeIfPreviouslyOn();
+  }, []);
 
   // Button sounds, by delegation.
   //
