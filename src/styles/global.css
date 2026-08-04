@@ -264,52 +264,82 @@
 
 /* ============================================================
    PAGE TRANSITION
-   Five panels down, the route changes behind them, and they
-   carry on off the bottom. A curtain that retreats the way it
-   came is an interruption; one that keeps going is a move.
+   One oversized panel, rotated a few degrees, passing up
+   through the screen. In and out in a bit over half a second.
 
-   The navigation fires at the covered frame, not before it.
-   The first version ran off the route change, so the new page
-   appeared, got wiped, and appeared again — the transition
-   playing after the thing it existed to hide.
+   It was five columns sweeping down in sequence, which took
+   1.4s and read as exactly what it was: a swish across the
+   whole page. Slow enough to be in the way of someone who just
+   wanted the next page.
+
+   THE ROTATION is the whole idea and it is free. Because the
+   angle is baked into the element, the leading edge crossing
+   the screen is diagonal while the animation itself is still
+   only a translate — compositor work, no repaint, which is how
+   it can be this fast without tearing. A flat edge reads as a
+   blind coming down; a slanted one reads as something passing.
    ============================================================ */
 .sweep {
   position: fixed;
   inset: 0;
   z-index: 90;
-  display: flex;
   pointer-events: none;
-}
-
-.sweep i {
-  flex: 1;
-  background: var(--bg-deep);
-  transform: translateY(-101%);
-  /* Sub-pixel rounding between five flex children shows as seams while
-     they move. */
-  margin-right: -1px;
+  /* The panel is bigger than the screen and rotated, so its corners
+     would otherwise show. This clips them. */
+  overflow: hidden;
 }
 
 .sweep.is-idle { visibility: hidden; }
 
+.sweep i {
+  position: absolute;
+  /* Oversized in both axes: a rotated rectangle needs the overhang to
+     still cover the corners of the viewport at the moment it is across. */
+  left: -12%;
+  right: -12%;
+  top: -26%;
+  bottom: -26%;
+  display: block;
+  background: var(--ink);
+  transform: translateY(115%) rotate(-4deg);
+  will-change: transform;
+}
+
+/* In from below. A steep start and a soft landing, so it arrives with
+   authority and settles rather than slamming. */
 .sweep.is-cover i {
-  transform: translateY(0);
-  transition: transform 0.56s cubic-bezier(0.76, 0, 0.24, 1);
+  transform: translateY(0) rotate(-4deg);
+  transition: transform 0.36s cubic-bezier(0.6, 0, 0.2, 1);
 }
 
+/* Straight out of the top, slightly slower than it came in — leaving is
+   the part that should feel unhurried, since by then the new page is
+   already behind it. */
 .sweep.is-clear i {
-  transform: translateY(101%);
-  transition: transform 0.72s cubic-bezier(0.76, 0, 0.24, 1);
+  transform: translateY(-115%) rotate(-4deg);
+  transition: transform 0.42s cubic-bezier(0.5, 0, 0.15, 1);
 }
-
-.sweep.is-cover i:nth-child(1), .sweep.is-clear i:nth-child(1) { transition-delay: 0s; }
-.sweep.is-cover i:nth-child(2), .sweep.is-clear i:nth-child(2) { transition-delay: 0.035s; }
-.sweep.is-cover i:nth-child(3), .sweep.is-clear i:nth-child(3) { transition-delay: 0.07s; }
-.sweep.is-cover i:nth-child(4), .sweep.is-clear i:nth-child(4) { transition-delay: 0.105s; }
-.sweep.is-cover i:nth-child(5), .sweep.is-clear i:nth-child(5) { transition-delay: 0.14s; }
 
 @media (prefers-reduced-motion: reduce) {
   .sweep { display: none; }
+}
+
+/* The arriving page lifts as the panel leaves.
+   Deliberately only on main.page — interior routes. The homepage's main
+   holds the intro overlay, and an animated ancestor with a transform
+   would become the containing block for anything position:fixed inside
+   it, which would tear the overlay off the viewport. */
+main.page {
+  animation: page-in 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes page-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main.page { animation: none; }
 }
 
 html:not(.lenis) { scroll-behavior: smooth; }

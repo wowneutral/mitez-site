@@ -144,10 +144,15 @@ export default function Preloader({ ready, onEnter }) {
     // The click fires before anything moves, so the sound belongs to the
     // press rather than to the animation that follows it.
     click();
-    // Room tone gives way to the pads. Two seconds of crossfade, started
-    // now, so the change happens under the panels instead of at them.
-    setScene('site');
     setEntering(true);
+
+    // THE ROOM TONE GETS TO BE HEARD. This used to call setScene('site')
+    // on the same line as startAudio, so the intro's score began and was
+    // immediately crossfaded into the pads — the piece written for this
+    // screen never actually played on the way in. Holding the change
+    // until the overlay is most of the way out means you hear the room
+    // tone through the exit, and the pads arrive on the homepage.
+    setTimeout(() => setScene('site'), 800);
   }
 
   if (unmounted) return null;

@@ -71,6 +71,16 @@ const DUCK_LEVEL = 0.07;
 
 const CROSSFADE_S = 2.2;
 
+// How long the score takes to reach full after it is switched on.
+//
+// This was six seconds, on the idea that music should seem to have been
+// playing before you turned it on. That is true when someone flips the
+// switch halfway down a page — and completely wrong at the intro, which
+// only lasts a second or two: the room tone was still inaudible when the
+// panels lifted, so the intro appeared to have no music at all. Two
+// seconds still arrives rather than starts, and is actually heard.
+const MUSIC_RAMP_S = 2;
+
 /* ------------------------------------------------------------------ */
 
 function ensureContext() {
@@ -124,8 +134,10 @@ function notify() {
 function startRoomTone() {
   const now = ctx.currentTime;
   const out = ctx.createGain();
+  // 1.6s, not 4s. Layered under the bus ramp above, a slow fade here was
+  // the second half of why the intro was silent.
   out.gain.setValueAtTime(0.0001, now);
-  out.gain.linearRampToValueAtTime(1, now + 4);
+  out.gain.linearRampToValueAtTime(1, now + 1.6);
   out.connect(musicBus);
   out.connect(convolver);
 
@@ -424,7 +436,7 @@ export function toggleMusic() {
   if (musicOn) {
     // Six seconds to full. The music should seem to have been playing
     // before it was switched on.
-    musicBus.gain.linearRampToValueAtTime(MUSIC_LEVEL, now + 6);
+    musicBus.gain.linearRampToValueAtTime(MUSIC_LEVEL, now + MUSIC_RAMP_S);
     crossfadeTo(scene === 'site' ? 'pads' : 'room');
   } else {
     musicBus.gain.linearRampToValueAtTime(0, now + 1.6);
@@ -489,9 +501,7 @@ export function startAudio() {
   sfxBus.gain.setValueAtTime(sfxOn ? SFX_LEVEL : 0, now);
 
   if (musicOn) {
-    // Six seconds to full, so the score seems to have been playing
-    // before you arrived rather than starting when you knocked.
-    musicBus.gain.linearRampToValueAtTime(MUSIC_LEVEL, now + 6);
+    musicBus.gain.linearRampToValueAtTime(MUSIC_LEVEL, now + MUSIC_RAMP_S);
     crossfadeTo(scene === 'site' ? 'pads' : 'room');
   }
 }
