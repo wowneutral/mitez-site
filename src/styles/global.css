@@ -433,42 +433,96 @@ html.lenis, html.lenis body { height: auto; }
    be ambiguous, because the wrong guess makes noise in a quiet room. */
 .sound-pair { display: inline-flex; align-items: center; gap: 14px; }
 
-/* The track name, which is also the button that changes it. Set apart
-   from the two switches by being the only thing here in sentence case:
-   those are states, this is a name. */
-.sound-track {
-  position: relative;
+/* ---- The track menu -------------------------------------------------
+   Hover the music control and the nine scores appear, with the one
+   playing marked. Cycling was fine for four; with nine it means eight
+   clicks and two seconds of crossfade each to reach the one you wanted,
+   and no way to see what the choices are. */
+.sound-music { position: relative; display: inline-flex; align-items: center; }
+
+.sound-caret {
+  display: inline-flex;
+  align-items: center;
   background: none;
   border: 0;
-  padding: 6px 8px;
+  padding: 8px 4px 8px 2px;
   cursor: pointer;
+  color: var(--muted);
+  transition: color 0.3s ease, transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.sound-caret svg { width: 9px; height: 6px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; }
+.sound-caret:hover { color: var(--ink); }
+.sound-pair.is-open .sound-caret { color: var(--ink); transform: rotate(180deg); }
+
+.track-menu {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  z-index: 80;
+  min-width: 156px;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  background: var(--bg-deep);
+  border: 1px solid rgba(22, 24, 29, 0.12);
+  border-radius: 2px;
+  /* Not a drop shadow: a single hairline and the page's own colour keeps
+     it in the same material as everything else. The shadow is doing
+     depth, not decoration, so it is barely there. */
+  box-shadow: 0 18px 40px rgba(22, 24, 29, 0.08);
+  opacity: 0;
+  transform: translateY(-6px);
+  pointer-events: none;
+  transition: opacity 0.28s ease, transform 0.36s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.sound-pair.is-open .track-menu {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+.track-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 10px;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  text-align: left;
   font-family: var(--display);
   font-size: 11px;
   letter-spacing: 0.14em;
+  text-transform: uppercase;
   color: var(--muted);
-  transition: color 0.35s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease;
+  transition: color 0.25s ease, background 0.25s ease;
 }
 
-.sound-track::after {
-  content: '';
-  position: absolute;
-  left: 8px;
-  right: 8px;
-  bottom: 3px;
-  height: 1px;
-  background: currentColor;
-  transform: scaleX(0);
-  transform-origin: 0 50%;
-  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+.track-item:hover, .track-item:focus-visible { color: var(--ink); background: rgba(22, 24, 29, 0.04); outline: none; }
+
+/* The dot is the only marker. A tick would be a second visual language
+   for something the eye already reads as on or off. */
+.track-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  flex: none;
+  transition: background 0.3s ease;
 }
 
-.sound-track:hover, .sound-track:focus-visible { color: var(--ink); outline: none; }
-.sound-track:hover::after, .sound-track:focus-visible::after { transform: scaleX(1); }
+.track-item.is-current { color: var(--ink); }
+.track-item.is-current .track-dot { background: currentColor; }
 
-/* Dimmed while music is off. Still usable — choosing a track before
-   turning the score on is reasonable — but no longer claiming to
-   describe something you can hear. */
-.sound-track.is-quiet { opacity: 0.45; }
+@media (max-width: 760px) {
+  /* Anchored to the right edge of the bar rather than the control, so a
+     narrow screen cannot push it off the side. */
+  .track-menu { right: -8px; min-width: 148px; }
+  .track-item { padding: 11px 10px; }
+}
 
 .sound-dot {
   width: 6px;

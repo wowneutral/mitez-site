@@ -482,12 +482,193 @@ function startKeys() {
   };
 }
 
+/** Dusk — Dorian, mid-register, slower than Drift and less sad than it. */
+function startDusk() {
+  return startChords({
+    chords: [
+      [146.83, 220.0, 261.63, 392.0], // Dm11-ish
+      [110.0, 164.81, 246.94, 329.63], // Am7
+      [130.81, 196.0, 233.08, 349.23], // Cm/B♭ colour
+      [98.0, 146.83, 220.0, 293.66], // Gsus2
+    ],
+    holdMs: 10000, peak: 0.028, attack: 4.5, release: 6,
+    cutoff: 1150, detune: 0.002, spread: 420, gap: 8400,
+  });
+}
+
+/**
+ * Static — the intro's room tone, offered as a site score.
+ *
+ * Not laziness: it is the least melodic thing here, and for anyone who
+ * finds chords distracting while reading it is the only option that is
+ * genuinely furniture. Built by the same function the intro uses, so
+ * there is one implementation rather than a copy that drifts.
+ */
+function startStatic() {
+  return startRoomTone();
+}
+
+/**
+ * Pulse — a slow low heartbeat under a held chord.
+ *
+ * The only score here with a beat, and it is deliberately far below
+ * anything you would tap to: one every two and a half seconds, which is
+ * slower than a resting pulse. Fast enough to notice and too slow to
+ * chase, which is the line between rhythm and pressure.
+ */
+function startPulse() {
+  const out = ctx.createGain();
+  out.gain.setValueAtTime(0.0001, ctx.currentTime);
+  out.gain.linearRampToValueAtTime(1, ctx.currentTime + 3);
+  out.connect(musicBus);
+  out.connect(convolver);
+
+  const bed = startChords({
+    chords: [[110.0, 164.81, 246.94], [98.0, 146.83, 220.0]],
+    holdMs: 12000, peak: 0.022, attack: 5, release: 6,
+    cutoff: 700, detune: 0.0018, spread: 500, gap: 11000,
+  });
+  bed.gain.disconnect();
+  bed.gain.connect(out);
+
+  const timers = [];
+  const beat = () => {
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    // A falling pitch, which is what gives it weight rather than click.
+    osc.frequency.setValueAtTime(72, now);
+    osc.frequency.exponentialRampToValueAtTime(46, now + 0.25);
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.linearRampToValueAtTime(0.05, now + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.9);
+    osc.connect(gain);
+    gain.connect(out);
+    osc.start(now);
+    osc.stop(now + 1);
+    timers.push(setTimeout(beat, 2500));
+  };
+  timers.push(setTimeout(beat, 400));
+
+  return {
+    gain: out,
+    stop() {
+      timers.forEach(clearTimeout);
+      bed.stop();
+    },
+  };
+}
+
+/** Glass — high bells, sparse, over almost nothing. */
+function startGlass() {
+  const out = ctx.createGain();
+  out.gain.setValueAtTime(0.0001, ctx.currentTime);
+  out.gain.linearRampToValueAtTime(1, ctx.currentTime + 3);
+  out.connect(musicBus);
+  out.connect(convolver);
+
+  const bed = startChords({
+    chords: [[110.0, 164.81], [98.0, 146.83]],
+    holdMs: 14000, peak: 0.012, attack: 6, release: 7,
+    cutoff: 500, detune: 0.0015, spread: 600, gap: 13000,
+  });
+  bed.gain.disconnect();
+  bed.gain.connect(out);
+
+  // Two octaves above where Keys sits, and half as often. Up here a note
+  // every couple of seconds would be a smoke alarm.
+  const NOTES = [1046.5, 1174.66, 1318.51, 1567.98, 1760.0];
+  const timers = [];
+
+  const bell = () => {
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = NOTES[Math.floor(Math.random() * NOTES.length)];
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.linearRampToValueAtTime(0.018, now + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 5);
+    osc.connect(gain);
+    gain.connect(out);
+    osc.start(now);
+    osc.stop(now + 5.2);
+    timers.push(setTimeout(bell, 3200 + Math.random() * 4600));
+  };
+  timers.push(setTimeout(bell, 1200));
+
+  return {
+    gain: out,
+    stop() {
+      timers.forEach(clearTimeout);
+      bed.stop();
+    },
+  };
+}
+
+/**
+ * Swell an existing score with a slow tremolo.
+ *
+ * Composed rather than written out: it takes a built score and adds an
+ * oscillator to its output gain, so Tide is Bloom breathing rather than
+ * a fifth copy of the chord engine. Summing onto an AudioParam that is
+ * already being ramped is exactly what they are for.
+ */
+function withSwell(score, rate, depth) {
+  const lfo = ctx.createOscillator();
+  const amount = ctx.createGain();
+  lfo.frequency.value = rate;
+  amount.gain.value = depth;
+  lfo.connect(amount);
+  amount.connect(score.gain.gain);
+  lfo.start();
+
+  const inner = score.stop;
+  return {
+    gain: score.gain,
+    stop() {
+      try {
+        lfo.stop();
+      } catch {
+        /* already stopped */
+      }
+      inner();
+    },
+  };
+}
+
+/** Tide — Bloom, breathing in and out across about twenty seconds. */
+function startTide() {
+  return withSwell(
+    startChords({
+      chords: [
+        [130.81, 196.0, 293.66, 392.0],
+        [174.61, 261.63, 329.63, 493.88],
+        [146.83, 220.0, 329.63, 440.0],
+        [196.0, 293.66, 392.0, 587.33],
+      ],
+      holdMs: 11000, peak: 0.03, attack: 5, release: 6,
+      cutoff: 1400, detune: 0.0018, spread: 380, gap: 9200,
+    }),
+    0.05,
+    0.35,
+  );
+}
+
 /** The switchable set, in the order the control cycles through them. */
 export const TRACKS = [
+  // Ordered so that cycling moves gradually from most melodic to least,
+  // rather than lurching between bells and a drone.
   { id: 'drift', label: 'Drift', build: startPads },
   { id: 'bloom', label: 'Bloom', build: startBloom },
-  { id: 'deep', label: 'Deep', build: startDrone },
+  { id: 'dusk', label: 'Dusk', build: startDusk },
+  { id: 'tide', label: 'Tide', build: startTide },
   { id: 'keys', label: 'Keys', build: startKeys },
+  { id: 'glass', label: 'Glass', build: startGlass },
+  { id: 'pulse', label: 'Pulse', build: startPulse },
+  { id: 'deep', label: 'Deep', build: startDrone },
+  { id: 'static', label: 'Static', build: startStatic },
 ];
 
 function build(name) {
@@ -621,9 +802,9 @@ export function whoosh() {
  * The change is a crossfade like any other, so picking a different track
  * does not cut the music off mid-note.
  */
-export function nextTrack() {
-  const i = TRACKS.findIndex((t) => t.id === track);
-  track = TRACKS[(i + 1) % TRACKS.length].id;
+export function setTrack(id) {
+  if (!TRACKS.some((t) => t.id === id) || id === track) return track;
+  track = id;
   writeTrack(track);
 
   if (musicOn && started && scene === 'site') {
@@ -642,6 +823,12 @@ export function nextTrack() {
 
   notify();
   return track;
+}
+
+/** Kept for the keyboard: cycling is the sane behaviour for a shortcut. */
+export function nextTrack() {
+  const i = TRACKS.findIndex((t) => t.id === track);
+  return setTrack(TRACKS[(i + 1) % TRACKS.length].id);
 }
 
 export function currentTrack() {
