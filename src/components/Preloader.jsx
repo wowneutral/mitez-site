@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { toggle as toggleSound, isEnabled } from '../lib/sound.js';
+import {
+  toggleMusic, toggleSfx, isMusicOn, isSfxOn, subscribe, click, setScene,
+} from '../lib/sound.js';
 import { markEntered } from '../lib/session.js';
 import { lockScroll, unlockScroll } from '../lib/smoothScroll.js';
 
@@ -51,10 +53,12 @@ export default function Preloader({ ready, onEnter }) {
   const [minElapsed, setMinElapsed] = useState(false);
   const [timedOut, setTimedOut] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [soundOn, setSoundOn] = useState(isEnabled());
+  const [snd, setSnd] = useState({ music: isMusicOn(), sfx: isSfxOn() });
   const [entering, setEntering] = useState(false);
   const [unmounted, setUnmounted] = useState(false);
   const enterRef = useRef(null);
+
+  useEffect(() => subscribe(setSnd), []);
 
   useEffect(() => {
     const a = setTimeout(() => setMinElapsed(true), MIN_MS);
@@ -108,6 +112,16 @@ export default function Preloader({ ready, onEnter }) {
     return unlockScroll;
   }, [entering]);
 
+  function handleEnter() {
+    // The click fires before anything moves, so the sound belongs to the
+    // press rather than to the animation that follows it.
+    click();
+    // Room tone gives way to the pads. Two seconds of crossfade, started
+    // now, so the change happens under the panels instead of at them.
+    setScene('site');
+    setEntering(true);
+  }
+
   if (unmounted) return null;
 
   const pct = Math.round(progress * 100);
@@ -118,25 +132,42 @@ export default function Preloader({ ready, onEnter }) {
       role="dialog"
       aria-label="Enter MITEZ"
     >
-      {/* Top right, before the threshold. Toggling here is itself the
-          gesture the browser needs, so the score can start the moment it
-          is switched on rather than waiting for the enter click. */}
-      <button
-        type="button"
-        className={`intro-snd${soundOn ? ' is-on' : ''}`}
-        onClick={() => setSoundOn(toggleSound())}
-        aria-pressed={soundOn}
-      >
-        <span className="intro-snd-bars" aria-hidden="true"><i /><i /><i /></span>
-        Sound {soundOn ? 'on' : 'off'}
-      </button>
+      {/* Two controls, because they are two different choices. The score
+          is the room; the effects are things happening in it. Someone
+          might want the clicks and no music, or music and nothing
+          snapping at them, and one switch for both forces a choice
+          nobody actually holds.
+
+          Toggling is itself the gesture a browser needs before it will
+          allow audio, so either one can start the sound. */}
+      <div className="intro-audio">
+        <button
+          type="button"
+          className={`intro-snd${snd.music ? ' is-on' : ''}`}
+          onClick={() => { toggleMusic(); click(); }}
+          aria-pressed={snd.music}
+        >
+          <span className="intro-snd-bars" aria-hidden="true"><i /><i /><i /></span>
+          Music {snd.music ? 'on' : 'off'}
+        </button>
+
+        <button
+          type="button"
+          className={`intro-snd${snd.sfx ? ' is-on' : ''}`}
+          onClick={() => toggleSfx()}
+          aria-pressed={snd.sfx}
+        >
+          <span className="intro-snd-dot" aria-hidden="true" />
+          Effects {snd.sfx ? 'on' : 'off'}
+        </button>
+      </div>
 
 
       <button
         type="button"
         ref={enterRef}
         className="intro-enter"
-        onClick={() => setEntering(true)}
+        onClick={handleEnter}
         disabled={!complete}
       >
         Click to enter

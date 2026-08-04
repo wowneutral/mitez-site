@@ -1,86 +1,60 @@
 /**
- * A generative ambient score, synthesised in the browser.
+ * Sound: two scores, two independent switches, one crossfade.
  *
- * THE PREVIOUS VERSION WAS WRONG and it is worth writing down why, so it
- * does not get rebuilt. It was a set of UI sound effects: a tick on every
- * hover, a note on every heading. That is interface feedback, and
- * interface feedback on a page you scroll continuously turns into a
- * rattle — a high tick every time the pointer crosses a link is actively
- * irritating, and it makes the page feel cheap rather than considered.
+ * WHAT PLAYS WHERE
+ *   intro — "room tone": filtered noise moving slowly with a high
+ *           shimmer that surfaces every so often. Barely music. It is
+ *           presence rather than melody, which is what a held screen
+ *           wants: something to occupy the room while nothing is
+ *           happening yet.
+ *   site  — "pads": four chords in A minor, eight seconds each,
+ *           crossfaded so no note ever visibly starts.
  *
- * What the studio sites actually do is play MUSIC. A slow, quiet,
- * unresolved chord bed that sits under everything and never reacts to
- * anything. It has no relationship to what you click. Its whole job is to
- * make the room feel occupied.
+ * They are crossfaded rather than cut. Room tone falls away over two
+ * seconds while the first chord is already three seconds into its
+ * attack, so the change happens underneath the panels rather than at
+ * them. A cut between two ambiences is far more noticeable than either
+ * ambience — the ear tracks change, not content.
  *
- * So: no hover sound, no per-section sound. One chord progression that
- * plays forever without repeating exactly, and one soft note on a real
- * click, because a click is a decision and deserves acknowledgement.
+ * MUSIC AND EFFECTS ARE SEPARATE, and that is a real distinction rather
+ * than a settings-page convention. They do opposite jobs: the score is
+ * the room, and the effects are things happening in it. Someone might
+ * want the clicks and the page sweeps and no music at all, or music
+ * while they read and nothing snapping at them. One switch for both
+ * forces a choice nobody actually holds.
  *
- * HOW IT IS BUILT
- * Four chords in A minor, each held eight seconds and crossfaded rather
- * than cut, so there is no attack to notice. Every note is two detuned
- * triangle waves through a heavy lowpass, then a plate-ish reverb built
- * from generated noise. Voices are picked so the top note moves by a
- * step or stays put between chords, which is why it sounds composed
- * rather than random.
+ * The effects bus sits ABOVE the music, not under it, because things
+ * happening should be louder than the room they happen in. Both feed a
+ * generated convolution reverb, which is where the echo comes from.
  *
- * Nothing is downloaded: no audio files, no library. The whole score is
- * about a dozen oscillators over its lifetime.
- *
- * The preference is per session and deliberately not persisted. The
- * Privacy Policy says this site stores nothing about you, and quietly
- * writing to localStorage would make that untrue for a convenience
- * nobody asked for.
+ * Everything is synthesised at the moment it plays. No audio files, no
+ * library, nothing downloaded.
  */
 
-import { soundWasOn, rememberSound } from './session.js';
+import { readSound, writeSound } from './session.js';
 
 let ctx = null;
 let master = null;
 let musicBus = null;
 let sfxBus = null;
-let wet = null;
-let scheduler = null;
-let chordIndex = 0;
-let enabled = false;
+let convolver = null;
+
+let musicOn = false;
+let sfxOn = false;
+let scene = 'intro';
+let playing = null; // { name, gain, stop() }
+
 const listeners = new Set();
 
-// A minor, unresolved on purpose. It never lands on a tonic chord in
-// root position, so the ear keeps waiting and the loop point disappears.
-// Frequencies are held directly rather than computed from note names —
-// fewer moving parts, and the exact tuning is part of the sound.
-const CHORDS = [
-  [110.0, 164.81, 261.63, 329.63], // Am add9-ish
-  [87.31, 130.81, 246.94, 329.63], // Fmaj7
-  [130.81, 196.0, 246.94, 329.63], // Cmaj7
-  [98.0, 146.83, 246.94, 293.66], // Gsus
-];
-
-const CHORD_MS = 8000;
-
-// The score was too loud, which is a specific failure rather than a
-// preference: ambient music that you actively notice has stopped being
-// atmosphere and started being content, and it competes with the thing
-// the visitor came to read. This sits it under everything.
+// The score is the room: present, never in front. The effects sit over
+// it. Both numbers were arrived at by ear rather than by rule.
 const MUSIC_LEVEL = 0.2;
+const SFX_LEVEL = 1.6;
 const DUCK_LEVEL = 0.07;
 
-/**
- * Pull the score down for a moment so an interface sound can be heard
- * over it, then bring it back. This is what broadcast does under a voice
- * and it is the reason the click reads as a response rather than as
- * another layer of noise. The recovery is slow (1.2s) so the music
- * swells back rather than snapping.
- */
-function duck() {
-  if (!ctx || !musicBus) return;
-  const now = ctx.currentTime;
-  musicBus.gain.cancelScheduledValues(now);
-  musicBus.gain.setValueAtTime(musicBus.gain.value, now);
-  musicBus.gain.linearRampToValueAtTime(DUCK_LEVEL, now + 0.06);
-  musicBus.gain.linearRampToValueAtTime(MUSIC_LEVEL, now + 1.2);
-}
+const CROSSFADE_S = 2.2;
+
+/* ------------------------------------------------------------------ */
 
 function ensureContext() {
   if (ctx) return ctx;
@@ -89,27 +63,23 @@ function ensureContext() {
   ctx = new AC();
 
   master = ctx.createGain();
-  master.gain.value = 0;
+  master.gain.value = 1;
   master.connect(ctx.destination);
 
-  // Two buses, because a single output makes the score and the interface
-  // fight each other. The music sat at the same level as the click, so
-  // the click had nowhere to be heard from — it was not too quiet, it was
-  // buried. Splitting them means the score can be pulled down for a
-  // moment whenever the interface needs to say something.
   musicBus = ctx.createGain();
-  musicBus.gain.value = MUSIC_LEVEL;
+  musicBus.gain.value = musicOn ? MUSIC_LEVEL : 0;
   musicBus.connect(master);
 
   sfxBus = ctx.createGain();
-  sfxBus.gain.value = 1.6;
+  sfxBus.gain.value = sfxOn ? SFX_LEVEL : 0;
   sfxBus.connect(master);
 
-  // Reverb from a generated impulse: exponentially decaying noise. This
-  // is what stops the pad sounding like a synth in a vacuum — the tail
-  // is most of why it reads as "music" rather than "a tone".
-  const convolver = ctx.createConvolver();
-  const len = ctx.sampleRate * 3.2;
+  // Reverb from an impulse of exponentially decaying noise. This is the
+  // echo — it is what stops every sound reading as a synth in a vacuum,
+  // and it is doing more for the "cinematic" quality than any of the
+  // individual voices are.
+  convolver = ctx.createConvolver();
+  const len = Math.floor(ctx.sampleRate * 3.4);
   const impulse = ctx.createBuffer(2, len, ctx.sampleRate);
   for (let c = 0; c < 2; c += 1) {
     const channel = impulse.getChannelData(c);
@@ -119,161 +89,241 @@ function ensureContext() {
   }
   convolver.buffer = impulse;
 
-  wet = ctx.createGain();
+  const wet = ctx.createGain();
   wet.gain.value = 0.5;
   convolver.connect(wet);
   wet.connect(master);
 
-  ctx.__convolver = convolver;
   return ctx;
 }
 
-/**
- * One sustained voice. Attack and release are measured in seconds, not
- * milliseconds — a four-second fade in is what makes a note arrive
- * without an edge, and an edge is the thing the ear locks onto.
- */
-function pad(freq, holdMs) {
-  if (!ctx) return;
-  const now = ctx.currentTime;
-  const attack = 3.2;
-  const hold = holdMs / 1000;
-  const release = 4.5;
+function notify() {
+  listeners.forEach((fn) => fn({ music: musicOn, sfx: sfxOn }));
+}
 
-  const gain = ctx.createGain();
-  gain.gain.setValueAtTime(0.0001, now);
-  gain.gain.linearRampToValueAtTime(0.03, now + attack);
-  gain.gain.setValueAtTime(0.03, now + hold);
-  gain.gain.exponentialRampToValueAtTime(0.0001, now + hold + release);
+/* ---------------------------- scores ------------------------------ */
+
+/** Room tone. Filtered noise, moving slowly, plus an occasional shimmer. */
+function startRoomTone() {
+  const now = ctx.currentTime;
+  const out = ctx.createGain();
+  out.gain.setValueAtTime(0.0001, now);
+  out.gain.linearRampToValueAtTime(1, now + 4);
+  out.connect(musicBus);
+  out.connect(convolver);
+
+  const len = Math.floor(ctx.sampleRate * 4);
+  const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+  const data = buf.getChannelData(0);
+  for (let i = 0; i < len; i += 1) data[i] = Math.random() * 2 - 1;
+
+  const src = ctx.createBufferSource();
+  src.buffer = buf;
+  src.loop = true;
 
   const filter = ctx.createBiquadFilter();
-  filter.type = 'lowpass';
-  filter.frequency.value = 900;
-  filter.Q.value = 0.4;
+  filter.type = 'bandpass';
+  filter.frequency.value = 420;
+  filter.Q.value = 1.6;
 
-  // Two oscillators a few cents apart. Identical pitches are a test
-  // tone; detuned ones beat slowly against each other and read as an
-  // instrument with a body.
-  const a = ctx.createOscillator();
-  const b = ctx.createOscillator();
-  a.type = 'triangle';
-  b.type = 'triangle';
-  a.frequency.value = freq;
-  b.frequency.value = freq * 1.0023;
+  // A very slow sweep across the noise. Without it this is a hiss; with
+  // it, it breathes.
+  const lfo = ctx.createOscillator();
+  const lfoGain = ctx.createGain();
+  lfo.frequency.value = 0.035;
+  lfoGain.gain.value = 260;
+  lfo.connect(lfoGain);
+  lfoGain.connect(filter.frequency);
 
-  a.connect(filter);
-  b.connect(filter);
-  filter.connect(gain);
-  gain.connect(musicBus);
-  if (ctx.__convolver) gain.connect(ctx.__convolver);
+  const body = ctx.createGain();
+  body.gain.value = 0.16;
 
-  a.start(now);
-  b.start(now);
-  a.stop(now + hold + release + 0.2);
-  b.stop(now + hold + release + 0.2);
+  src.connect(filter);
+  filter.connect(body);
+  body.connect(out);
+
+  src.start(now);
+  lfo.start(now);
+
+  const timers = [];
+  const shimmer = () => {
+    const n = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = 1046.5 * (Math.random() > 0.5 ? 1 : 1.5);
+    g.gain.setValueAtTime(0.0001, n);
+    g.gain.linearRampToValueAtTime(0.012, n + 2);
+    g.gain.exponentialRampToValueAtTime(0.0001, n + 7);
+    osc.connect(g);
+    g.connect(out);
+    osc.start(n);
+    osc.stop(n + 7.2);
+    timers.push(setTimeout(shimmer, 6000 + Math.random() * 8000));
+  };
+  timers.push(setTimeout(shimmer, 3000));
+
+  return {
+    name: 'room',
+    gain: out,
+    stop() {
+      timers.forEach(clearTimeout);
+      try {
+        src.stop();
+        lfo.stop();
+      } catch {
+        /* already stopped */
+      }
+    },
+  };
 }
 
-function playChord() {
-  const chord = CHORDS[chordIndex % CHORDS.length];
-  chordIndex += 1;
-  chord.forEach((freq, i) => {
-    // Voices enter fractionally apart rather than together, which is the
-    // difference between a chord and a block of sound.
-    setTimeout(() => pad(freq, CHORD_MS), i * 260);
-  });
+const CHORDS = [
+  [110.0, 164.81, 261.63, 329.63], // Am add9-ish
+  [87.31, 130.81, 246.94, 329.63], // Fmaj7
+  [130.81, 196.0, 246.94, 329.63], // Cmaj7
+  [98.0, 146.83, 246.94, 293.66], // Gsus
+];
+const CHORD_MS = 8000;
+
+/** Pads. Two detuned triangles per note, through a lowpass. */
+function startPads() {
+  const out = ctx.createGain();
+  out.gain.setValueAtTime(0.0001, ctx.currentTime);
+  out.gain.linearRampToValueAtTime(1, ctx.currentTime + 3);
+  out.connect(musicBus);
+  out.connect(convolver);
+
+  let index = 0;
+  const timers = [];
+
+  const voice = (freq) => {
+    const now = ctx.currentTime;
+    const attack = 3.2;
+    const hold = CHORD_MS / 1000;
+    const release = 4.5;
+
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.linearRampToValueAtTime(0.03, now + attack);
+    gain.gain.setValueAtTime(0.03, now + hold);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + hold + release);
+
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 900;
+    filter.Q.value = 0.4;
+
+    // Identical pitches are a test tone. A few cents apart, they beat
+    // against each other and read as an instrument with a body.
+    const a = ctx.createOscillator();
+    const b = ctx.createOscillator();
+    a.type = 'triangle';
+    b.type = 'triangle';
+    a.frequency.value = freq;
+    b.frequency.value = freq * 1.0023;
+
+    a.connect(filter);
+    b.connect(filter);
+    filter.connect(gain);
+    gain.connect(out);
+
+    a.start(now);
+    b.start(now);
+    a.stop(now + hold + release + 0.2);
+    b.stop(now + hold + release + 0.2);
+  };
+
+  const chord = () => {
+    const notes = CHORDS[index % CHORDS.length];
+    index += 1;
+    // Voices enter fractionally apart. Together they are a block of
+    // sound; staggered they are a chord.
+    notes.forEach((f, i) => timers.push(setTimeout(() => voice(f), i * 260)));
+  };
+
+  chord();
+  const loop = setInterval(chord, CHORD_MS - 1200);
+
+  return {
+    name: 'pads',
+    gain: out,
+    stop() {
+      clearInterval(loop);
+      timers.forEach(clearTimeout);
+    },
+  };
 }
 
-function startScore() {
-  if (scheduler) return;
-  playChord();
-  // Chords overlap: the next one starts before the last has released.
-  scheduler = setInterval(playChord, CHORD_MS - 1200);
-}
-
-function stopScore() {
-  if (!scheduler) return;
-  clearInterval(scheduler);
-  scheduler = null;
+function build(name) {
+  return name === 'pads' ? startPads() : startRoomTone();
 }
 
 /**
- * The only interactive sound left, and only on a real click. Low, short,
- * and quiet: an acknowledgement, not an alert. Nothing fires on hover,
- * on scroll, or on a section coming into view.
+ * Swap scores without a seam. The outgoing one falls away over two
+ * seconds while the incoming one is already rising, so there is never a
+ * moment of silence and never a moment of both at full strength.
  */
+function crossfadeTo(name) {
+  if (!ctx || !musicOn) return;
+  if (playing && playing.name === name) return;
+
+  const outgoing = playing;
+  playing = build(name);
+
+  if (outgoing) {
+    const now = ctx.currentTime;
+    outgoing.gain.gain.cancelScheduledValues(now);
+    outgoing.gain.gain.setValueAtTime(outgoing.gain.gain.value, now);
+    outgoing.gain.gain.linearRampToValueAtTime(0.0001, now + CROSSFADE_S);
+    setTimeout(() => outgoing.stop(), CROSSFADE_S * 1000 + 200);
+  }
+}
+
+/**
+ * Which score should be playing. Called with 'site' when the visitor
+ * crosses the intro; if music is off it is remembered, so turning music
+ * on later starts the right one.
+ */
+export function setScene(next) {
+  scene = next;
+  if (musicOn) crossfadeTo(next === 'site' ? 'pads' : 'room');
+}
+
+/* ---------------------------- effects ----------------------------- */
+
+function duck() {
+  if (!ctx || !musicBus || !musicOn) return;
+  const now = ctx.currentTime;
+  musicBus.gain.cancelScheduledValues(now);
+  musicBus.gain.setValueAtTime(musicBus.gain.value, now);
+  musicBus.gain.linearRampToValueAtTime(DUCK_LEVEL, now + 0.06);
+  musicBus.gain.linearRampToValueAtTime(MUSIC_LEVEL, now + 1.2);
+}
+
+/** A decision. Low, with a small downward glide so it settles. */
 export function click() {
-  if (!enabled || !ctx) return;
+  if (!sfxOn || !ctx) return;
   const now = ctx.currentTime;
   const osc = ctx.createOscillator();
   const gain = ctx.createGain();
   osc.type = 'sine';
   osc.frequency.setValueAtTime(196, now);
-  // A small downward glide. A flat pitch reads as a beep; a falling one
-  // reads as an object settling.
   osc.frequency.exponentialRampToValueAtTime(174.61, now + 0.22);
   gain.gain.setValueAtTime(0.0001, now);
   gain.gain.linearRampToValueAtTime(0.16, now + 0.012);
   gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.42);
-  duck();
   osc.connect(gain);
   gain.connect(sfxBus);
-  if (ctx.__convolver) gain.connect(ctx.__convolver);
+  gain.connect(convolver);
   osc.start(now);
   osc.stop(now + 0.45);
-}
-
-/**
- * A wipe. Filtered noise swept downward in pitch, which is what a
- * physical thing moving past you actually sounds like.
- *
- * This is the sound effect the score was missing. Music alone makes a
- * room; it does not make an event. When five panels sweep off the screen
- * in silence the biggest move on the site has no weight, and the ear
- * notices the absence even when the eye does not.
- */
-export function whoosh() {
-  if (!enabled || !ctx) return;
-  const now = ctx.currentTime;
-  const dur = 1.1;
-
-  const buffer = ctx.createBuffer(1, ctx.sampleRate * dur, ctx.sampleRate);
-  const data = buffer.getChannelData(0);
-  for (let i = 0; i < data.length; i += 1) data[i] = Math.random() * 2 - 1;
-
-  const src = ctx.createBufferSource();
-  src.buffer = buffer;
-
-  // The sweep is the whole effect. A static band of noise is a hiss; one
-  // that falls from 1.8kHz to 180Hz is something passing.
-  const filter = ctx.createBiquadFilter();
-  filter.type = 'bandpass';
-  filter.Q.value = 0.8;
-  filter.frequency.setValueAtTime(1800, now);
-  filter.frequency.exponentialRampToValueAtTime(180, now + dur);
-
-  const gain = ctx.createGain();
-  gain.gain.setValueAtTime(0.0001, now);
-  gain.gain.linearRampToValueAtTime(0.13, now + 0.14);
-  gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
-
   duck();
-  src.connect(filter);
-  filter.connect(gain);
-  gain.connect(sfxBus);
-  if (ctx.__convolver) gain.connect(ctx.__convolver);
-  src.start(now);
-  src.stop(now + dur);
 }
 
-/**
- * Pointer entering a real control. Deliberately low, short and quiet —
- * the version that got scrapped was a 1180Hz ping, which is the register
- * a smoke alarm uses and about as welcome. This sits under the music
- * rather than on top of it, and only fires on buttons and calls to
- * action, never on nav links or headings.
- */
+/** Pointer entering a control. Low enough to sit under the music. */
 export function hover() {
-  if (!enabled || !ctx) return;
+  if (!sfxOn || !ctx) return;
   const now = ctx.currentTime;
   const osc = ctx.createOscillator();
   const gain = ctx.createGain();
@@ -288,8 +338,47 @@ export function hover() {
   osc.stop(now + 0.15);
 }
 
-export function isEnabled() {
-  return enabled;
+/** The page sweep. Noise falling from 1.8kHz to 180Hz: something passing. */
+export function whoosh() {
+  if (!sfxOn || !ctx) return;
+  const now = ctx.currentTime;
+  const dur = 1.1;
+
+  const buffer = ctx.createBuffer(1, Math.floor(ctx.sampleRate * dur), ctx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < data.length; i += 1) data[i] = Math.random() * 2 - 1;
+
+  const src = ctx.createBufferSource();
+  src.buffer = buffer;
+
+  const filter = ctx.createBiquadFilter();
+  filter.type = 'bandpass';
+  filter.Q.value = 0.8;
+  filter.frequency.setValueAtTime(1800, now);
+  filter.frequency.exponentialRampToValueAtTime(180, now + dur);
+
+  const gain = ctx.createGain();
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.linearRampToValueAtTime(0.13, now + 0.14);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+
+  src.connect(filter);
+  filter.connect(gain);
+  gain.connect(sfxBus);
+  gain.connect(convolver);
+  src.start(now);
+  src.stop(now + dur);
+  duck();
+}
+
+/* ---------------------------- switches ---------------------------- */
+
+export function isMusicOn() {
+  return musicOn;
+}
+
+export function isSfxOn() {
+  return sfxOn;
 }
 
 export function subscribe(fn) {
@@ -297,70 +386,73 @@ export function subscribe(fn) {
   return () => listeners.delete(fn);
 }
 
-/**
- * Turn the score on directly, rather than flipping whatever the current
- * state is. The intro uses this: clicking ENTER must always start the
- * music, never stop it.
- */
-export function enable() {
-  if (enabled) return true;
-  return toggle();
-}
+export function toggleMusic() {
+  const c = ensureContext();
+  if (!c) return false;
+  if (c.state === 'suspended') c.resume();
 
-export function toggle() {
-  enabled = !enabled;
+  musicOn = !musicOn;
+  const now = c.currentTime;
+  musicBus.gain.cancelScheduledValues(now);
+  musicBus.gain.setValueAtTime(musicBus.gain.value, now);
 
-  if (enabled) {
-    const c = ensureContext();
-    if (!c) {
-      enabled = false;
-    } else {
-      // Browsers hold the context suspended until a user gesture. The
-      // toggle click IS that gesture, which is the other reason sound
-      // could never be on by default.
-      if (c.state === 'suspended') c.resume();
-      master.gain.cancelScheduledValues(c.currentTime);
-      master.gain.setValueAtTime(master.gain.value, c.currentTime);
-      // Six seconds to reach full. The music should seem to have been
-      // playing before you turned it on.
-      master.gain.linearRampToValueAtTime(1, c.currentTime + 6);
-      startScore();
-    }
-  } else if (ctx) {
-    master.gain.cancelScheduledValues(ctx.currentTime);
-    master.gain.setValueAtTime(master.gain.value, ctx.currentTime);
-    master.gain.linearRampToValueAtTime(0, ctx.currentTime + 1.6);
-    setTimeout(stopScore, 1700);
+  if (musicOn) {
+    // Six seconds to full. The music should seem to have been playing
+    // before it was switched on.
+    musicBus.gain.linearRampToValueAtTime(MUSIC_LEVEL, now + 6);
+    crossfadeTo(scene === 'site' ? 'pads' : 'room');
+  } else {
+    musicBus.gain.linearRampToValueAtTime(0, now + 1.6);
+    const stopping = playing;
+    playing = null;
+    if (stopping) setTimeout(() => stopping.stop(), 1700);
   }
 
-  rememberSound(enabled);
-  listeners.forEach((fn) => fn(enabled));
-  return enabled;
+  writeSound({ music: musicOn, sfx: sfxOn });
+  notify();
+  return musicOn;
+}
+
+export function toggleSfx() {
+  const c = ensureContext();
+  if (!c) return false;
+  if (c.state === 'suspended') c.resume();
+
+  sfxOn = !sfxOn;
+  const now = c.currentTime;
+  sfxBus.gain.cancelScheduledValues(now);
+  sfxBus.gain.setValueAtTime(sfxBus.gain.value, now);
+  sfxBus.gain.linearRampToValueAtTime(sfxOn ? SFX_LEVEL : 0, now + 0.25);
+
+  // Turning effects on demonstrates them immediately. Turning them off
+  // does not get a farewell click, which would be an odd thing to hear
+  // from a control whose job is to stop making noise.
+  if (sfxOn) setTimeout(click, 60);
+
+  writeSound({ music: musicOn, sfx: sfxOn });
+  notify();
+  return sfxOn;
 }
 
 /**
- * Bring the music back after a reload.
+ * Bring sound back after a reload.
  *
- * A refresh destroys the audio context, and no browser will let a fresh
- * page start audio on its own — so "the music should not stop when I
- * refresh" cannot be honoured literally. What can be honoured: if this
- * tab had sound on, wait silently for the next thing the visitor does
- * and resume on that. In practice the music returns on the first scroll
- * or click, a second or two in, with nothing to click and no second
- * ENTER screen.
- *
- * The listeners are once-only and passive, and they remove themselves
- * whichever one fires.
+ * A refresh destroys the audio context, and no browser lets a fresh page
+ * start audio unprompted, so this cannot be literal. What it can do:
+ * if this tab had sound on, wait silently and resume on whatever the
+ * visitor does next — usually a scroll, a second or two in, with
+ * nothing to click and no second intro.
  */
 export function resumeIfPreviouslyOn() {
-  if (!soundWasOn() || enabled) return () => {};
+  const saved = readSound();
+  if (!saved.music && !saved.sfx) return () => {};
 
   const events = ['pointerdown', 'keydown', 'wheel', 'touchstart'];
   const start = () => {
     events.forEach((e) => window.removeEventListener(e, start));
-    if (!enabled) toggle();
+    if (saved.music && !musicOn) toggleMusic();
+    if (saved.sfx && !sfxOn) toggleSfx();
   };
   events.forEach((e) => window.addEventListener(e, start, { once: true, passive: true }));
-
   return () => events.forEach((e) => window.removeEventListener(e, start));
 }

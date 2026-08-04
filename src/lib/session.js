@@ -27,7 +27,8 @@
  * the whole page down over a preference.
  */
 const ENTERED = 'mitez.entered';
-const SOUND = 'mitez.sound';
+const MUSIC = 'mitez.music';
+const SFX = 'mitez.sfx';
 
 function read(key) {
   try {
@@ -54,10 +55,16 @@ export function markEntered() {
   write(ENTERED, '1');
 }
 
-export function soundWasOn() {
-  return read(SOUND) === '1';
+/**
+ * Music and effects are remembered separately, because they are
+ * separate choices. Someone who wants the clicks and not the score
+ * should not have to make that choice again on every reload.
+ */
+export function readSound() {
+  return { music: read(MUSIC) === '1', sfx: read(SFX) === '1' };
 }
 
-export function rememberSound(on) {
-  write(SOUND, on ? '1' : '0');
+export function writeSound({ music, sfx }) {
+  write(MUSIC, music ? '1' : '0');
+  write(SFX, sfx ? '1' : '0');
 }

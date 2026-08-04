@@ -1,37 +1,65 @@
 import { useEffect, useState } from 'react';
-import { toggle, subscribe, isEnabled, hover } from '../lib/sound.js';
+import {
+  toggleMusic,
+  toggleSfx,
+  isMusicOn,
+  isSfxOn,
+  subscribe,
+  click,
+  hover,
+} from '../lib/sound.js';
 
 /**
- * Off / On, sitting in the nav.
+ * The pair, in the nav.
  *
- * Immersive Garden puts exactly this at the end of its page and it is
- * the right pattern: state the two options and show which one is live,
- * rather than a speaker icon with a slash whose meaning is ambiguous
- * (is that "sound is muted" or "click to mute"?).
+ * Two switches rather than one, matching the intro: the score and the
+ * interface sounds do opposite jobs and people want them in different
+ * combinations. Stating both as words — "Music on", "Effects off" —
+ * rather than using a speaker icon, because a crossed-out speaker reads
+ * equally as "sound is muted" and "click to mute", and this is the one
+ * control where guessing wrong makes noise in a quiet room.
  *
- * The three bars animate only while sound is on, so the control also
- * works as an indicator from across the page.
+ * Compact by necessity: the nav already carries five links. The music
+ * control keeps its three animating bars, since it also works as an
+ * indicator from across the page; effects get a single dot.
  */
 export default function SoundToggle() {
-  const [on, setOn] = useState(isEnabled());
+  const [snd, setSnd] = useState({ music: isMusicOn(), sfx: isSfxOn() });
 
-  useEffect(() => subscribe(setOn), []);
+  useEffect(() => subscribe(setSnd), []);
 
   return (
-    <button
-      type="button"
-      className={`sound-toggle${on ? ' is-on' : ''}`}
-      onClick={() => toggle()}
-      onPointerEnter={hover}
-      aria-pressed={on}
-      aria-label={on ? 'Turn sound off' : 'Turn sound on'}
-    >
-      <span className="sound-bars" aria-hidden="true">
-        <i />
-        <i />
-        <i />
-      </span>
-      <span className="sound-label">Sound {on ? 'on' : 'off'}</span>
-    </button>
+    <span className="sound-pair">
+      <button
+        type="button"
+        className={`sound-toggle${snd.music ? ' is-on' : ''}`}
+        onClick={() => {
+          toggleMusic();
+          click();
+        }}
+        onPointerEnter={hover}
+        aria-pressed={snd.music}
+        aria-label={snd.music ? 'Turn music off' : 'Turn music on'}
+      >
+        <span className="sound-bars" aria-hidden="true">
+          <i />
+          <i />
+          <i />
+        </span>
+        <span className="sound-label">Music</span>
+      </button>
+
+      <button
+        type="button"
+        className={`sound-toggle${snd.sfx ? ' is-on' : ''}`}
+        onClick={() => toggleSfx()}
+        onPointerEnter={hover}
+        aria-pressed={snd.sfx}
+        aria-label={snd.sfx ? 'Turn effects off' : 'Turn effects on'}
+      >
+        <span className="sound-dot" aria-hidden="true" />
+        <span className="sound-label">Effects</span>
+      </button>
+    </span>
   );
 }

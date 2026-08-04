@@ -96,10 +96,16 @@
    the choice here, on a screen that is holding still, is what the
    earlier versions got wrong: they offered it inside an overlay that
    dissolved on its own before the offer could be taken. */
-.intro-snd {
+.intro-audio {
   position: absolute;
   right: clamp(24px, 6vw, 80px);
   top: clamp(24px, 5vw, 54px);
+  display: flex;
+  align-items: center;
+  gap: clamp(16px, 3vw, 30px);
+}
+
+.intro-snd {
   display: inline-flex;
   align-items: center;
   gap: 9px;
@@ -117,6 +123,17 @@
 
 .intro-snd:hover, .intro-snd.is-on { color: var(--ink); }
 .intro-snd:focus-visible { outline: none; color: var(--ink); }
+
+.intro-snd-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  background: transparent;
+  transition: background 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.intro-snd.is-on .intro-snd-dot { background: currentColor; }
 
 .intro-snd-bars { display: flex; align-items: flex-end; gap: 2px; height: 11px; }
 .intro-snd-bars i { width: 2px; height: 3px; background: currentColor; transition: height 0.35s cubic-bezier(0.22, 1, 0.36, 1); }
@@ -348,6 +365,19 @@ html.lenis, html.lenis body { height: auto; }
    ambiguous — it reads equally as "sound is muted" and as "click to
    mute" — and this control is the one thing on the page that must not
    be ambiguous, because the wrong guess makes noise in a quiet room. */
+.sound-pair { display: inline-flex; align-items: center; gap: 18px; }
+
+.sound-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  background: transparent;
+  transition: background 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.sound-toggle.is-on .sound-dot { background: currentColor; }
+
 .sound-toggle {
   display: inline-flex;
   align-items: center;
@@ -387,7 +417,8 @@ html.lenis, html.lenis body { height: auto; }
   to { height: 11px; }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 900px) {
+  .sound-pair { gap: 12px; }
   .sound-label { display: none; }
 }
 
