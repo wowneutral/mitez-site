@@ -274,7 +274,25 @@
    unhurried — equal halves feel mechanical, and nobody wants to
    watch a page they have finished with leave slowly.
    ============================================================ */
-.route-fx { will-change: opacity; }
+/* NO will-change HERE, and this is not a preference.
+ *
+ * `will-change: opacity` was on this wrapper, and it creates a stacking
+ * context. That trapped the intro overlay's z-index: 100 inside the
+ * wrapper, which itself has z-index: auto — so the overlay was no longer
+ * competing with the nav's z-index: 60 at the root, it had been demoted
+ * beneath it. The nav painted straight over the intro, showing its own
+ * Music and Effects switches on top of the intro's, which is what looked
+ * like the sound buttons duplicating.
+ *
+ * Confirmed rather than guessed: elementFromPoint over the nav area
+ * returned .nav-inner while the intro was still up.
+ *
+ * The hint bought nothing anyway. The browser promotes an element when
+ * an animation on a compositor property actually starts, and both halves
+ * of this transition are opacity and transform. will-change is for
+ * warning about a change that has not happened yet — here it only ever
+ * created a stacking context nobody asked for. */
+
 
 .route-fx.is-out {
   opacity: 0;
