@@ -1,12 +1,5 @@
 import { useRef } from 'react';
-import {
-  motion,
-  useScroll,
-  useTransform,
-  useVelocity,
-  useSpring,
-  useReducedMotion,
-} from 'motion/react';
+import { motion, useScroll, useTransform, useReducedMotion } from 'motion/react';
 
 /**
  * A band of type that travels sideways while the page travels down.
@@ -35,27 +28,13 @@ import {
  * The text is deliberately set at low contrast and marked aria-hidden.
  * It is texture, not reading material.
  */
-export default function ScrollBand({ text, speed = 30, repeat = 4, className = '' }) {
+export default function ScrollBand({ text, speed = 30, repeat = 3, className = '' }) {
   const ref = useRef(null);
   const reduced = useReducedMotion();
 
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ['start end', 'end start'],
-  });
-
-  const scrollVelocity = useVelocity(scrollYProgress);
-
-  // The raw velocity is spiky and would make the skew jitter. The spring
-  // gives it the same follow-through the page itself has.
-  const smoothVelocity = useSpring(scrollVelocity, {
-    stiffness: 320,
-    damping: 46,
-    mass: 0.3,
-  });
-
-  const skew = useTransform(smoothVelocity, [-2.4, 0, 2.4], [4, 0, -4], {
-    clamp: true,
   });
 
   const x = useTransform(scrollYProgress, [0, 1], ['0%', `-${speed}%`]);
@@ -66,7 +45,7 @@ export default function ScrollBand({ text, speed = 30, repeat = 4, className = '
 
   return (
     <div className={`band ${className}`} ref={ref} aria-hidden="true">
-      <motion.div className="band-track" style={{ x, skewX: skew }}>
+      <motion.div className="band-track" style={{ x }}>
         {items.map((_, i) => (
           <span className="band-item" key={i}>
             {text}
@@ -77,3 +56,19 @@ export default function ScrollBand({ text, speed = 30, repeat = 4, className = '
     </div>
   );
 }
+
+/*
+ * THE SKEW WAS REMOVED, and it is worth saying why since it was the
+ * flashiest part.
+ *
+ * It ran the scroll velocity through a spring and mapped that to skewX,
+ * so the band leaned when you flicked the page. It looked good and it
+ * was expensive in the worst way: a skew forces the strip to be
+ * re-rasterised rather than just re-positioned, and it did that on every
+ * frame of every scroll, on a layer the width of several screens.
+ *
+ * Translation on its own is a compositor operation — the texture is
+ * drawn once and then moved. That is the whole difference between a
+ * band that costs nothing and a band that makes the page stutter, and
+ * a stutter destroys far more of the premium feel than a lean adds.
+ */

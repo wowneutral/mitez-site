@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { toggle, subscribe, isEnabled, play } from '../lib/sound.js';
+import { toggle, subscribe, isEnabled } from '../lib/sound.js';
 
 /**
  * Off / On, sitting in the nav.
@@ -22,7 +22,6 @@ export default function SoundToggle() {
       type="button"
       className={`sound-toggle${on ? ' is-on' : ''}`}
       onClick={() => toggle()}
-      onPointerEnter={() => play('hover')}
       aria-pressed={on}
       aria-label={on ? 'Turn sound off' : 'Turn sound on'}
     >

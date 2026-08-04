@@ -43,22 +43,25 @@ export function useSmoothScroll() {
     }
 
     const lenis = new Lenis({
-      // Long on purpose. 1.1s was already smooth, but the studio sites
-      // this is chasing are noticeably heavier than that: the page keeps
-      // travelling well after the wheel stops, and the deceleration is
-      // the part you actually feel. 1.6s is about the ceiling before the
-      // page stops feeling connected to the input at all.
-      duration: 1.6,
+      // 1.6s was too far. There is a line where "heavy" stops reading as
+      // expensive and starts reading as broken — the page keeps moving
+      // after you have stopped asking it to, and that feels like lag
+      // even at a perfect sixty frames a second. Weight has to arrive
+      // with the input, not after it. 1.35s keeps the follow-through
+      // and gives the wheel back its authority.
+      duration: 1.35,
       // Exponential ease-out: fast pickup, long tail. This curve is the
       // actual "feel" — it is what makes the stop read as deceleration
       // rather than as an ending. The exponent sets how long that tail
       // is; 9 rather than 10 keeps a little more energy in the drift.
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -9 * t)),
       smoothWheel: true,
-      // A single wheel notch travels slightly less far than default, so
-      // reaching the bottom of a long page takes deliberate scrolling
-      // rather than one flick. Pace is part of the cinematic feel.
-      wheelMultiplier: 0.85,
+      // Back to 1. Shortening the wheel notch to 0.85 meant every scroll
+      // moved less than the hand expected, which the body reads as the
+      // page resisting rather than as pace. Two ways to make something
+      // feel slow: move it slowly, or make it under-respond. Only the
+      // first one feels cinematic.
+      wheelMultiplier: 1,
       // Touch is left alone. Phone scrolling is already momentum-based in
       // the OS, and overriding it fights muscle memory and feels broken.
       syncTouch: false,

@@ -1,5 +1,6 @@
 import { useEffect, lazy, Suspense } from 'react';
 import { Routes, Route, useLocation, Link } from 'react-router-dom';
+import { motion } from 'motion/react';
 import SEO from './components/SEO.jsx';
 import Nav from './components/Nav.jsx';
 import Footer from './components/Footer.jsx';
@@ -84,6 +85,7 @@ function NotFound() {
 
 export default function App() {
   useSmoothScroll();
+  const { pathname } = useLocation();
 
   return (
     <>
@@ -92,7 +94,23 @@ export default function App() {
       <Nav />
       {/* A blank fallback rather than a spinner: these chunks are small and
           a flash of loading UI is worse than a beat of nothing. */}
+      {/* Every navigation used to be a hard cut: one page vanished and
+          the next was simply there. Keying this on the pathname means
+          React swaps the subtree on every route change, and the new page
+          lifts and fades in over 0.55s instead of appearing.
+
+          Deliberately a wrapper and not a full exit/enter transition.
+          Animating the OLD page out first means holding a dead page on
+          screen while someone waits for the one they asked for, and no
+          amount of polish is worth making navigation slower. This costs
+          nothing and removes the snap. */}
       <Suspense fallback={<div style={{ minHeight: '60vh' }} />}>
+        <motion.div
+          key={pathname}
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+        >
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
@@ -104,6 +122,7 @@ export default function App() {
           <Route path="/privacy" element={<Privacy />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </motion.div>
       </Suspense>
     </>
   );

@@ -1,6 +1,5 @@
 import { Fragment } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
-import { play } from '../lib/sound.js';
 
 /**
  * Masked word reveal.
@@ -58,11 +57,6 @@ export default function RiseText({
       initial="hidden"
       whileInView="show"
       viewport={{ once, amount }}
-      // The one place a scroll sound fires. Headings are the section
-      // boundaries, so tying the swell to them means the audio marks
-      // structure — roughly one note per section. Wiring it to every
-      // Reveal instead would turn scrolling into a rattle.
-      onViewportEnter={() => play('reveal')}
       variants={{
         hidden: {},
         show: { transition: { staggerChildren: stagger, delayChildren: delay } },

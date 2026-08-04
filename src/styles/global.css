@@ -33,37 +33,78 @@
   align-items: center;
   justify-content: center;
   background: var(--bg-deep);
-  opacity: 1;
-  /* The exit is long, and it moves. A dissolve alone is a cut with a
-     fade on it; adding a slow drift and a fractional scale means the
-     overlay leaves like a camera pulling back off the shot, while the
-     hero underneath is already partway through its own entrance. The
-     two overlap, which is what makes it read as one continuous move. */
-  transform: scale(1);
-  transition: opacity 1.5s cubic-bezier(0.22, 1, 0.36, 1),
-              transform 1.6s cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* THE APERTURE.
+     The overlay is clipped to a circle centred where the ring sits. At
+     rest that circle is bigger than the screen, so the overlay is simply
+     a full-bleed panel and nothing looks clipped. On exit the circle
+     shrinks to nothing, so the loading screen closes down onto its own
+     ring like a lens rather than fading or sliding out of the way.
+
+     The hero underneath is already a second into its own entrance by
+     then, so what you see is one continuous move that happens to pass
+     through both, instead of a loader ending and a page starting.
+
+     clip-path animates on the compositor, so this costs nothing to run
+     even while the Spline scene is streaming behind it. */
+  clip-path: circle(150% at 50% 50%);
+  transition: clip-path 1.5s cubic-bezier(0.76, 0, 0.24, 1),
+              opacity 0.4s ease 1.2s;
 }
 
 .preloader.is-done {
+  clip-path: circle(0% at 50% 50%);
   opacity: 0;
-  transform: scale(1.06) translateY(-2.5%);
   pointer-events: none;
 }
 
-/* On exit the contents drift up and settle out slightly ahead of the
-   overlay itself — the small offset between the two is what reads as a
-   camera move rather than a plain fade. */
+/* The contents leave slightly ahead of the aperture closing. That small
+   offset between the two is what reads as a camera move rather than one
+   element being switched off. */
 .preloader-inner {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 24px;
-  transition: opacity 0.55s ease, transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: opacity 0.6s ease, transform 1s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .preloader.is-done .preloader-inner {
   opacity: 0;
-  transform: translateY(-10px);
+  transform: scale(0.92);
+}
+
+/* ---- The ring ------------------------------------------------------
+   A shape rather than a readout. A bar filling left to right is the most
+   generic loading graphic there is, and a large percentage counter is
+   the second; both also point sideways, which fights the reveal that
+   follows. This points nowhere, and it becomes the aperture. */
+.preloader-ring {
+  position: relative;
+  width: clamp(120px, 22vw, 190px);
+  height: clamp(120px, 22vw, 190px);
+  display: grid;
+  place-items: center;
+}
+
+.preloader-ring svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.preloader-ring circle {
+  fill: none;
+  stroke-width: 1.25;
+  vector-effect: non-scaling-stroke;
+}
+
+.preloader-ring-bg { stroke: rgba(22, 24, 29, 0.13); }
+
+.preloader-ring-fg {
+  stroke: var(--ink);
+  stroke-linecap: round;
+  /* No CSS transition on the dash offset: it is driven every frame from
+     real load progress, and a transition on top of that would smear two
+     easings together and always lag the truth. */
 }
 
 /* Letters start wide and draw together as they fade up — a restrained
@@ -71,7 +112,7 @@
 .preloader-word {
   font-family: var(--display);
   font-weight: 600;
-  font-size: 24px;
+  font-size: clamp(13px, 1.6vw, 16px);
   letter-spacing: 0.28em;
   text-indent: 0.28em;
   color: var(--ink);
@@ -84,71 +125,13 @@
   to { opacity: 1; letter-spacing: 0.28em; text-indent: 0.28em; }
 }
 
-.preloader-track {
-  width: 160px;
-  height: 2px;
-  background: rgba(22, 24, 29, 0.12);
-  overflow: hidden;
-  opacity: 0;
-  /* Held back until the wordmark has mostly resolved, so the two events
-     read in sequence instead of arriving together. */
-  animation: preloader-track-in 0.7s ease 0.55s forwards;
-}
-
-@keyframes preloader-track-in {
-  to { opacity: 1; }
-}
-
-/* Indeterminate: the scene's load has no real progress events to read, so
-   showing a fake percentage would be dishonest. This sweeps instead. */
-/* Was an indeterminate sweep, which is decoration: it moves whether or
-   not anything is happening. This is now driven by the real counter, so
-   the bar is a measurement. An honest progress bar is worth more than a
-   pretty one — the sweep implied progress it had no knowledge of. */
-.preloader-fill {
-  display: block;
-  width: 100%;
-  height: 100%;
-  background: var(--ink);
-  transform-origin: 0 50%;
-  transform: scaleX(0);
-}
-
-/* The number sits in the corner rather than under the wordmark, so the
-   composition has two anchors instead of one centred stack. */
-.preloader-count {
-  position: absolute;
-  right: clamp(24px, 6vw, 80px);
-  bottom: clamp(24px, 6vw, 64px);
-  font-family: var(--display);
-  font-size: clamp(40px, 9vw, 104px);
-  font-weight: 300;
-  line-height: 1;
-  letter-spacing: -0.02em;
-  color: var(--ink);
-  opacity: 0;
-  animation: preloader-track-in 0.9s ease 0.35s forwards;
-  font-variant-numeric: tabular-nums;
-}
-
-@keyframes preloader-sweep {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(350%); }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .preloader-fill { animation: none; width: 100%; opacity: 0.35; }
-  /* Skip the entrance choreography but keep both elements visible. */
-  .preloader-word,
-  .preloader-track { animation: none; opacity: 1; }
+  .preloader { transition: opacity 0.3s ease; clip-path: none; }
+  .preloader.is-done { clip-path: none; }
+  .preloader-word { animation: none; opacity: 1; }
   .preloader-inner { transition: none; }
 }
 
-/* Native smooth scrolling now only applies when Lenis is NOT running.
-   Lenis adds .lenis to <html> when it starts, and the two systems must
-   never both be animating the same scroll position — that fight is what
-   produces the stutter people describe as "jittery" smooth scroll.
-   Reduced motion keeps the plain jump. */
 html:not(.lenis) { scroll-behavior: smooth; }
 section[id] { scroll-margin-top: 32px; }
 
@@ -196,9 +179,17 @@ html.lenis, html.lenis body { height: auto; }
   margin-bottom: -0.16em;
 }
 
+/* No will-change here, deliberately, and this was a real bug rather than
+   a preference. will-change promotes an element to its own compositor
+   layer and keeps it there. Every word of every heading on the site is
+   one of these, well over a hundred elements, so a hint meant to smooth
+   one animation was instead holding a hundred-odd GPU layers resident
+   for the life of the page. That is a permanent memory and compositing
+   cost paid for an animation that runs once, and it is one of the more
+   common ways to make a page slower by trying to make it faster. Motion
+   promotes what it is animating only while it animates it. */
 .rise-word-in {
   display: inline-block;
-  will-change: transform;
 }
 
 /* ---------- Scroll band ----------------------------------------------
@@ -213,6 +204,10 @@ html.lenis, html.lenis body { height: auto; }
   padding: clamp(28px, 5vw, 60px) 0;
   pointer-events: none;
   user-select: none;
+  /* Nothing inside can affect layout or painting outside it, so a very
+     wide moving strip does not drag the rest of the page into its work
+     on every frame. */
+  contain: layout paint;
 }
 
 .band-track {
@@ -220,7 +215,7 @@ html.lenis, html.lenis body { height: auto; }
   align-items: center;
   gap: clamp(24px, 4vw, 60px);
   width: max-content;
-  will-change: transform;
+  transform: translateZ(0);
 }
 
 .band-item {
@@ -229,7 +224,10 @@ html.lenis, html.lenis body { height: auto; }
   gap: clamp(24px, 4vw, 60px);
   white-space: nowrap;
   font-family: var(--display);
-  font-size: clamp(40px, 9vw, 132px);
+  /* Capped well below the old 132px. A strip this wide rasterises as one
+     very large texture and the cost scales with its area, so this
+     ceiling is a performance number as much as a typographic one. */
+  font-size: clamp(34px, 6vw, 88px);
   font-weight: 300;
   line-height: 1;
   letter-spacing: -0.02em;
@@ -243,9 +241,6 @@ html.lenis, html.lenis body { height: auto; }
 /* On the dark Pilot/Final sections the same band has to invert. */
 .band-on-dark .band-item { color: rgba(242, 242, 242, 0.13); }
 .band-on-dark .band-dot { color: rgba(242, 242, 242, 0.18); }
-
-/* ---------- Magnetic controls ---------------------------------------- */
-.magnetic { display: inline-block; will-change: transform; }
 
 /* ---------- Sound toggle ---------------------------------------------
    Off / On stated as words. A speaker icon with a slash through it is
@@ -938,8 +933,16 @@ footer { padding: 70px 0 40px; }
   color: var(--ink);
   text-decoration: none;
 }
-.nav-links { display: flex; gap: 34px; }
+.nav-links { display: flex; gap: 34px; align-items: center; }
+
+/* The underline is a pseudo-element rather than a border so it can be
+   scaled, and the transform-origin flips between the two states. It
+   grows from the left on the way in and retracts to the right on the way
+   out, so the gesture has a direction and the pointer appears to be
+   dragging it. A border-bottom that simply changes colour is a state
+   change; this is a movement, and it costs the same. */
 .nav-link {
+  position: relative;
   font-family: var(--display);
   font-size: 12px;
   letter-spacing: 0.12em;
@@ -947,11 +950,26 @@ footer { padding: 70px 0 40px; }
   color: var(--muted);
   text-decoration: none;
   padding: 6px 0;
-  border-bottom: 1px solid transparent;
-  transition: color .25s ease, border-color .25s ease;
+  transition: color .35s cubic-bezier(0.22, 1, 0.36, 1);
 }
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: var(--ink);
+  transform: scaleX(0);
+  transform-origin: 100% 50%;
+  transition: transform .45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 .nav-link:hover { color: var(--ink); }
-.nav-link.is-active { color: var(--ink); border-bottom-color: var(--ink); }
+.nav-link:hover::after { transform: scaleX(1); transform-origin: 0 50%; }
+.nav-link.is-active { color: var(--ink); }
+.nav-link.is-active::after { transform: scaleX(1); }
 
 .nav-toggle {
   display: none;

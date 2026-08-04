@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
 import { TextAnimate } from '../magicui/text-animate.jsx';
 import Reveal from '../Reveal.jsx';
-import Magnetic from '../Magnetic.jsx';
 import { TALLY } from '../../config/forms.js';
 
 // Real copy from the live static site's final CTA section.
@@ -28,10 +27,10 @@ export default function FinalCta() {
             finished reading. The fourth was a mailto:, which does nothing
             at all on a machine with no mail client configured. */}
         <Reveal as="div" variant="up" delay={0.2} className="final-actions">
-          <Magnetic><a className="btn btn-primary" href={`https://tally.so/r/${TALLY.learn}`} target="_blank" rel="noreferrer">Learn Something</a></Magnetic>
-          <Magnetic><a className="btn btn-ghost" href={`https://tally.so/r/${TALLY.mentor}`} target="_blank" rel="noreferrer">Become a Mentor</a></Magnetic>
-          <Magnetic><a className="btn btn-ghost" href={`https://tally.so/r/${TALLY.partner}`} target="_blank" rel="noreferrer">Partner With Us</a></Magnetic>
-          <Magnetic><Link className="btn btn-ghost" to="/contact">Contact MITEZ</Link></Magnetic>
+          <a className="btn btn-primary" href={`https://tally.so/r/${TALLY.learn}`} target="_blank" rel="noreferrer">Learn Something</a>
+          <a className="btn btn-ghost" href={`https://tally.so/r/${TALLY.mentor}`} target="_blank" rel="noreferrer">Become a Mentor</a>
+          <a className="btn btn-ghost" href={`https://tally.so/r/${TALLY.partner}`} target="_blank" rel="noreferrer">Partner With Us</a>
+          <Link className="btn btn-ghost" to="/contact">Contact MITEZ</Link>
         </Reveal>
         <p className="final-signature">Gainesville, Florida, 2026</p>
         <div className="final-divider" />
