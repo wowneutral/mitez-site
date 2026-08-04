@@ -39,7 +39,7 @@ const MAX_MS = 9000;
 const FADE_MS = 800;
 
 export default function Preloader({ ready, onEnter }) {
-  const skip = useRef(hasEntered());
+  const skip = useRef(false); // was hasEntered() — see note below
 
   const [minElapsed, setMinElapsed] = useState(false);
   const [timedOut, setTimedOut] = useState(false);

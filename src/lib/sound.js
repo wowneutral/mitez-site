@@ -63,8 +63,8 @@ const CHORD_MS = 8000;
 // preference: ambient music that you actively notice has stopped being
 // atmosphere and started being content, and it competes with the thing
 // the visitor came to read. This sits it under everything.
-const MUSIC_LEVEL = 0.42;
-const DUCK_LEVEL = 0.16;
+const MUSIC_LEVEL = 0.24;
+const DUCK_LEVEL = 0.08;
 
 /**
  * Pull the score down for a moment so an interface sound can be heard
@@ -142,8 +142,8 @@ function pad(freq, holdMs) {
 
   const gain = ctx.createGain();
   gain.gain.setValueAtTime(0.0001, now);
-  gain.gain.linearRampToValueAtTime(0.038, now + attack);
-  gain.gain.setValueAtTime(0.038, now + hold);
+  gain.gain.linearRampToValueAtTime(0.03, now + attack);
+  gain.gain.setValueAtTime(0.03, now + hold);
   gain.gain.exponentialRampToValueAtTime(0.0001, now + hold + release);
 
   const filter = ctx.createBiquadFilter();
