@@ -193,6 +193,24 @@
 @media (max-width: 720px) {
   .intro-row { gap: 16px; }
   .intro-mark { font-size: 12px; }
+  /* Two labelled controls do not fit across a phone next to the safe
+     margin, so they stack. Right-aligned, so they still read as one
+     group hanging off the same edge. */
+  .intro-audio {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+  }
+  .intro-snd { padding: 8px 2px; font-size: 10.5px; letter-spacing: 0.14em; }
+  /* The enter target is the only thing on the screen worth pressing;
+     give it room to be pressed by a thumb. */
+  .intro-enter { padding: 20px 18px; }
+}
+
+/* Below ~380px the labels themselves are the problem, not the layout. */
+@media (max-width: 380px) {
+  .intro-snd { font-size: 0; gap: 0; }
+  .intro-snd-bars, .intro-snd-dot { margin: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -418,8 +436,13 @@ html.lenis, html.lenis body { height: auto; }
 }
 
 @media (max-width: 900px) {
-  .sound-pair { gap: 12px; }
+  .sound-pair { gap: 4px; }
   .sound-label { display: none; }
+  /* Label-less, these become two tiny glyphs. Padding brings them up to
+     a real touch target — 44px is the size a fingertip actually needs,
+     and it costs nothing visually because the background is transparent. */
+  .sound-toggle { padding: 12px 10px; }
+  .nav-right { gap: 6px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1042,6 +1065,48 @@ footer { padding: 70px 0 40px; }
   .who-row p { grid-column: 1 / -1; }
 }
 
+
+/* ============================================================
+   FOCUS
+   Everything on this site is reachable by keyboard and, until
+   now, invisible while you did it: the default outline was
+   being removed in places and nothing replaced it, so tabbing
+   through the nav or the forms meant guessing where you were.
+
+   :focus-visible rather than :focus, so it appears for keyboard
+   and assistive tech and never after a mouse click — which is
+   the reason people started removing outlines in the first
+   place. Drawn in the ink colour with an offset so it reads as
+   a deliberate ring rather than a browser artefact.
+   ============================================================ */
+:where(a, button, input, textarea, select, [tabindex]):focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* Skip link. Every page opens with the same nav, and without this a
+   keyboard or screen-reader visitor tabs through all of it on every
+   single page before reaching a word of content. Invisible until
+   focused, which is the whole trick. */
+.skip-link {
+  position: absolute;
+  left: 12px;
+  top: -60px;
+  z-index: 400;
+  padding: 12px 18px;
+  background: var(--ink);
+  color: var(--bg-deep);
+  font-family: var(--display);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: top 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.skip-link:focus-visible { top: 12px; outline-offset: 2px; }
+
 /* ============================================================
    NAV — shared across all routes
    ============================================================ */
@@ -1055,6 +1120,28 @@ footer { padding: 70px 0 40px; }
   transition: border-color .3s ease, background .3s ease;
 }
 .nav.is-scrolled { border-bottom-color: rgba(22,24,29,0.1); }
+
+/* Hidden on the way down, back on the way up. The bar is only wanted at
+   the moment someone decides to go somewhere, and that moment is
+   almost always an upward scroll. */
+.nav {
+  transform: translateY(0);
+  transition: border-color .3s ease, background .3s ease,
+              transform .55s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+.nav.is-hidden { transform: translateY(-101%); }
+
+/* The sound controls sit here rather than inside .nav-links, which is
+   display:none below 820px — they were completely unreachable on a
+   phone. */
+.nav-right { display: flex; align-items: center; gap: 20px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .nav { transition: border-color .3s ease, background .3s ease; }
+  .nav.is-hidden { transform: none; }
+}
 .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 68px; }
 .nav-logo {
   font-family: var(--display);

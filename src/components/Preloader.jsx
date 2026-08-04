@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import {
   toggleMusic, toggleSfx, isMusicOn, isSfxOn, subscribe, click, setScene,
 } from '../lib/sound.js';
-import { markEntered } from '../lib/session.js';
+import { hasEntered, markEntered } from '../lib/session.js';
 import { lockScroll, unlockScroll } from '../lib/smoothScroll.js';
 
 /**
@@ -50,17 +50,33 @@ const FADE_MS = 900;
 
 
 export default function Preloader({ ready, onEnter }) {
+  // ONCE PER TAB. Crossing a threshold is meaningful the first time; on
+  // the fourth reload it is a toll booth. A refresh skips straight
+  // through and the panel sweep plays the short version instead. The
+  // sound choice does not go with it — both switches live in the nav
+  // too, so nothing is only reachable from a screen you have passed.
+  const skip = useRef(hasEntered());
+
   const [minElapsed, setMinElapsed] = useState(false);
   const [timedOut, setTimedOut] = useState(false);
   const [progress, setProgress] = useState(0);
   const [snd, setSnd] = useState({ music: isMusicOn(), sfx: isSfxOn() });
   const [entering, setEntering] = useState(false);
-  const [unmounted, setUnmounted] = useState(false);
+  const [unmounted, setUnmounted] = useState(skip.current);
   const enterRef = useRef(null);
 
   useEffect(() => subscribe(setSnd), []);
 
+  // Already crossed in this tab: tell the hero to play its entrance and
+  // get out of the way.
   useEffect(() => {
+    if (!skip.current) return;
+    setScene('site');
+    onEnter?.();
+  }, [onEnter]);
+
+  useEffect(() => {
+    if (skip.current) return undefined;
     const a = setTimeout(() => setMinElapsed(true), MIN_MS);
     const b = setTimeout(() => setTimedOut(true), MAX_MS);
     return () => {
@@ -75,6 +91,7 @@ export default function Preloader({ ready, onEnter }) {
   // runs hard to a genuine 100. It must be seen to arrive — an indicator
   // that stops short and vanishes fails at the one thing it promised.
   useEffect(() => {
+    if (skip.current) return undefined;
     let frame;
     const tick = () => {
       setProgress((p) => {
@@ -107,7 +124,7 @@ export default function Preloader({ ready, onEnter }) {
   // regardless, so the page slid around behind the fixed overlay. Lenis
   // has to be told to stop.
   useEffect(() => {
-    if (entering) return undefined;
+    if (skip.current || entering) return undefined;
     lockScroll();
     return unlockScroll;
   }, [entering]);

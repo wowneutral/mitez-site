@@ -70,7 +70,7 @@ function ScrollToTop() {
 
 function NotFound() {
   return (
-    <main className="page">
+    <main className="page" id="main">
       <SEO title="Page Not Found" path="/404" noindex />
       <div className="wrap notfound">
         <p className="section-label">404</p>
@@ -164,6 +164,10 @@ export default function App() {
 
   return (
     <>
+      {/* First thing in the tab order on every page. Without it, a
+          keyboard visitor tabs the whole nav before reaching content,
+          on every single page. */}
+      <a className="skip-link" href="#main">Skip to content</a>
       <ScrollToTop />
       <ScrollProgress />
       <PanelSweep />

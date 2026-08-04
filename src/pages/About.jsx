@@ -30,7 +30,7 @@ const VALUES = [
 
 export default function About() {
   return (
-    <main className="page">
+    <main className="page" id="main">
       <SEO
         title="About"
         description="MITEZ started in Gainesville, Florida with one promise: make it easier to find someone who will help you learn anything, for free. Here's what we hold to and where things stand today."

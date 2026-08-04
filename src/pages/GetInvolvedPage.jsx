@@ -52,7 +52,7 @@ const BLOCKS = [
 
 export default function GetInvolvedPage() {
   return (
-    <main className="page">
+    <main className="page" id="main">
       <SEO
         title="Get Involved"
         description="Learn something, teach something, partner as a school or organization, or support the work, every way to get involved with MITEZ is free."

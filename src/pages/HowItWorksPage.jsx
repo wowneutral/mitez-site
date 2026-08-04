@@ -64,7 +64,7 @@ export default function HowItWorksPage() {
   const lineHeight = useTransform(scrollYProgress, [0, 1], ['0%', '100%']);
 
   return (
-    <main className="page">
+    <main className="page" id="main">
       <SEO
         title="How It Works"
         description="Tell us what you want to learn, get matched with someone who knows it, and work through it together, free, with no fixed subject list."

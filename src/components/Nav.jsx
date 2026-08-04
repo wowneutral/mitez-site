@@ -14,6 +14,7 @@ const LINKS = [
 export default function Nav() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [hidden, setHidden] = useState(false);
   const { pathname } = useLocation();
 
   // Close the mobile menu on navigation, otherwise it stays open over the
@@ -22,8 +23,26 @@ export default function Nav() {
     setOpen(false);
   }, [pathname]);
 
+  // Hidden on the way down, back on the way up.
+  //
+  // Reading is downward, so scrolling down is a request for more page and
+  // a fixed bar sitting over it is in the way. Scrolling up is almost
+  // always a request to go somewhere, which is when navigation should be
+  // there — so the bar arrives exactly when it is wanted and is absent
+  // the rest of the time. It also hands roughly seventy pixels back to
+  // the content on a phone, which is where that matters most.
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8 || document.body.scrollTop > 8);
+    let last = window.scrollY;
+    const onScroll = () => {
+      const y = window.scrollY || document.body.scrollTop;
+      setScrolled(y > 8);
+      // The threshold stops a trackpad's jitter from flickering the bar,
+      // and it always shows again near the top regardless of direction.
+      if (Math.abs(y - last) > 6) {
+        setHidden(y > last && y > 220);
+        last = y;
+      }
+    };
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     document.body.addEventListener('scroll', onScroll, { passive: true });
@@ -44,7 +63,7 @@ export default function Nav() {
   }, [open]);
 
   return (
-    <header className={`nav${scrolled ? ' is-scrolled' : ''}`}>
+    <header className={`nav${scrolled ? ' is-scrolled' : ''}${hidden && !open ? ' is-hidden' : ''}`}>
       <div className="wrap nav-inner">
         {/* The logo always plays the reveal, including when it is
             clicked from the homepage. React Router reports no change in
@@ -77,8 +96,14 @@ export default function Nav() {
               {l.label}
             </NavLink>
           ))}
-          <SoundToggle />
         </nav>
+
+        {/* Outside .nav-links on purpose: that element is display:none
+            below 820px, so the sound controls were unreachable on a
+            phone entirely. They live in their own group beside the menu
+            button and stay visible at every width. */}
+        <div className="nav-right">
+          <SoundToggle />
 
         <button
           type="button"
@@ -93,6 +118,7 @@ export default function Nav() {
             <i />
           </span>
         </button>
+        </div>
       </div>
 
       {/* The links MUST stay wrapped in a single child. The open/close

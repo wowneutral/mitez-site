@@ -44,7 +44,7 @@ export default function Home() {
   const handleEnter = useCallback(() => setEntered(true), []);
 
   return (
-    <main>
+    <main id="main">
       <SEO
         description="MITEZ is free mentorship and hands-on support for anything you want to learn, tutoring, life skills, career skills, and more. Based in Gainesville, Florida, open to anyone who asks."
         path="/"

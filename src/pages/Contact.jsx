@@ -6,7 +6,7 @@ import { CONTACT_EMAIL } from '../config/forms.js';
 
 export default function Contact() {
   return (
-    <main className="page">
+    <main className="page" id="main">
       <SEO
         title="Contact"
         description="Questions, ideas, or something you want to learn, get in touch with MITEZ. We read everything and usually reply within a few days."
