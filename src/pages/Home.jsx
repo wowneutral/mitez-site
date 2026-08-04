@@ -13,6 +13,7 @@ import GetInvolved from '../components/sections/GetInvolved.jsx';
 import FinalCta from '../components/sections/FinalCta.jsx';
 import Footer from '../components/Footer.jsx';
 import ScrollBand from '../components/ScrollBand.jsx';
+import Strings from '../components/Strings.jsx';
 import RiseText from '../components/RiseText.jsx';
 
 // Every section below Hero uses real copy carried over from the live
@@ -102,8 +103,25 @@ export default function Home() {
       <ScrollBand text="Make it easy" speed={34} />
 
       <Pilot />
+
+      {/* The third band carries facts rather than a phrase, and travels
+          the other way. Same device, different job: this one is the
+          site's plainest information — where, what, how much — moving
+          past at reading size without being a paragraph anyone has to
+          get through. */}
+      <ScrollBand
+        text="Gainesville, Florida — Fully remote — No fixed subject list — Free, always"
+        speed={22}
+        reverse
+      />
       <FounderNote />
       <FinalCta />
+
+      {/* The toy. Fourteen strings, pentatonic, through the same synth
+          and reverb as everything else — so it belongs to this site
+          rather than being an effect bolted onto the bottom of it. */}
+      <Strings />
+
       <Footer />
     </main>
   );

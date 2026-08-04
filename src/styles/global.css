@@ -434,6 +434,16 @@ html.lenis, html.lenis body { height: auto; }
 .sound-pair { display: inline-flex; align-items: center; gap: 14px; }
 
 /* ---- The track menu -------------------------------------------------
+   NAMESPACED. This was written as .track-menu / .track-item /
+   .track-dot, which are the class names the Response section on the
+   homepage has always used for its three numbered steps. The menu's
+   rules landed on them: display:flex turned each step into a horizontal
+   row, and the 11px uppercase treatment shrank the copy and set it in
+   caps, so the section rendered as three collided rows overlapping the
+   rule above them.
+
+   Generic names in a global stylesheet are a loaded gun. Everything
+   here is prefixed with the component that owns it.
    Hover the music control and the nine scores appear, with the one
    playing marked. Cycling was fine for four; with nine it means eight
    clicks and two seconds of crossfade each to reach the one you wanted,
@@ -455,7 +465,7 @@ html.lenis, html.lenis body { height: auto; }
 .sound-caret:hover { color: var(--ink); }
 .sound-pair.is-open .sound-caret { color: var(--ink); transform: rotate(180deg); }
 
-.track-menu {
+.snd-menu {
   position: absolute;
   top: calc(100% + 12px);
   right: 0;
@@ -477,13 +487,13 @@ html.lenis, html.lenis body { height: auto; }
   transition: opacity 0.28s ease, transform 0.36s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.sound-pair.is-open .track-menu {
+.sound-pair.is-open .snd-menu {
   opacity: 1;
   transform: none;
   pointer-events: auto;
 }
 
-.track-item {
+.snd-menu-item {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -501,11 +511,11 @@ html.lenis, html.lenis body { height: auto; }
   transition: color 0.25s ease, background 0.25s ease;
 }
 
-.track-item:hover, .track-item:focus-visible { color: var(--ink); background: rgba(22, 24, 29, 0.04); outline: none; }
+.snd-menu-item:hover, .snd-menu-item:focus-visible { color: var(--ink); background: rgba(22, 24, 29, 0.04); outline: none; }
 
 /* The dot is the only marker. A tick would be a second visual language
    for something the eye already reads as on or off. */
-.track-dot {
+.snd-menu-dot {
   width: 5px;
   height: 5px;
   border-radius: 50%;
@@ -514,14 +524,14 @@ html.lenis, html.lenis body { height: auto; }
   transition: background 0.3s ease;
 }
 
-.track-item.is-current { color: var(--ink); }
-.track-item.is-current .track-dot { background: currentColor; }
+.snd-menu-item.is-current { color: var(--ink); }
+.snd-menu-item.is-current .snd-menu-dot { background: currentColor; }
 
 @media (max-width: 760px) {
   /* Anchored to the right edge of the bar rather than the control, so a
      narrow screen cannot push it off the side. */
-  .track-menu { right: -8px; min-width: 148px; }
-  .track-item { padding: 11px 10px; }
+  .snd-menu { right: -8px; min-width: 148px; }
+  .snd-menu-item { padding: 11px 10px; }
 }
 
 .sound-dot {
@@ -2070,4 +2080,81 @@ footer { padding: 70px 0 40px; }
   .intro-snd:hover, .intro-enter:hover { transition: none; }
   .nav-link:hover::after { transform: scaleX(0); }
   .nav-link.is-active::after { transform: scaleX(1); }
+}
+
+
+/* ============================================================
+   THE STRINGS
+   Fourteen lines above the footer. Drag across them and they
+   ring — pentatonic, so there are no wrong notes, through the
+   same synth and the same reverb as the score.
+   ============================================================ */
+.strings-wrap { padding: clamp(40px, 7vw, 90px) 0 clamp(16px, 3vw, 28px); }
+
+.strings {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 0;
+  height: clamp(84px, 12vw, 150px);
+  width: min(1320px, 92vw);
+  margin: 0 auto;
+  /* The pointer has to be able to cross the whole row, so the container
+     takes the events rather than each line. */
+  cursor: crosshair;
+}
+
+.string {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+/* The line itself is a child, so the hit area stays a full-width column
+   while the visible string stays a hairline. Fourteen 1px targets would
+   be unplayable. */
+.string i {
+  display: block;
+  width: 1px;
+  height: 100%;
+  background: rgba(22, 24, 29, 0.16);
+  transform-origin: 50% 100%;
+}
+
+/* Struck: a quick lateral snap that settles. scaleX on a 1px line reads
+   as the string thickening under the finger, and the whole thing is
+   transform-only so it never touches layout. */
+.string.is-struck i {
+  animation: string-pluck 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  background: var(--ink);
+}
+
+@keyframes string-pluck {
+  0% { transform: scaleX(1) translateX(0); }
+  15% { transform: scaleX(3) translateX(2px); }
+  40% { transform: scaleX(2) translateX(-1.5px); }
+  70% { transform: scaleX(1.4) translateX(0.6px); }
+  100% { transform: scaleX(1) translateX(0); }
+}
+
+.strings-hint {
+  margin-top: 18px;
+  text-align: center;
+  font-family: var(--display);
+  font-size: 10.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  opacity: 0.7;
+}
+
+@media (max-width: 760px) {
+  .strings { height: 76px; width: 92vw; }
+  .strings-hint { font-size: 9.5px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .string.is-struck i { animation: none; background: var(--ink); }
 }

@@ -28,7 +28,7 @@ import { motion, useScroll, useTransform, useReducedMotion } from 'motion/react'
  * The text is deliberately set at low contrast and marked aria-hidden.
  * It is texture, not reading material.
  */
-export default function ScrollBand({ text, speed = 30, repeat = 3, className = '' }) {
+export default function ScrollBand({ text, speed = 30, repeat = 3, reverse = false, className = '' }) {
   const ref = useRef(null);
   const reduced = useReducedMotion();
 
@@ -37,7 +37,14 @@ export default function ScrollBand({ text, speed = 30, repeat = 3, className = '
     offset: ['start end', 'end start'],
   });
 
-  const x = useTransform(scrollYProgress, [0, 1], ['0%', `-${speed}%`]);
+  // Two bands travelling the same way read as one long strip glimpsed
+  // twice. Opposing directions read as depth — layers moving past each
+  // other at different rates, which is the whole reason this works.
+  const x = useTransform(
+    scrollYProgress,
+    [0, 1],
+    reverse ? [`-${speed}%`, '0%'] : ['0%', `-${speed}%`],
+  );
 
   if (reduced) return null;
 

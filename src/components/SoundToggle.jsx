@@ -123,18 +123,18 @@ export default function SoundToggle() {
           <svg viewBox="0 0 10 6" aria-hidden="true"><path d="M1 1l4 4 4-4" /></svg>
         </button>
 
-        <ul className="track-menu" role="menu" aria-label="Music">
+        <ul className="snd-menu" role="menu" aria-label="Music">
           {TRACKS.map((t) => (
             <li key={t.id}>
               <button
                 type="button"
                 role="menuitemradio"
                 aria-checked={t.id === tr.id}
-                className={`track-item${t.id === tr.id ? ' is-current' : ''}`}
+                className={`snd-menu-item${t.id === tr.id ? ' is-current' : ''}`}
                 onClick={() => choose(t.id)}
                 onPointerEnter={hover}
               >
-                <span className="track-dot" aria-hidden="true" />
+                <span className="snd-menu-dot" aria-hidden="true" />
                 {t.label}
               </button>
             </li>

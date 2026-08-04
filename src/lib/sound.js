@@ -756,6 +756,54 @@ export function hover() {
   osc.stop(now + 0.15);
 }
 
+/**
+ * A plucked string, for the toy at the foot of the page.
+ *
+ * Sharper attack and a much longer tail than anything else here: a
+ * struck string is almost all decay, and the decay is what makes it
+ * sound plucked rather than switched on. Two detuned saw voices through
+ * a filter that closes as it fades, which is the cheapest convincing
+ * imitation of a real string losing its high harmonics first.
+ *
+ * Goes through the effects bus and the reverb, so it lands in the same
+ * room as the score and the clicks rather than sounding pasted on. It
+ * does NOT duck the music — you may well play a run of these, and a
+ * score that flinches every time would be seasick.
+ */
+export function pluckString(freq) {
+  if (!sfxOn || !ctx) return;
+  const now = ctx.currentTime;
+
+  const gain = ctx.createGain();
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.linearRampToValueAtTime(0.075, now + 0.004);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + 2.4);
+
+  const filter = ctx.createBiquadFilter();
+  filter.type = 'lowpass';
+  filter.frequency.setValueAtTime(Math.min(freq * 6, 7000), now);
+  filter.frequency.exponentialRampToValueAtTime(Math.max(freq * 1.5, 320), now + 1.6);
+  filter.Q.value = 0.7;
+
+  const a = ctx.createOscillator();
+  const b = ctx.createOscillator();
+  a.type = 'sawtooth';
+  b.type = 'sawtooth';
+  a.frequency.value = freq;
+  b.frequency.value = freq * 1.004;
+
+  a.connect(filter);
+  b.connect(filter);
+  filter.connect(gain);
+  gain.connect(sfxBus);
+  gain.connect(convolver);
+
+  a.start(now);
+  b.start(now);
+  a.stop(now + 2.6);
+  b.stop(now + 2.6);
+}
+
 /** The page sweep. Noise falling from 1.8kHz to 180Hz: something passing. */
 export function whoosh() {
   if (!sfxOn || !ctx) return;
