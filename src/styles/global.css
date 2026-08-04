@@ -399,7 +399,12 @@ html.lenis, html.lenis body { height: auto; }
   align-items: center;
   gap: clamp(24px, 4vw, 60px);
   width: max-content;
-  transform: translateZ(0);
+  /* will-change IS justified here, unlike the two places it was wrong
+     before. These strips are genuinely animating for the entire time
+     they are on screen, so promoting them is paying once for something
+     that would otherwise be re-decided every frame. The earlier misuses
+     were on elements that animate once, or not at all. */
+  will-change: transform;
 }
 
 .band-item {

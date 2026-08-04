@@ -28,7 +28,7 @@ import { motion, useScroll, useTransform, useReducedMotion } from 'motion/react'
  * The text is deliberately set at low contrast and marked aria-hidden.
  * It is texture, not reading material.
  */
-export default function ScrollBand({ text, speed = 30, repeat = 3, reverse = false, className = '' }) {
+export default function ScrollBand({ text, speed = 30, repeat = 2, reverse = false, className = '' }) {
   const ref = useRef(null);
   const reduced = useReducedMotion();
 
@@ -47,6 +47,11 @@ export default function ScrollBand({ text, speed = 30, repeat = 3, reverse = fal
   );
 
   if (reduced) return null;
+
+  // Two repeats, not three. At the capped type size two already run past
+  // both edges of any viewport this ships to, so the third was a third
+  // more texture for a strip nobody can see the end of. With three bands
+  // on the page that is three wasted layers.
 
   const items = Array.from({ length: repeat });
 

@@ -69,27 +69,44 @@ export function useSmoothScroll() {
     }
 
     const lenis = new Lenis({
-      // 1.6s was too far. There is a line where "heavy" stops reading as
-      // expensive and starts reading as broken — the page keeps moving
-      // after you have stopped asking it to, and that feels like lag
-      // even at a perfect sixty frames a second. Weight has to arrive
-      // with the input, not after it. 1.35s keeps the follow-through
-      // and gives the wheel back its authority.
-      duration: 1.35,
-      // Exponential ease-out: fast pickup, long tail. This curve is the
-      // actual "feel" — it is what makes the stop read as deceleration
-      // rather than as an ending. The exponent sets how long that tail
-      // is; 9 rather than 10 keeps a little more energy in the drift.
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -9 * t)),
+      /**
+       * LERP, NOT DURATION — and the difference is the whole reason this
+       * now feels fluid rather than merely slow.
+       *
+       * With `duration`, every wheel event starts a fresh easing curve
+       * toward a new target. Scroll continuously and you are restarting
+       * that curve several times a second, so the motion is really a
+       * series of overlapping tweens: it accelerates, gets interrupted,
+       * accelerates again. That is what made 1.6s read as lag rather
+       * than as weight — the page was always mid-tween, never simply
+       * moving.
+       *
+       * `lerp` blends toward the target by a fixed fraction every frame
+       * instead. There is no curve to restart: a new wheel event just
+       * moves the target, and the page keeps travelling with the same
+       * continuous ease it already had. Motion begins on the very first
+       * frame after your input — so it stays responsive — but approaches
+       * slowly and never quite snaps to a stop. That combination,
+       * immediate response with a long approach, is what people are
+       * describing when they call a scroll expensive.
+       *
+       * 0.07 is deliberately at the slow end. Studio sites sit around
+       * 0.075 to 0.1; below about 0.05 the page starts drifting after
+       * you have stopped asking it to, which reads as broken.
+       */
+      lerp: 0.07,
+
       smoothWheel: true,
-      // Back to 1. Shortening the wheel notch to 0.85 meant every scroll
-      // moved less than the hand expected, which the body reads as the
-      // page resisting rather than as pace. Two ways to make something
-      // feel slow: move it slowly, or make it under-respond. Only the
-      // first one feels cinematic.
-      wheelMultiplier: 1,
-      // Touch is left alone. Phone scrolling is already momentum-based in
-      // the OS, and overriding it fights muscle memory and feels broken.
+
+      // Slightly under 1, which is affordable now. Under a duration
+      // tween a short notch felt like resistance because the motion was
+      // already lagging the input; under a lerp the response is
+      // immediate, so a shorter notch just reads as a longer, calmer
+      // travel.
+      wheelMultiplier: 0.9,
+
+      // Touch is left alone. A phone's scrolling is already momentum
+      // based in the OS, and overriding it fights muscle memory.
       syncTouch: false,
       touchMultiplier: 1.5,
     });
