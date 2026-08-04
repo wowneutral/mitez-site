@@ -63,8 +63,8 @@ const CHORD_MS = 8000;
 // preference: ambient music that you actively notice has stopped being
 // atmosphere and started being content, and it competes with the thing
 // the visitor came to read. This sits it under everything.
-const MUSIC_LEVEL = 0.24;
-const DUCK_LEVEL = 0.08;
+const MUSIC_LEVEL = 0.2;
+const DUCK_LEVEL = 0.07;
 
 /**
  * Pull the score down for a moment so an interface sound can be heard
@@ -102,7 +102,7 @@ function ensureContext() {
   musicBus.connect(master);
 
   sfxBus = ctx.createGain();
-  sfxBus.gain.value = 1;
+  sfxBus.gain.value = 1.6;
   sfxBus.connect(master);
 
   // Reverb from a generated impulse: exponentially decaying noise. This
@@ -212,7 +212,7 @@ export function click() {
   // reads as an object settling.
   osc.frequency.exponentialRampToValueAtTime(174.61, now + 0.22);
   gain.gain.setValueAtTime(0.0001, now);
-  gain.gain.linearRampToValueAtTime(0.075, now + 0.012);
+  gain.gain.linearRampToValueAtTime(0.16, now + 0.012);
   gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.42);
   duck();
   osc.connect(gain);
@@ -253,7 +253,7 @@ export function whoosh() {
 
   const gain = ctx.createGain();
   gain.gain.setValueAtTime(0.0001, now);
-  gain.gain.linearRampToValueAtTime(0.05, now + 0.14);
+  gain.gain.linearRampToValueAtTime(0.13, now + 0.14);
   gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
 
   duck();
@@ -280,7 +280,7 @@ export function hover() {
   osc.type = 'sine';
   osc.frequency.value = 392;
   gain.gain.setValueAtTime(0.0001, now);
-  gain.gain.linearRampToValueAtTime(0.016, now + 0.01);
+  gain.gain.linearRampToValueAtTime(0.055, now + 0.01);
   gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.13);
   osc.connect(gain);
   gain.connect(sfxBus);
