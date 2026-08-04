@@ -37,32 +37,33 @@ export default function ScrollBand({ text, repeat = 3, reverse = false, classNam
     offset: ['start end', 'end start'],
   });
 
-  // ALWAYS EXACTLY HALF, which is what makes it seamless.
+  // EXACTLY ONE COPY. That is what makes it both seamless and calm.
   //
-  // This used to travel by an arbitrary percentage — 26%, 34% — of the
-  // track's own width. The track is finite, so past a certain scroll
-  // position its right-hand end came into view and the rest of the band
-  // was empty. Nothing wrong with the maths; the strip simply ran out.
+  // The first version travelled an arbitrary percentage of a finite
+  // strip, so past a point its end came into view and the rest of the
+  // band was empty. The fix for that was to travel -50% of a
+  // doubled-up track, which is seamless — but with six copies, half the
+  // track is three copies of travel across one screen of scrolling.
+  // Correct, and far too fast: the band was sprinting while the page
+  // walked.
   //
-  // The fix is the oldest marquee trick there is: render the content
-  // twice and travel exactly -50%. At the end of the journey the second
-  // copy sits precisely where the first one started, so the strip is
-  // indistinguishable from where it began and there is no edge to reach.
-  // `speed` now sets how much of that journey a screen of scrolling
-  // covers, via the repeat count, rather than how far the strip moves.
+  // Every copy is identical, so moving by ONE copy's width lands on an
+  // exactly identical frame just as -50% did. It is the same seamless
+  // loop at a sixth of the speed. In percentage terms that is 100
+  // divided by the number of copies.
+  const step = 100 / (repeat * 2);
   const x = useTransform(
     scrollYProgress,
     [0, 1],
-    reverse ? ['-50%', '0%'] : ['0%', '-50%'],
+    reverse ? [`-${step}%`, '0%'] : ['0%', `-${step}%`],
   );
 
   if (reduced) return null;
 
-  // Rendered twice over: `repeat` copies, then the same again. The
-  // second half is not decoration — it is the thing that makes -50%
-  // land on an identical frame. Each half must also be wider than the
-  // viewport or a gap can open mid-journey, which three copies of a
-  // phrase at this size comfortably are.
+  // Enough copies that the strip is wider than the viewport by a clear
+  // margin even after travelling one copy's width. Six is comfortable
+  // for a phrase at this size on any screen this ships to; the extras
+  // are what stop an edge ever reaching the frame.
   const items = Array.from({ length: repeat * 2 });
 
   return (
