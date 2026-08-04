@@ -1,11 +1,12 @@
-import { lazy, Suspense, useRef, useEffect, useState } from 'react';
+import { Suspense, useRef, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { TextAnimate } from './magicui/text-animate.jsx';
 import RiseText from './RiseText.jsx';
+import lazyWithRetry from '../lib/lazyWithRetry.js';
 
 // Lazy, so three.js and the Spline loader are their own chunk rather
 // than sitting in the bundle every route has to download first.
-const HeroScene = lazy(() => import('./HeroScene.jsx'));
+const HeroScene = lazyWithRetry(() => import('./HeroScene.jsx'));
 
 // Lighting is deliberately minimal (see IntroLights) — the robot uses
 // Spline's own layered materials, which carry their own light/specular/

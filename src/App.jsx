@@ -1,10 +1,13 @@
-import { useEffect, lazy, Suspense } from 'react';
+import { useEffect, Suspense } from 'react';
 import { Routes, Route, useLocation, useNavigate, Link } from 'react-router-dom';
 import SEO from './components/SEO.jsx';
 import Nav from './components/Nav.jsx';
 import Footer from './components/Footer.jsx';
 import ScrollProgress from './components/ScrollProgress.jsx';
 import PageTransition from './components/PageTransition.jsx';
+import ErrorBoundary from './components/ErrorBoundary.jsx';
+import ClickRipple from './components/ClickRipple.jsx';
+import lazyWithRetry from './lib/lazyWithRetry.js';
 import { useSmoothScroll, getLenis } from './lib/smoothScroll.js';
 import { resumeIfPreviouslyOn, hover, click, setScene } from './lib/sound.js';
 import { transitionTo } from './lib/transition.js';
@@ -15,13 +18,13 @@ import { transitionTo } from './lib/transition.js';
 // Home's chunk rather than the shared one.
 import Home from './pages/Home.jsx';
 
-const About = lazy(() => import('./pages/About.jsx'));
-const HowItWorksPage = lazy(() => import('./pages/HowItWorksPage.jsx'));
-const GetInvolvedPage = lazy(() => import('./pages/GetInvolvedPage.jsx'));
-const Contact = lazy(() => import('./pages/Contact.jsx'));
-const Gainesville = lazy(() => import('./pages/Gainesville.jsx'));
-const Terms = lazy(() => import('./pages/Terms.jsx'));
-const Privacy = lazy(() => import('./pages/Privacy.jsx'));
+const About = lazyWithRetry(() => import('./pages/About.jsx'));
+const HowItWorksPage = lazyWithRetry(() => import('./pages/HowItWorksPage.jsx'));
+const GetInvolvedPage = lazyWithRetry(() => import('./pages/GetInvolvedPage.jsx'));
+const Contact = lazyWithRetry(() => import('./pages/Contact.jsx'));
+const Gainesville = lazyWithRetry(() => import('./pages/Gainesville.jsx'));
+const Terms = lazyWithRetry(() => import('./pages/Terms.jsx'));
+const Privacy = lazyWithRetry(() => import('./pages/Privacy.jsx'));
 
 // Without this, navigating between routes keeps the previous scroll
 // position — you click "Contact" and land halfway down the page.
@@ -199,9 +202,11 @@ export default function App() {
       <a className="skip-link" href="#main">Skip to content</a>
       <ScrollToTop />
       <ScrollProgress />
+      <ClickRipple />
       <Nav />
       {/* A blank fallback rather than a spinner: these chunks are small and
           a flash of loading UI is worse than a beat of nothing. */}
+      <ErrorBoundary>
       <PageTransition>
       <Suspense fallback={<div style={{ minHeight: '60vh' }} />}>
         <Routes>
@@ -217,6 +222,7 @@ export default function App() {
         </Routes>
       </Suspense>
       </PageTransition>
+      </ErrorBoundary>
     </>
   );
 }

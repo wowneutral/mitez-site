@@ -776,7 +776,8 @@ export function pluckString(freq) {
 
   const gain = ctx.createGain();
   gain.gain.setValueAtTime(0.0001, now);
-  gain.gain.linearRampToValueAtTime(0.075, now + 0.004);
+  // Was 0.075, which sat on top of the music rather than in it.
+  gain.gain.linearRampToValueAtTime(0.042, now + 0.004);
   gain.gain.exponentialRampToValueAtTime(0.0001, now + 2.4);
 
   const filter = ctx.createBiquadFilter();

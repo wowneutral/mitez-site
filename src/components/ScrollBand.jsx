@@ -28,7 +28,7 @@ import { motion, useScroll, useTransform, useReducedMotion } from 'motion/react'
  * The text is deliberately set at low contrast and marked aria-hidden.
  * It is texture, not reading material.
  */
-export default function ScrollBand({ text, speed = 30, repeat = 2, reverse = false, className = '' }) {
+export default function ScrollBand({ text, repeat = 3, reverse = false, className = '' }) {
   const ref = useRef(null);
   const reduced = useReducedMotion();
 
@@ -37,23 +37,33 @@ export default function ScrollBand({ text, speed = 30, repeat = 2, reverse = fal
     offset: ['start end', 'end start'],
   });
 
-  // Two bands travelling the same way read as one long strip glimpsed
-  // twice. Opposing directions read as depth — layers moving past each
-  // other at different rates, which is the whole reason this works.
+  // ALWAYS EXACTLY HALF, which is what makes it seamless.
+  //
+  // This used to travel by an arbitrary percentage — 26%, 34% — of the
+  // track's own width. The track is finite, so past a certain scroll
+  // position its right-hand end came into view and the rest of the band
+  // was empty. Nothing wrong with the maths; the strip simply ran out.
+  //
+  // The fix is the oldest marquee trick there is: render the content
+  // twice and travel exactly -50%. At the end of the journey the second
+  // copy sits precisely where the first one started, so the strip is
+  // indistinguishable from where it began and there is no edge to reach.
+  // `speed` now sets how much of that journey a screen of scrolling
+  // covers, via the repeat count, rather than how far the strip moves.
   const x = useTransform(
     scrollYProgress,
     [0, 1],
-    reverse ? [`-${speed}%`, '0%'] : ['0%', `-${speed}%`],
+    reverse ? ['-50%', '0%'] : ['0%', '-50%'],
   );
 
   if (reduced) return null;
 
-  // Two repeats, not three. At the capped type size two already run past
-  // both edges of any viewport this ships to, so the third was a third
-  // more texture for a strip nobody can see the end of. With three bands
-  // on the page that is three wasted layers.
-
-  const items = Array.from({ length: repeat });
+  // Rendered twice over: `repeat` copies, then the same again. The
+  // second half is not decoration — it is the thing that makes -50%
+  // land on an identical frame. Each half must also be wider than the
+  // viewport or a gap can open mid-journey, which three copies of a
+  // phrase at this size comfortably are.
+  const items = Array.from({ length: repeat * 2 });
 
   return (
     <div className={`band ${className}`} ref={ref} aria-hidden="true">

@@ -87,6 +87,11 @@
    going to happen. */
 .intro.is-ready .intro-phones.is-muted { opacity: 0.35; }
 
+/* Before the first click the line is doing a different job — telling
+   you sound is there and how to start it — so it is allowed to be
+   slightly more present than the recommendation it becomes. */
+.intro-phones.is-prompt { color: var(--ink); opacity: 1; }
+
 .intro-phones svg {
   width: 15px;
   height: 15px;
@@ -2087,6 +2092,124 @@ footer { padding: 70px 0 40px; }
   .nav-link.is-active::after { transform: scaleX(1); }
 }
 
+
+/* ============================================================
+   CLICK RIPPLE
+   A ring from every click, anywhere. The cursor is left
+   exactly as the OS drew it — replacing it would cost the
+   arrow-to-hand-to-I-beam information people read without
+   noticing, which is a bad trade for a decoration.
+   ============================================================ */
+.ripple-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  /* Nothing here can ever intercept a click meant for the page. */
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.ripple-ring {
+  position: absolute;
+  width: 0;
+  height: 0;
+  border: 1px solid rgba(22, 24, 29, 0.42);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: ripple-out 0.85s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes ripple-out {
+  from { width: 0; height: 0; opacity: 0.75; }
+  to { width: 300px; height: 300px; opacity: 0; }
+}
+
+/* On the dark sections the ink ring disappears, so it inverts. */
+.pilot .ripple-ring, .final .ripple-ring { border-color: rgba(242, 242, 242, 0.5); }
+
+@media (prefers-reduced-motion: reduce) {
+  .ripple-layer { display: none; }
+}
+
+/* ============================================================
+   PAGE RAIL
+   A reading position down the right edge, used on the one page
+   long enough to want it.
+   ============================================================ */
+.page-rail {
+  position: fixed;
+  top: 22vh;
+  bottom: 22vh;
+  right: clamp(10px, 2vw, 22px);
+  width: 2px;
+  z-index: 55;
+  background: rgba(22, 24, 29, 0.12);
+  pointer-events: none;
+}
+
+.page-rail i {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--ink);
+  transform-origin: 50% 0;
+  transform: scaleY(0);
+}
+
+@media (max-width: 760px) {
+  /* On a phone the right edge is where the thumb lives. */
+  .page-rail { display: none; }
+}
+
+/* ============================================================
+   REPEL
+   A word that moves out of the way. Not the logo: a wordmark
+   that dodges the pointer is a wordmark that is hard to click.
+   ============================================================ */
+.repel-wrap {
+  padding: clamp(50px, 9vw, 110px) 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.repel {
+  display: flex;
+  gap: 0.02em;
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: clamp(64px, 18vw, 230px);
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+  cursor: default;
+  user-select: none;
+  /* The area you can push from is wider than the letters, so the word
+     starts moving before the pointer is on top of it. */
+  padding: 0 8vw;
+}
+
+.repel span {
+  display: inline-block;
+  /* Only set when releasing — the handler clears it while pushing.
+     Easing a value updated on every pointer event feels like syrup;
+     easing only the return is what makes it spring. */
+  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.repel-hint {
+  font-family: var(--display);
+  font-size: 10.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  opacity: 0.7;
+}
+
+@media (hover: none) {
+  /* Nothing to push with. The word is still the word. */
+  .repel-hint { display: none; }
+}
 
 /* ============================================================
    THE STRINGS

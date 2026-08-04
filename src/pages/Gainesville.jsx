@@ -5,6 +5,8 @@ import Footer from '../components/Footer.jsx';
 import Reveal from '../components/Reveal.jsx';
 import { TALLY } from '../config/forms.js';
 import RiseText from '../components/RiseText.jsx';
+import PageProgress from '../components/PageProgress.jsx';
+import RepelWord from '../components/RepelWord.jsx';
 
 /**
  * The Gainesville / pilot page.
@@ -56,6 +58,10 @@ export default function Gainesville() {
   return (
     <main className="page" id="main">
       <SEO path="/gainesville" />
+      {/* The longest page on the site, and the one people read rather
+          than scan — so it gets a reading position in the axis they are
+          actually travelling, not just the hairline across the top. */}
+      <PageProgress />
       <PageHeader
         eyebrow="The pilot"
         title="Started in Gainesville. Built to reach past it."
@@ -164,6 +170,12 @@ export default function Gainesville() {
           </div>
         </div>
       </section>
+
+      {/* The wordmark, big and pushable, at the end of the page.
+          Placed after the last call to action on purpose: it is the one
+          thing here with no job, so it belongs where the reading is
+          finished rather than in the middle of an argument. */}
+      <RepelWord word="MITEZ" />
 
       <Footer />
     </main>

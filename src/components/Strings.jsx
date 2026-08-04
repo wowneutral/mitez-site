@@ -44,7 +44,6 @@ const NOTES = [
 
 export default function Strings() {
   const wrap = useRef(null);
-  const lastIndex = useRef(-1);
   const [sfx, setSfx] = useState(isSfxOn);
 
   useEffect(() => subscribe((n) => setSfx(n.sfx)), []);
@@ -54,41 +53,71 @@ export default function Strings() {
     if (!el) return undefined;
 
     const strings = [...el.querySelectorAll('.string')];
+    let prevX = null;
+    let rect = null;
 
-    const at = (clientX) => {
-      const r = el.getBoundingClientRect();
-      const p = (clientX - r.left) / r.width;
-      if (p < 0 || p > 1) return -1;
-      return Math.min(strings.length - 1, Math.floor(p * strings.length));
-    };
+    // Cached, and refreshed on resize rather than on every move: reading
+    // a rect during pointermove forces layout, which is the difference
+    // between a toy and a stutter.
+    const measure = () => { rect = el.getBoundingClientRect(); };
+    measure();
 
-    const play = (i) => {
-      if (i < 0 || i === lastIndex.current) return;
-      lastIndex.current = i;
-
+    const pluck = (i) => {
       const s = strings[i];
       if (!s) return;
-
-      // Restart the animation even if it is already running: dragging
-      // back and forth quickly should retrigger, not be ignored.
       s.classList.remove('is-struck');
-      // Reading offsetWidth forces the style change to be committed, so
-      // re-adding the class starts a new animation rather than being
-      // collapsed into no change at all.
-      void s.offsetWidth;
+      void s.offsetWidth; // commit the removal so the animation restarts
       s.classList.add('is-struck');
-
       pluckString(NOTES[i]);
     };
 
-    const onMove = (e) => play(at(e.clientX));
-    const onLeave = () => { lastIndex.current = -1; };
+    const onMove = (e) => {
+      if (!rect) return;
+      const x = e.clientX - rect.left;
+
+      if (prevX === null) { prevX = x; return; }
+      // Ignore the jitter of a resting hand. Without this the pointer
+      // trembles across a line and retriggers it.
+      if (Math.abs(x - prevX) < 2) return;
+
+      const lo = Math.min(prevX, x);
+      const hi = Math.max(prevX, x);
+      const w = rect.width / strings.length;
+
+      // A string is plucked when the pointer CROSSES it — when the line
+      // itself falls between where the pointer was and where it now is.
+      //
+      // The previous version fired when the pointer entered a column,
+      // which is a different and much twitchier thing: a column is a
+      // wide invisible box, so notes fired while nothing visible had
+      // been touched, and a small movement near a boundary rang the
+      // same note repeatedly. Now the trigger is the line you can see,
+      // and moving between two lines is silent — which is what a string
+      // does.
+      //
+      // Sweeping fast crosses several at once and plays all of them, in
+      // the order they were crossed, which is exactly right.
+      const first = Math.ceil((lo - w / 2) / w);
+      const last = Math.floor((hi - w / 2) / w);
+      const forward = x > prevX;
+
+      const hits = [];
+      for (let i = Math.max(0, first); i <= Math.min(strings.length - 1, last); i += 1) hits.push(i);
+      if (!forward) hits.reverse();
+      hits.forEach(pluck);
+
+      prevX = x;
+    };
+
+    const onLeave = () => { prevX = null; };
 
     el.addEventListener('pointermove', onMove, { passive: true });
     el.addEventListener('pointerleave', onLeave, { passive: true });
+    window.addEventListener('resize', measure, { passive: true });
     return () => {
       el.removeEventListener('pointermove', onMove);
       el.removeEventListener('pointerleave', onLeave);
+      window.removeEventListener('resize', measure);
     };
   }, []);
 

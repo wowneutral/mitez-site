@@ -94,13 +94,13 @@ export default function Home() {
           reason scrolling now feels like moving through something
           rather than past it. Both reuse words already on the site;
           neither introduces a new claim. */}
-      <ScrollBand text="Free. Any skill. Anyone who asks." speed={26} />
+      <ScrollBand text="Free. Any skill. Anyone who asks." />
 
       <GetInvolved />
       <WhoWeServe />
       <HowItWorks />
 
-      <ScrollBand text="Make it easy" speed={34} />
+      <ScrollBand text="Make it easy" repeat={4} />
 
       <Pilot />
 
@@ -111,7 +111,7 @@ export default function Home() {
           get through. */}
       <ScrollBand
         text="Gainesville, Florida — Fully remote — No fixed subject list — Free, always"
-        speed={22}
+        repeat={2}
         reverse
       />
       <FounderNote />

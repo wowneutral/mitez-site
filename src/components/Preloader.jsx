@@ -67,6 +67,7 @@ export default function Preloader({ ready, onEnter }) {
   const [progress, setProgress] = useState(0);
   const [snd, setSnd] = useState({ music: isMusicOn(), sfx: isSfxOn() });
   const [entering, setEntering] = useState(false);
+  const [audioLive, setAudioLive] = useState(false);
   const [unmounted, setUnmounted] = useState(skip.current);
   const enterRef = useRef(null);
 
@@ -134,6 +135,26 @@ export default function Preloader({ ready, onEnter }) {
     return unlockScroll;
   }, [entering]);
 
+  /**
+   * Any click on this screen starts the sound.
+   *
+   * The intro has a score of its own — the room tone — and until now
+   * almost nobody heard it. A browser will not make a sound before a
+   * gesture, the only obvious thing to press is ENTER, and pressing
+   * ENTER leaves within a second. So the piece written for this screen
+   * played to an empty room, or did not play at all.
+   *
+   * Now the first click anywhere unlocks the audio and the room tone
+   * comes up, without crossing the threshold. Click once, listen, then
+   * enter when you want to. The line below says so, because a thing you
+   * have to guess at is not an invitation.
+   */
+  function handleFirstClick() {
+    if (audioLive || entering) return;
+    startAudio();
+    setAudioLive(true);
+  }
+
   function handleEnter() {
     // THE UNLOCK. This is the only gesture a browser will accept as
     // permission to make noise, so everything audio has to happen from
@@ -164,6 +185,7 @@ export default function Preloader({ ready, onEnter }) {
       className={`intro${complete ? ' is-ready' : ''}${entering ? ' is-leaving' : ''}`}
       role="dialog"
       aria-label="Enter MITEZ"
+      onClick={handleFirstClick}
     >
       {/* Two controls, because they are two different choices. The score
           is the room; the effects are things happening in it. Someone
@@ -211,7 +233,16 @@ export default function Preloader({ ready, onEnter }) {
             it is actionable. Both switches are already on and sit above
             this — so it is a recommendation about how to listen, not a
             request for permission we have not asked for. */}
-        <p className={`intro-phones${snd.music || snd.sfx ? '' : ' is-muted'}`}>
+        {/* Two different messages, because there are two different
+            states and conflating them is what left the room tone
+            unheard. Before the first click the useful thing to say is
+            that sound exists and how to start it; after it, the useful
+            thing is the recommendation. */}
+        <p
+          className={`intro-phones${snd.music || snd.sfx ? '' : ' is-muted'}${
+            !audioLive && (snd.music || snd.sfx) ? ' is-prompt' : ''
+          }`}
+        >
           <svg viewBox="0 0 24 24" aria-hidden="true">
             {/* Headband and two cups. Stroked, no fill, so it sits at the
                 same visual weight as the type beside it. */}
@@ -219,7 +250,9 @@ export default function Preloader({ ready, onEnter }) {
             <path d="M4 14h2.2a1 1 0 0 1 1 1v3.2a1 1 0 0 1-1 1H5.4A1.4 1.4 0 0 1 4 17.8V14Z" />
             <path d="M20 14h-2.2a1 1 0 0 0-1 1v3.2a1 1 0 0 0 1 1h.8a1.4 1.4 0 0 0 1.4-1.4V14Z" />
           </svg>
-          Best with sound on
+          {!audioLive && (snd.music || snd.sfx)
+            ? 'Click anywhere to start the sound'
+            : 'Best with sound on'}
         </p>
       </div>
 
