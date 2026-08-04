@@ -31,7 +31,7 @@
  * library, nothing downloaded.
  */
 
-import { readSound, writeSound } from './session.js';
+import { readSound, writeSound, readTrack, writeTrack } from './session.js';
 
 let ctx = null;
 let master = null;
@@ -59,6 +59,7 @@ let sfxOn = true;
 // that, the switches are intent only.
 let started = false;
 let scene = 'intro';
+let track = readTrack();
 let playing = null; // { name, gain, stop() }
 
 const listeners = new Set();
@@ -183,7 +184,7 @@ function unlockIOS() {
 }
 
 function notify() {
-  listeners.forEach((fn) => fn({ music: musicOn, sfx: sfxOn }));
+  listeners.forEach((fn) => fn({ music: musicOn, sfx: sfxOn, track }));
 }
 
 /* ---------------------------- scores ------------------------------ */
@@ -251,7 +252,6 @@ function startRoomTone() {
   timers.push(setTimeout(shimmer, 3000));
 
   return {
-    name: 'room',
     gain: out,
     stop() {
       timers.forEach(clearTimeout);
@@ -265,19 +265,15 @@ function startRoomTone() {
   };
 }
 
-const CHORDS = [
-  [110.0, 164.81, 261.63, 329.63], // Am add9-ish
-  [87.31, 130.81, 246.94, 329.63], // Fmaj7
-  [130.81, 196.0, 246.94, 329.63], // Cmaj7
-  [98.0, 146.83, 246.94, 293.66], // Gsus
-];
-const CHORD_MS = 8000;
-
-/** Pads. Two detuned triangles per note, through a lowpass. */
-function startPads() {
+/**
+ * A chordal score. Everything except the notes and the tone is shared,
+ * so adding another one is a table of frequencies rather than another
+ * copy of the scheduling, the envelopes and the voice building.
+ */
+function startChords({ chords, holdMs, peak, attack, release, cutoff, detune, spread, gap }) {
   const out = ctx.createGain();
   out.gain.setValueAtTime(0.0001, ctx.currentTime);
-  out.gain.linearRampToValueAtTime(1, ctx.currentTime + 3);
+  out.gain.linearRampToValueAtTime(1, ctx.currentTime + 2.5);
   out.connect(musicBus);
   out.connect(convolver);
 
@@ -286,19 +282,17 @@ function startPads() {
 
   const voice = (freq) => {
     const now = ctx.currentTime;
-    const attack = 3.2;
-    const hold = CHORD_MS / 1000;
-    const release = 4.5;
+    const hold = holdMs / 1000;
 
     const gain = ctx.createGain();
     gain.gain.setValueAtTime(0.0001, now);
-    gain.gain.linearRampToValueAtTime(0.03, now + attack);
-    gain.gain.setValueAtTime(0.03, now + hold);
+    gain.gain.linearRampToValueAtTime(peak, now + attack);
+    gain.gain.setValueAtTime(peak, now + hold);
     gain.gain.exponentialRampToValueAtTime(0.0001, now + hold + release);
 
     const filter = ctx.createBiquadFilter();
     filter.type = 'lowpass';
-    filter.frequency.value = 900;
+    filter.frequency.value = cutoff;
     filter.Q.value = 0.4;
 
     // Identical pitches are a test tone. A few cents apart, they beat
@@ -308,7 +302,7 @@ function startPads() {
     a.type = 'triangle';
     b.type = 'triangle';
     a.frequency.value = freq;
-    b.frequency.value = freq * 1.0023;
+    b.frequency.value = freq * (1 + detune);
 
     a.connect(filter);
     b.connect(filter);
@@ -322,18 +316,17 @@ function startPads() {
   };
 
   const chord = () => {
-    const notes = CHORDS[index % CHORDS.length];
+    const notes = chords[index % chords.length];
     index += 1;
     // Voices enter fractionally apart. Together they are a block of
     // sound; staggered they are a chord.
-    notes.forEach((f, i) => timers.push(setTimeout(() => voice(f), i * 260)));
+    notes.forEach((f, i) => timers.push(setTimeout(() => voice(f), i * spread)));
   };
 
   chord();
-  const loop = setInterval(chord, CHORD_MS - 1200);
+  const loop = setInterval(chord, gap);
 
   return {
-    name: 'pads',
     gain: out,
     stop() {
       clearInterval(loop);
@@ -342,8 +335,165 @@ function startPads() {
   };
 }
 
+/* ------------------------------------------------------------------
+ * THE SITE SCORES
+ *
+ * Four of them, switchable from the nav, because a piece of music you
+ * cannot change is the one part of an ambient site that gets tiring
+ * fastest — and taste in this is genuinely personal. They are ordered
+ * from most to least melodic.
+ *
+ * All four share startChords or a small builder of their own, so the
+ * cost of a fifth is a table of frequencies rather than another copy of
+ * the scheduling and envelope code.
+ * ------------------------------------------------------------------ */
+
+/** Drift — A minor, unresolved. Low and wistful. The original. */
+function startPads() {
+  return startChords({
+    chords: [
+      [110.0, 164.81, 261.63, 329.63], // Am add9-ish
+      [87.31, 130.81, 246.94, 329.63], // Fmaj7
+      [130.81, 196.0, 246.94, 329.63], // Cmaj7
+      [98.0, 146.83, 246.94, 293.66], // Gsus
+    ],
+    holdMs: 8000, peak: 0.03, attack: 3.2, release: 4.5,
+    cutoff: 900, detune: 0.0023, spread: 260, gap: 6800,
+  });
+}
+
+/** Bloom — the same idea in major, higher, with the filter open. */
+function startBloom() {
+  return startChords({
+    chords: [
+      [130.81, 196.0, 293.66, 392.0], // C add9
+      [174.61, 261.63, 329.63, 493.88], // Fmaj7 #11-ish
+      [146.83, 220.0, 329.63, 440.0], // Dm9
+      [196.0, 293.66, 392.0, 587.33], // G add9
+    ],
+    holdMs: 9000, peak: 0.026, attack: 4, release: 5.5,
+    cutoff: 1600, detune: 0.0016, spread: 340, gap: 7600,
+  });
+}
+
+/** Deep — two notes a fifth apart and a filter that breathes. */
+function startDrone() {
+  const now = ctx.currentTime;
+  const out = ctx.createGain();
+  out.gain.setValueAtTime(0.0001, now);
+  out.gain.linearRampToValueAtTime(1, now + 4);
+  out.connect(musicBus);
+  out.connect(convolver);
+
+  const body = ctx.createGain();
+  body.gain.value = 0.05;
+
+  const filter = ctx.createBiquadFilter();
+  filter.type = 'lowpass';
+  filter.frequency.value = 260;
+  filter.Q.value = 2.5;
+
+  // Forty seconds a cycle. Slow enough that you never catch it moving,
+  // which is the difference between a drone and a siren.
+  const lfo = ctx.createOscillator();
+  const lfoGain = ctx.createGain();
+  lfo.frequency.value = 0.025;
+  lfoGain.gain.value = 170;
+  lfo.connect(lfoGain);
+  lfoGain.connect(filter.frequency);
+
+  const oscs = [55, 82.5, 110].map((f, i) => {
+    const o = ctx.createOscillator();
+    o.type = i === 2 ? 'sine' : 'sawtooth';
+    o.frequency.value = f;
+    const g = ctx.createGain();
+    g.gain.value = i === 2 ? 0.25 : 0.5;
+    o.connect(g);
+    g.connect(filter);
+    o.start(now);
+    return o;
+  });
+
+  filter.connect(body);
+  body.connect(out);
+  lfo.start(now);
+
+  return {
+    gain: out,
+    stop() {
+      try {
+        oscs.forEach((o) => o.stop());
+        lfo.stop();
+      } catch {
+        /* already stopped */
+      }
+    },
+  };
+}
+
+/** Keys — single pentatonic notes, struck at random, long decay. */
+function startKeys() {
+  const out = ctx.createGain();
+  out.gain.setValueAtTime(0.0001, ctx.currentTime);
+  out.gain.linearRampToValueAtTime(1, ctx.currentTime + 2.5);
+  out.connect(musicBus);
+  out.connect(convolver);
+
+  const NOTES = [261.63, 293.66, 329.63, 392.0, 440.0, 523.25];
+  const timers = [];
+
+  const pluck = () => {
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    const filter = ctx.createBiquadFilter();
+
+    osc.type = 'triangle';
+    osc.frequency.value = NOTES[Math.floor(Math.random() * NOTES.length)];
+
+    // The filter closing as the note decays is what makes it read as
+    // struck rather than switched on.
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(2600, now);
+    filter.frequency.exponentialRampToValueAtTime(500, now + 2.6);
+
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.linearRampToValueAtTime(0.05, now + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 3.4);
+
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(out);
+    osc.start(now);
+    osc.stop(now + 3.6);
+
+    // Irregular spacing. An even pulse becomes a metronome, and a
+    // metronome is impossible to stop hearing.
+    timers.push(setTimeout(pluck, 1500 + Math.random() * 2200));
+  };
+
+  pluck();
+
+  return {
+    gain: out,
+    stop() {
+      timers.forEach(clearTimeout);
+    },
+  };
+}
+
+/** The switchable set, in the order the control cycles through them. */
+export const TRACKS = [
+  { id: 'drift', label: 'Drift', build: startPads },
+  { id: 'bloom', label: 'Bloom', build: startBloom },
+  { id: 'deep', label: 'Deep', build: startDrone },
+  { id: 'keys', label: 'Keys', build: startKeys },
+];
+
 function build(name) {
-  return name === 'pads' ? startPads() : startRoomTone();
+  if (name === 'room') return { name, ...startRoomTone() };
+  const t = TRACKS.find((x) => x.id === track) || TRACKS[0];
+  return { name: 'site', track: t.id, ...t.build() };
 }
 
 /**
@@ -374,7 +524,7 @@ function crossfadeTo(name) {
  */
 export function setScene(next) {
   scene = next;
-  if (musicOn) crossfadeTo(next === 'site' ? 'pads' : 'room');
+  if (musicOn) crossfadeTo(next === 'site' ? 'site' : 'room');
 }
 
 /* ---------------------------- effects ----------------------------- */
@@ -460,6 +610,44 @@ export function whoosh() {
 
 /* ---------------------------- switches ---------------------------- */
 
+/**
+ * Move to the next site score.
+ *
+ * Only ever changes what plays on the site — the intro keeps its room
+ * tone, which is written for that screen and lasts a second and a half.
+ * Switching while the intro is up records the choice and is heard on the
+ * way in.
+ *
+ * The change is a crossfade like any other, so picking a different track
+ * does not cut the music off mid-note.
+ */
+export function nextTrack() {
+  const i = TRACKS.findIndex((t) => t.id === track);
+  track = TRACKS[(i + 1) % TRACKS.length].id;
+  writeTrack(track);
+
+  if (musicOn && started && scene === 'site') {
+    // Force a rebuild: the scene name has not changed, so crossfadeTo
+    // would otherwise see no work to do.
+    const outgoing = playing;
+    playing = build('site');
+    if (outgoing) {
+      const now = ctx.currentTime;
+      outgoing.gain.gain.cancelScheduledValues(now);
+      outgoing.gain.gain.setValueAtTime(outgoing.gain.gain.value, now);
+      outgoing.gain.gain.linearRampToValueAtTime(0.0001, now + CROSSFADE_S);
+      setTimeout(() => outgoing.stop(), CROSSFADE_S * 1000 + 200);
+    }
+  }
+
+  notify();
+  return track;
+}
+
+export function currentTrack() {
+  return TRACKS.find((t) => t.id === track) || TRACKS[0];
+}
+
 export function isMusicOn() {
   return musicOn;
 }
@@ -495,7 +683,7 @@ export function toggleMusic() {
     // Six seconds to full. The music should seem to have been playing
     // before it was switched on.
     musicBus.gain.linearRampToValueAtTime(MUSIC_LEVEL, now + MUSIC_RAMP_S);
-    crossfadeTo(scene === 'site' ? 'pads' : 'room');
+    crossfadeTo(scene === 'site' ? 'site' : 'room');
   } else {
     musicBus.gain.linearRampToValueAtTime(0, now + 1.6);
     const stopping = playing;
@@ -561,7 +749,7 @@ export function startAudio() {
 
   if (musicOn) {
     musicBus.gain.linearRampToValueAtTime(MUSIC_LEVEL, now + MUSIC_RAMP_S);
-    crossfadeTo(scene === 'site' ? 'pads' : 'room');
+    crossfadeTo(scene === 'site' ? 'site' : 'room');
   }
 }
 

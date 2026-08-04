@@ -29,6 +29,7 @@
 const ENTERED = 'mitez.entered';
 const MUSIC = 'mitez.music';
 const SFX = 'mitez.sfx';
+const TRACK = 'mitez.track';
 
 function read(key) {
   try {
@@ -96,4 +97,13 @@ export function readSound() {
 export function writeSound({ music, sfx }) {
   write(MUSIC, music ? '1' : '0');
   write(SFX, sfx ? '1' : '0');
+}
+
+/** Which site score the visitor picked. */
+export function readTrack() {
+  return read(TRACK) || 'drift';
+}
+
+export function writeTrack(id) {
+  write(TRACK, id);
 }

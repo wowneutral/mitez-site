@@ -7,6 +7,8 @@ import {
   subscribe,
   click,
   hover,
+  nextTrack,
+  currentTrack,
 } from '../lib/sound.js';
 
 /**
@@ -25,6 +27,7 @@ import {
  */
 export default function SoundToggle() {
   const [snd, setSnd] = useState({ music: isMusicOn(), sfx: isSfxOn() });
+  const [tr, setTr] = useState(currentTrack);
 
   useEffect(() => subscribe(setSnd), []);
 
@@ -47,6 +50,27 @@ export default function SoundToggle() {
           <i />
         </span>
         <span className="sound-label">Music</span>
+      </button>
+
+      {/* The score is switchable. A piece of ambient music you cannot
+          change is the part of a site like this that tires fastest, and
+          taste in it is genuinely personal — so this cycles through the
+          four, crossfading rather than cutting.
+
+          Only the site score. The intro keeps its room tone, which is
+          written for that screen and lasts a second and a half. */}
+      <button
+        type="button"
+        className={`sound-track${snd.music ? '' : ' is-quiet'}`}
+        onClick={() => {
+          nextTrack();
+          setTr(currentTrack());
+          click();
+        }}
+        onPointerEnter={hover}
+        aria-label={`Music: ${tr.label}. Click for the next track.`}
+      >
+        {tr.label}
       </button>
 
       <button

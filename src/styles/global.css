@@ -431,7 +431,44 @@ html.lenis, html.lenis body { height: auto; }
    ambiguous — it reads equally as "sound is muted" and as "click to
    mute" — and this control is the one thing on the page that must not
    be ambiguous, because the wrong guess makes noise in a quiet room. */
-.sound-pair { display: inline-flex; align-items: center; gap: 18px; }
+.sound-pair { display: inline-flex; align-items: center; gap: 14px; }
+
+/* The track name, which is also the button that changes it. Set apart
+   from the two switches by being the only thing here in sentence case:
+   those are states, this is a name. */
+.sound-track {
+  position: relative;
+  background: none;
+  border: 0;
+  padding: 6px 8px;
+  cursor: pointer;
+  font-family: var(--display);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+  transition: color 0.35s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease;
+}
+
+.sound-track::after {
+  content: '';
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 3px;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.sound-track:hover, .sound-track:focus-visible { color: var(--ink); outline: none; }
+.sound-track:hover::after, .sound-track:focus-visible::after { transform: scaleX(1); }
+
+/* Dimmed while music is off. Still usable — choosing a track before
+   turning the score on is reasonable — but no longer claiming to
+   describe something you can hear. */
+.sound-track.is-quiet { opacity: 0.45; }
 
 .sound-dot {
   width: 6px;
