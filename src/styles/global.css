@@ -27,282 +27,121 @@
    soon as it starts fading so it never blocks a click during the fade. */
 /* ============================================================
    THE INTRO
-   A threshold, not a loading screen. The site loads, then waits
-   for you, and the click that crosses it starts the music —
-   which is the only way a browser will allow audio at all.
+   Modelled on what Immersive Garden actually does, which is not
+   a gate. Their loading state IS the homepage held back: the
+   logo sits where it will still sit once loaded, a hairline
+   draws beside it, small grey text offers sound, and the
+   content simply arrives around all of it.
 
-   Laid out on the same margin as every other page, with four
-   corners doing the work. Two elements floating in an empty
-   field read as unfinished no matter how well each is drawn,
-   which was the real problem with the last attempt.
+   Nothing moves out of the way because nothing was in the way.
+   That is why it blends into the hero — there is no seam to
+   design, and no threshold to cross.
    ============================================================ */
 .intro {
   position: fixed;
   inset: 0;
   z-index: 100;
-  overflow: hidden;
-}
-
-.intro.is-entering { pointer-events: none; }
-
-/* ---- The panels ----------------------------------------------------
-   Five columns that together are the screen. Each lifts on its own
-   delay, left to right, so the reveal has direction and rhythm: one
-   fading panel is an event, five staggered ones are a move.
-
-   translateY only, so this is compositor work — drawn once, then moved,
-   which is why it stays smooth while the Spline scene settles behind. */
-.intro-panels {
-  position: absolute;
-  inset: 0;
-  display: flex;
-}
-
-.intro-panels i {
-  flex: 1;
   background: var(--bg-deep);
-  transform: translateY(0);
-  transition: transform 1.1s cubic-bezier(0.76, 0, 0.24, 1);
-  /* Sub-pixel rounding between five flex children otherwise shows as
-     seams while they move. */
-  margin-right: -1px;
-}
-
-.intro.is-entering .intro-panels i { transform: translateY(-101%); }
-.intro.is-entering .intro-panels i:nth-child(1) { transition-delay: 0s; }
-.intro.is-entering .intro-panels i:nth-child(2) { transition-delay: 0.07s; }
-.intro.is-entering .intro-panels i:nth-child(3) { transition-delay: 0.14s; }
-.intro.is-entering .intro-panels i:nth-child(4) { transition-delay: 0.21s; }
-.intro.is-entering .intro-panels i:nth-child(5) { transition-delay: 0.28s; }
-
-/* ---- The composition ------------------------------------------------ */
-.intro-ui {
-  position: absolute;
-  inset: 0;
-  padding: clamp(24px, 5vw, 60px) clamp(24px, 6vw, 80px);
   display: grid;
-  grid-template-rows: auto 1fr auto;
-  transition: opacity 0.5s ease, transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  place-items: center;
+  /* Long dissolve, no movement. The overlay is the same colour as the
+     page beneath it, so there is nothing to slide away — the site simply
+     resolves out of it. */
+  opacity: 1;
+  transition: opacity 0.8s cubic-bezier(0.33, 1, 0.68, 1);
 }
 
-/* The contents leave a beat before the panels. That head start is what
-   makes the panels read as a curtain rather than as boxes with text. */
-.intro.is-entering .intro-ui {
+.intro.is-done {
   opacity: 0;
-  transform: translateY(-14px);
+  pointer-events: none;
+}
+
+/* Small, grey, centred. An offer in passing. It has to be a click
+   because every browser requires a gesture before audio, but ignoring it
+   costs nothing and the site opens anyway. */
+.intro-sound {
+  background: none;
+  border: 0;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-family: var(--sans);
+  font-weight: 300;
+  font-size: 14px;
+  color: var(--muted);
+  opacity: 0;
+  animation: intro-fade 1s ease 0.5s forwards;
+  transition: color 0.4s ease;
+}
+
+.intro-sound:hover { color: var(--ink); }
+.intro-sound.is-on { color: var(--ink); }
+
+@keyframes intro-fade { to { opacity: 1; } }
+
+/* Bottom left, on the site's own margin, at the size the nav wordmark
+   uses — so when the overlay dissolves the eye has nothing to re-find. */
+.intro-foot {
+  position: absolute;
+  left: clamp(24px, 6vw, 80px);
+  bottom: clamp(28px, 5vw, 54px);
+  right: clamp(24px, 6vw, 80px);
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  opacity: 0;
+  animation: intro-fade 1s ease 0.15s forwards;
 }
 
 .intro-mark {
   font-family: var(--display);
   font-weight: 600;
-  font-size: clamp(13px, 1.5vw, 16px);
-  letter-spacing: 0.3em;
-  text-indent: 0.3em;
+  font-size: 15px;
+  letter-spacing: 0.26em;
+  text-indent: 0.26em;
   color: var(--ink);
-  opacity: 0;
-  animation: intro-mark-in 1.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-
-@keyframes intro-mark-in {
-  from { opacity: 0; letter-spacing: 0.7em; text-indent: 0.7em; }
-  to { opacity: 1; letter-spacing: 0.3em; text-indent: 0.3em; }
-}
-
-/* The one line that says what this is, at a size worth reading. The
-   intro used to say nothing at all, which is a wasted screen: this is
-   the longest anyone looks at a single frame of the site. */
-.intro-line {
-  align-self: center;
-  font-family: var(--display);
-  font-weight: 600;
-  font-size: clamp(30px, 5.4vw, 78px);
-  line-height: 1.04;
-  letter-spacing: -0.02em;
-  color: var(--ink);
-  max-width: 16ch;
-}
-
-/* Each line masked and rising, the same gesture headings use elsewhere,
-   so the intro is in the site's language before you have even entered. */
-.intro-line span {
-  display: block;
-  overflow: hidden;
-}
-
-.intro-line span::before {
-  content: attr(data-t);
-}
-
-.intro-line > span {
-  animation: intro-line-in 1.2s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-.intro-line > span:nth-child(1) { animation-delay: 0.25s; }
-.intro-line > span:nth-child(2) { animation-delay: 0.34s; }
-.intro-line > span:nth-child(3) { animation-delay: 0.43s; }
-
-@keyframes intro-line-in {
-  from { opacity: 0; transform: translateY(0.9em); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* ---- Bottom row ----------------------------------------------------- */
-.intro-ui > .intro-meta,
-.intro-ui > .intro-corner { grid-row: 3; }
-
-.intro-meta {
-  display: flex;
-  gap: 26px;
-  align-self: end;
-  font-family: var(--display);
-  font-size: 11px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--muted);
-  opacity: 0;
-  animation: intro-fade-in 1s ease 0.9s forwards;
-}
-
-@keyframes intro-fade-in { to { opacity: 1; } }
-
-/* Bottom RIGHT. */
-.intro-corner {
-  justify-self: end;
-  align-self: end;
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  margin-top: -14px;
-}
-
-/* The dial measures the wait and then becomes the way through it. One
-   object doing both jobs is what stops this being a loader followed by
-   a prompt. */
-.intro-dial {
-  position: relative;
-  width: 104px;
-  height: 104px;
-  display: grid;
-  place-items: center;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--ink);
-  cursor: default;
-  border-radius: 50%;
   flex: none;
 }
 
-.intro.is-complete .intro-dial { cursor: pointer; }
+/* The entire progress indicator: one hairline, drawing to the right of
+   the wordmark. No number, no ring, no bar with a container around it.
+   A rule that grows is the quietest possible way to show progress, and
+   quiet is the difference between this and a download dialog. */
+.intro-bar {
+  display: block;
+  flex: 1;
+  height: 1px;
+  background: rgba(22, 24, 29, 0.12);
+  overflow: hidden;
+}
 
-.intro-dial svg {
-  position: absolute;
-  inset: 0;
-  width: 100%;
+.intro-bar i {
+  display: block;
   height: 100%;
-  overflow: visible;
-}
-
-.intro-dial circle {
-  fill: none;
-  stroke-width: 1.25;
-  vector-effect: non-scaling-stroke;
-}
-
-.intro-dial-bg { stroke: rgba(22, 24, 29, 0.14); }
-
-.intro-dial-fg {
-  stroke: var(--ink);
-  stroke-linecap: round;
-  /* No transition: the offset is set every frame from real progress, and
-     easing on top of that would always lag the truth. */
-}
-
-/* A disc growing from the centre on hover, behind the label. */
-.intro-dial::before {
-  content: '';
-  position: absolute;
-  inset: 5px;
-  border-radius: 50%;
   background: var(--ink);
-  transform: scale(0);
-  transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  transform-origin: 0 50%;
+  transform: scaleX(0);
 }
 
-.intro.is-complete .intro-dial:hover::before,
-.intro.is-complete .intro-dial:focus-visible::before { transform: scale(1); }
-
-.intro.is-complete .intro-dial:hover .intro-enter,
-.intro.is-complete .intro-dial:focus-visible .intro-enter { color: var(--bg-deep); }
-
-.intro-dial:focus-visible { outline: none; }
-
-/* Count and label share one spot and swap: the number counts up, lands
-   on 100, and is replaced in place by the thing you press. */
-.intro-num,
-.intro-enter {
-  position: relative;
-  font-family: var(--display);
-  font-weight: 600;
-  line-height: 1;
-  transition: opacity 0.4s ease, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.intro-num {
-  font-size: 24px;
-  letter-spacing: -0.01em;
-  font-variant-numeric: tabular-nums;
-}
-
-.intro-enter {
-  position: absolute;
-  font-size: 11px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  opacity: 0;
-  transform: translateY(8px);
-  transition: opacity 0.4s ease 0.3s,
-              transform 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.3s,
-              color 0.4s ease;
-}
-
-.intro.is-complete .intro-num { opacity: 0; transform: translateY(-8px); }
-.intro.is-complete .intro-enter { opacity: 1; transform: translateY(0); }
-
-.intro-hint {
-  font-family: var(--display);
-  font-size: 11px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--muted);
-  text-align: right;
-}
-
-@media (max-width: 720px) {
-  .intro-ui { padding: 24px; }
-  .intro-dial { width: 88px; height: 88px; }
-  .intro-meta { flex-direction: column; gap: 6px; }
+@media (max-width: 640px) {
+  .intro-foot { gap: 16px; }
+  .intro-mark { font-size: 13px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .intro-panels i { transition: opacity 0.4s ease; }
-  .intro.is-entering .intro-panels i { transform: none; opacity: 0; }
-  .intro-mark, .intro-line > span, .intro-meta { animation: none; opacity: 1; transform: none; }
-  .intro-num, .intro-enter, .intro-ui, .intro-dial::before { transition: none; }
+  .intro-sound, .intro-foot { animation: none; opacity: 1; }
+  .intro { transition: opacity 0.3s ease; }
 }
 
 /* ============================================================
-   THE QUICK REVEAL
-   Same five panels, same direction, a third of the length.
-   Reusing the intro's exact geometry is what makes these one
-   language rather than two effects: clicking the logo plays a
-   shorter sentence, not a different animation.
+   PAGE TRANSITION
+   Five panels down, the route changes behind them, and they
+   carry on off the bottom. A curtain that retreats the way it
+   came is an interruption; one that keeps going is a move.
 
-   It passes THROUGH — in from the top, cover, out the bottom.
-   A curtain that retreats the way it came reads as an
-   interruption; one that keeps going reads as a transition.
-   It also hides the two ugliest frames in any single-page app:
-   the scroll position resetting and a lazy chunk arriving.
+   The navigation fires at the covered frame, not before it.
+   The first version ran off the route change, so the new page
+   appeared, got wiped, and appeared again — the transition
+   playing after the thing it existed to hide.
    ============================================================ */
 .sweep {
   position: fixed;
@@ -316,6 +155,8 @@
   flex: 1;
   background: var(--bg-deep);
   transform: translateY(-101%);
+  /* Sub-pixel rounding between five flex children shows as seams while
+     they move. */
   margin-right: -1px;
 }
 
@@ -323,24 +164,19 @@
 
 .sweep.is-cover i {
   transform: translateY(0);
-  transition: transform 0.62s cubic-bezier(0.76, 0, 0.24, 1);
+  transition: transform 0.56s cubic-bezier(0.76, 0, 0.24, 1);
 }
 
 .sweep.is-clear i {
   transform: translateY(101%);
-  transition: transform 0.76s cubic-bezier(0.76, 0, 0.24, 1);
+  transition: transform 0.72s cubic-bezier(0.76, 0, 0.24, 1);
 }
 
-.sweep.is-cover i:nth-child(1),
-.sweep.is-clear i:nth-child(1) { transition-delay: 0s; }
-.sweep.is-cover i:nth-child(2),
-.sweep.is-clear i:nth-child(2) { transition-delay: 0.04s; }
-.sweep.is-cover i:nth-child(3),
-.sweep.is-clear i:nth-child(3) { transition-delay: 0.08s; }
-.sweep.is-cover i:nth-child(4),
-.sweep.is-clear i:nth-child(4) { transition-delay: 0.12s; }
-.sweep.is-cover i:nth-child(5),
-.sweep.is-clear i:nth-child(5) { transition-delay: 0.16s; }
+.sweep.is-cover i:nth-child(1), .sweep.is-clear i:nth-child(1) { transition-delay: 0s; }
+.sweep.is-cover i:nth-child(2), .sweep.is-clear i:nth-child(2) { transition-delay: 0.035s; }
+.sweep.is-cover i:nth-child(3), .sweep.is-clear i:nth-child(3) { transition-delay: 0.07s; }
+.sweep.is-cover i:nth-child(4), .sweep.is-clear i:nth-child(4) { transition-delay: 0.105s; }
+.sweep.is-cover i:nth-child(5), .sweep.is-clear i:nth-child(5) { transition-delay: 0.14s; }
 
 @media (prefers-reduced-motion: reduce) {
   .sweep { display: none; }

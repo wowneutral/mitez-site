@@ -1,6 +1,5 @@
 import { useEffect, lazy, Suspense } from 'react';
-import { Routes, Route, useLocation, Link } from 'react-router-dom';
-import { motion } from 'motion/react';
+import { Routes, Route, useLocation, useNavigate, Link } from 'react-router-dom';
 import SEO from './components/SEO.jsx';
 import Nav from './components/Nav.jsx';
 import Footer from './components/Footer.jsx';
@@ -8,6 +7,7 @@ import ScrollProgress from './components/ScrollProgress.jsx';
 import PanelSweep from './components/PanelSweep.jsx';
 import { useSmoothScroll, getLenis } from './lib/smoothScroll.js';
 import { resumeIfPreviouslyOn, hover, click } from './lib/sound.js';
+import { transitionTo } from './lib/transition.js';
 // Routes are split so a visitor reading the Terms does not download a 3D
 // engine. Home stays eagerly imported because it is the common entry point
 // and splitting it would only add a round trip before the hero appears;
@@ -87,7 +87,42 @@ function NotFound() {
 
 export default function App() {
   useSmoothScroll();
-  const { pathname } = useLocation();
+  const navigate = useNavigate();
+
+  // Navigation, intercepted so the transition can cover BEFORE the route
+  // changes. Driving it off the route change instead meant the new page
+  // rendered, the panels wiped over it, and it appeared again — the
+  // transition running after the thing it existed to hide.
+  //
+  // Done by delegation rather than by replacing every Link, so it also
+  // covers links inside copy, and anything added later, without those
+  // components needing to know a transition exists.
+  useEffect(() => {
+    const onClick = (e) => {
+      // Leave alone anything the browser or the visitor means specially:
+      // new tabs, downloads, modifier-clicks, middle clicks, external
+      // hosts. Hijacking a cmd-click is the fastest way to make a fancy
+      // site infuriating.
+      if (e.defaultPrevented || e.button !== 0) return;
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+
+      const a = e.target.closest?.('a[href]');
+      if (!a || a.target === '_blank' || a.hasAttribute('download')) return;
+
+      const url = new URL(a.href, window.location.href);
+      if (url.origin !== window.location.origin) return;
+
+      // In-page anchors keep their smooth scroll; a curtain for a jump
+      // within the page you are already reading would be absurd.
+      if (url.pathname === window.location.pathname && url.hash) return;
+
+      e.preventDefault();
+      transitionTo(() => navigate(url.pathname + url.search + url.hash));
+    };
+
+    document.addEventListener('click', onClick);
+    return () => document.removeEventListener('click', onClick);
+  }, [navigate]);
 
   // A reload destroys the audio context and no browser will let a fresh
   // page start audio unprompted, so the music genuinely cannot survive a
@@ -135,23 +170,7 @@ export default function App() {
       <Nav />
       {/* A blank fallback rather than a spinner: these chunks are small and
           a flash of loading UI is worse than a beat of nothing. */}
-      {/* Every navigation used to be a hard cut: one page vanished and
-          the next was simply there. Keying this on the pathname means
-          React swaps the subtree on every route change, and the new page
-          lifts and fades in over 0.55s instead of appearing.
-
-          Deliberately a wrapper and not a full exit/enter transition.
-          Animating the OLD page out first means holding a dead page on
-          screen while someone waits for the one they asked for, and no
-          amount of polish is worth making navigation slower. This costs
-          nothing and removes the snap. */}
       <Suspense fallback={<div style={{ minHeight: '60vh' }} />}>
-        <motion.div
-          key={pathname}
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
-        >
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
@@ -163,7 +182,6 @@ export default function App() {
           <Route path="/privacy" element={<Privacy />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
-        </motion.div>
       </Suspense>
     </>
   );

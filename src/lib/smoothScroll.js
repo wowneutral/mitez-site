@@ -28,6 +28,32 @@ export function getLenis() {
 }
 
 /**
+ * Freeze and release the page.
+ *
+ * body { overflow: hidden } does NOT stop this site scrolling, which is
+ * exactly the bug behind being able to scroll behind the intro overlay.
+ * Lenis drives scroll itself through window.scrollTo on an animation
+ * loop, and that loop does not care what overflow says — it keeps
+ * setting a position the browser is happy to honour. The overlay was
+ * fixed, so it stayed put while the entire site slid around underneath
+ * it.
+ *
+ * Both are needed: lenis.stop() for the smooth path, and overflow for
+ * reduced-motion visitors where Lenis was never started.
+ */
+export function lockScroll() {
+  instance?.stop();
+  document.documentElement.style.overflow = 'hidden';
+  document.body.style.overflow = 'hidden';
+}
+
+export function unlockScroll() {
+  document.documentElement.style.overflow = '';
+  document.body.style.overflow = '';
+  instance?.start();
+}
+
+/**
  * Lenis is deliberately NOT started when the visitor asks for reduced
  * motion. Hijacking the scroll of someone who gets motion sick is the
  * worst thing on this page, and it is the one effect they cannot avoid
