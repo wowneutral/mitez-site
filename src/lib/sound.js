@@ -805,6 +805,44 @@ export function pluckString(freq) {
   b.stop(now + 2.6);
 }
 
+/**
+ * A tap. The sound of the ripple, for clicks on the page itself.
+ *
+ * DELIBERATELY NOT THE SAME AS click(). A button press is a decision and
+ * gets the fuller, lower note with its downward glide; this is a click
+ * on nothing in particular, so it is shorter, softer and higher — closer
+ * to a fingertip on a surface than to a switch being thrown. If both
+ * sounded alike the site would be telling you that pressing "Get
+ * involved" and clicking the background are the same event, which is the
+ * opposite of what sound design is for.
+ *
+ * It also does not duck the music. Ducking is for things worth hearing
+ * over the score, and a stray click is not; a page that flinched every
+ * time the pointer touched it would be exhausting.
+ */
+export function tap() {
+  if (!sfxOn || !ctx) return;
+  const now = ctx.currentTime;
+
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(320, now);
+  osc.frequency.exponentialRampToValueAtTime(240, now + 0.09);
+
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.linearRampToValueAtTime(0.03, now + 0.006);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.2);
+
+  osc.connect(gain);
+  gain.connect(sfxBus);
+  // A little reverb, so it lands in the same room as everything else
+  // rather than sounding like it happened outside the page.
+  gain.connect(convolver);
+  osc.start(now);
+  osc.stop(now + 0.22);
+}
+
 /** The page sweep. Noise falling from 1.8kHz to 180Hz: something passing. */
 export function whoosh() {
   if (!sfxOn || !ctx) return;
