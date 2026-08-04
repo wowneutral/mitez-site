@@ -26,69 +26,161 @@
    page is a dissolve rather than a colour change. pointer-events drop as
    soon as it starts fading so it never blocks a click during the fade. */
 /* ============================================================
-   THE INTRO
-   Modelled on what Immersive Garden actually does, which is not
-   a gate. Their loading state IS the homepage held back: the
-   logo sits where it will still sit once loaded, a hairline
-   draws beside it, small grey text offers sound, and the
-   content simply arrives around all of it.
-
-   Nothing moves out of the way because nothing was in the way.
-   That is why it blends into the hero — there is no seam to
-   design, and no threshold to cross.
+   THE INTRO — "Baseline"
+   Everything structural on one row along the bottom: wordmark,
+   a hairline that fills, a percentage. Three things sharing a
+   baseline read as one object; the same three in separate
+   corners read as leftovers. That was the difference between
+   this and the four versions before it.
    ============================================================ */
 .intro {
   position: fixed;
   inset: 0;
   z-index: 100;
   background: var(--bg-deep);
-  display: grid;
-  place-items: center;
-  /* Long dissolve, no movement. The overlay is the same colour as the
-     page beneath it, so there is nothing to slide away — the site simply
-     resolves out of it. */
+  padding: clamp(24px, 5vw, 54px) clamp(24px, 6vw, 80px);
+  /* Same colour as the page, so it dissolves rather than departs.
+     Nothing slides out of the way because nothing is in the way. */
   opacity: 1;
-  transition: opacity 0.8s cubic-bezier(0.33, 1, 0.68, 1);
+  transition: opacity 0.9s cubic-bezier(0.33, 1, 0.68, 1);
 }
 
-.intro.is-done {
+.intro.is-leaving {
   opacity: 0;
   pointer-events: none;
 }
 
-/* Bottom left, on the site's own margin, at the size the nav wordmark
-   uses — so when the overlay dissolves the eye has nothing to re-find. */
-.intro-foot {
+/* ---- The promise, left, masked lines rising ------------------------- */
+.intro-lines {
   position: absolute;
   left: clamp(24px, 6vw, 80px);
-  bottom: clamp(28px, 5vw, 54px);
-  right: clamp(24px, 6vw, 80px);
-  display: flex;
-  align-items: center;
-  gap: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: clamp(30px, 5vw, 72px);
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+  max-width: 14ch;
+}
+
+.intro-lines span { display: block; overflow: hidden; padding-bottom: 0.08em; margin-bottom: -0.08em; }
+
+.intro-lines i {
+  display: block;
+  font-style: normal;
+  transform: translateY(110%);
+  transition: transform 1.05s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* One frame after mount is enough for the transition to have something
+   to move from; without it the browser paints the end state directly. */
+.intro-lines i { animation: intro-line-in 0.01s 0.05s forwards; }
+@keyframes intro-line-in { to { transform: translateY(0); } }
+
+/* ---- The way in, centred -------------------------------------------- */
+.intro-enter {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: none;
+  border: 0;
+  padding: 16px 10px;
+  font-family: var(--display);
+  font-size: 12px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--muted);
+  cursor: default;
   opacity: 0;
-  animation: intro-fade 1s ease 0.15s forwards;
+  pointer-events: none;
+  transition: opacity 0.7s ease, color 0.4s ease;
+}
+
+.intro.is-ready .intro-enter { opacity: 1; pointer-events: auto; cursor: pointer; }
+.intro-enter:hover, .intro-enter:focus-visible { color: var(--ink); outline: none; }
+
+/* A rule that draws under it on approach: enough to say it is clickable
+   without becoming a button parked in the middle of the screen. */
+.intro-enter::after {
+  content: '';
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.intro-enter:hover::after, .intro-enter:focus-visible::after { transform: scaleX(1); }
+
+/* ---- Sound, top right, decided before the threshold -----------------
+   Off by default, always. Someone opening this in a classroom or a
+   library should never have to lunge for a mute button — and offering
+   the choice here, on a screen that is holding still, is what the
+   earlier versions got wrong: they offered it inside an overlay that
+   dissolved on its own before the offer could be taken. */
+.intro-snd {
+  position: absolute;
+  right: clamp(24px, 6vw, 80px);
+  top: clamp(24px, 5vw, 54px);
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  background: none;
+  border: 0;
+  padding: 6px 2px;
+  cursor: pointer;
+  font-family: var(--display);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  transition: color 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.intro-snd:hover, .intro-snd.is-on { color: var(--ink); }
+.intro-snd:focus-visible { outline: none; color: var(--ink); }
+
+.intro-snd-bars { display: flex; align-items: flex-end; gap: 2px; height: 11px; }
+.intro-snd-bars i { width: 2px; height: 3px; background: currentColor; transition: height 0.35s cubic-bezier(0.22, 1, 0.36, 1); }
+.intro-snd.is-on .intro-snd-bars i { animation: sound-eq 0.9s ease-in-out infinite alternate; }
+.intro-snd.is-on .intro-snd-bars i:nth-child(2) { animation-delay: 0.15s; }
+.intro-snd.is-on .intro-snd-bars i:nth-child(3) { animation-delay: 0.3s; }
+
+/* ---- The row -------------------------------------------------------- */
+.intro-row {
+  position: absolute;
+  left: clamp(24px, 6vw, 80px);
+  right: clamp(24px, 6vw, 80px);
+  bottom: clamp(30px, 5vw, 56px);
+  display: flex;
+  align-items: baseline;
+  gap: clamp(18px, 4vw, 52px);
 }
 
 .intro-mark {
   font-family: var(--display);
   font-weight: 600;
-  font-size: 15px;
-  letter-spacing: 0.26em;
-  text-indent: 0.26em;
+  font-size: 14px;
+  letter-spacing: 0.3em;
+  text-indent: 0.3em;
   color: var(--ink);
   flex: none;
 }
 
-/* The entire progress indicator: one hairline, drawing to the right of
-   the wordmark. No number, no ring, no bar with a container around it.
-   A rule that grows is the quietest possible way to show progress, and
-   quiet is the difference between this and a download dialog. */
+/* The whole progress indicator: one hairline, sitting on the baseline
+   between the wordmark and the count. */
 .intro-bar {
-  display: block;
+  position: relative;
+  top: -4px;
   flex: 1;
   height: 1px;
-  background: rgba(22, 24, 29, 0.12);
+  background: rgba(22, 24, 29, 0.14);
   overflow: hidden;
 }
 
@@ -100,86 +192,25 @@
   transform: scaleX(0);
 }
 
-@media (max-width: 640px) {
-  .intro-foot { gap: 16px; }
-  .intro-mark { font-size: 13px; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .intro-foot { animation: none; opacity: 1; }
-  .intro { transition: opacity 0.3s ease; }
-}
-
-
-/* ============================================================
-   SOUND PROMPT
-   Sits in the middle of the page, over the hero, and waits.
-
-   It used to live inside the loading overlay, which meant it
-   existed for about a second and a half and then dissolved —
-   visible, but gone before you could reach it. An offer you
-   cannot accept is worse than no offer. The reference keeps
-   theirs on screen over the fully loaded homepage, and that is
-   the point: it is not part of the loader at all.
-   ============================================================ */
-.sound-prompt {
-  position: fixed;
-  inset: 0;
-  z-index: 95;
-  display: grid;
-  place-items: center;
-  /* Only the label takes clicks. Anything else here would put an
-     invisible sheet over the entire page. */
-  pointer-events: none;
-  transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.sound-prompt.is-hidden {
-  opacity: 0;
-  transform: translateY(-6px);
-  visibility: hidden;
-}
-
-.sound-prompt-btn {
-  position: relative;
-  pointer-events: auto;
-  background: none;
-  border: 0;
-  padding: 10px 4px;
-  cursor: pointer;
-  font-family: var(--sans);
-  font-weight: 300;
-  font-size: 14px;
-  letter-spacing: 0.01em;
+.intro-pct {
+  font-family: var(--display);
+  font-size: 12px;
+  letter-spacing: 0.12em;
   color: var(--muted);
-  transition: color 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  font-variant-numeric: tabular-nums;
+  flex: none;
 }
 
-/* It reads as plain text until the pointer arrives, then a rule draws
-   under it from the left. That is the whole affordance: enough to say
-   "this is clickable" on approach, not enough to become a button
-   sitting in the middle of the hero. */
-.sound-prompt-btn::after {
-  content: '';
-  position: absolute;
-  left: 4px;
-  right: 4px;
-  bottom: 6px;
-  height: 1px;
-  background: currentColor;
-  transform: scaleX(0);
-  transform-origin: 0 50%;
-  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+@media (max-width: 720px) {
+  .intro-lines { font-size: clamp(26px, 8vw, 40px); top: 44%; }
+  .intro-row { gap: 16px; }
+  .intro-mark { font-size: 12px; }
 }
-
-.sound-prompt-btn:hover,
-.sound-prompt-btn:focus-visible { color: var(--ink); outline: none; }
-
-.sound-prompt-btn:hover::after,
-.sound-prompt-btn:focus-visible::after { transform: scaleX(1); }
 
 @media (prefers-reduced-motion: reduce) {
-  .sound-prompt { transition: opacity 0.2s ease; }
+  .intro-lines i { animation: none; transform: none; }
+  .intro { transition: opacity 0.3s ease; }
+  .intro-snd.is-on .intro-snd-bars i { animation: none; height: 8px; }
 }
 
 /* ============================================================
