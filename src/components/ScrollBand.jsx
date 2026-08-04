@@ -28,7 +28,19 @@ import { motion, useScroll, useTransform, useReducedMotion } from 'motion/react'
  * The text is deliberately set at low contrast and marked aria-hidden.
  * It is texture, not reading material.
  */
-export default function ScrollBand({ text, repeat = 3, reverse = false, className = '' }) {
+/**
+ * @param speed  How far it travels, in screens, across one full pass.
+ *               0.3 = a third of the viewport width. Lower is calmer;
+ *               above about 0.6 the type stops being readable while the
+ *               page is moving.
+ */
+export default function ScrollBand({
+  text,
+  speed = 0.3,
+  repeat = 3,
+  reverse = false,
+  className = '',
+}) {
   const ref = useRef(null);
   const reduced = useReducedMotion();
 
@@ -37,25 +49,30 @@ export default function ScrollBand({ text, repeat = 3, reverse = false, classNam
     offset: ['start end', 'end start'],
   });
 
-  // EXACTLY ONE COPY. That is what makes it both seamless and calm.
+  // SPEED IS IN SCREENS, not percentages, and that is the fix.
   //
-  // The first version travelled an arbitrary percentage of a finite
-  // strip, so past a point its end came into view and the rest of the
-  // band was empty. The fix for that was to travel -50% of a
-  // doubled-up track, which is seamless — but with six copies, half the
-  // track is three copies of travel across one screen of scrolling.
-  // Correct, and far too fast: the band was sprinting while the page
-  // walked.
+  // Both previous versions expressed travel as a percentage of the
+  // TRACK — first an arbitrary 26%, then -50%, then one copy's width.
+  // Every one of those is unreadable as a number, because the track's
+  // width depends on how many copies there are and how long the phrase
+  // is. "-50%" was three whole copies of travel across one screen of
+  // scrolling: the band sprinted while the page walked, and the words
+  // blurred past unread.
   //
-  // Every copy is identical, so moving by ONE copy's width lands on an
-  // exactly identical frame just as -50% did. It is the same seamless
-  // loop at a sixth of the speed. In percentage terms that is 100
-  // divided by the number of copies.
-  const step = 100 / (repeat * 2);
+  // In viewport units the number means something. 0.3 is "moves a third
+  // of a screen while it crosses the screen" — slower than the page
+  // itself, so the words stay readable and the band reads as a slower
+  // layer behind the content rather than a thing rushing past it.
+  //
+  // Seamlessness is no longer the constraint it was. This is scroll-
+  // linked and one-directional rather than a loop, so nothing has to
+  // land on a matching frame; it only has to never show an end. Six
+  // copies against a third of a screen of travel is an enormous margin.
+  const travel = speed * 100;
   const x = useTransform(
     scrollYProgress,
     [0, 1],
-    reverse ? [`-${step}%`, '0%'] : ['0%', `-${step}%`],
+    reverse ? [`-${travel}vw`, '0vw'] : ['0vw', `-${travel}vw`],
   );
 
   if (reduced) return null;

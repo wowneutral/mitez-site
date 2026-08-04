@@ -100,7 +100,9 @@ export default function Home() {
       <WhoWeServe />
       <HowItWorks />
 
-      <ScrollBand text="Make it easy" repeat={4} />
+      {/* Slower than the first: a short phrase repeats more often, so the
+          same travel reads as faster. */}
+      <ScrollBand text="Make it easy" speed={0.22} repeat={4} />
 
       <Pilot />
 
@@ -109,8 +111,11 @@ export default function Home() {
           site's plainest information — where, what, how much — moving
           past at reading size without being a paragraph anyone has to
           get through. */}
+      {/* The slowest of the three, because it is the only one carrying
+          information rather than a phrase — it is meant to be read. */}
       <ScrollBand
         text="Gainesville, Florida — Fully remote — No fixed subject list — Free, always"
+        speed={0.16}
         repeat={2}
         reverse
       />
