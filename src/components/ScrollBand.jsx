@@ -33,6 +33,13 @@ import { motion, useScroll, useTransform, useReducedMotion } from 'motion/react'
  *               0.3 = a third of the viewport width. Lower is calmer;
  *               above about 0.6 the type stops being readable while the
  *               page is moving.
+ * @param reverse Travels left to right instead. USE THIS ONLY FOR BANDS
+ *               NOBODY NEEDS TO READ. Text moving against the direction
+ *               it is read in cannot be tracked by the eye — you catch a
+ *               word, your gaze runs the wrong way to follow it — so a
+ *               reversed band reads as noticeably faster than a forward
+ *               one at the same speed. It is fine for texture, wrong for
+ *               anything carrying information.
  */
 export default function ScrollBand({
   text,

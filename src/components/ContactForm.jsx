@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { FORMSUBMIT_ENDPOINT, CONTACT_EMAIL } from '../config/forms.js';
+import { click, whoosh, hover } from '../lib/sound.js';
 
 /**
  * Contact form using the same approach as the Emerging Tech site:
@@ -17,6 +18,7 @@ export default function ContactForm() {
   async function handleSubmit(e) {
     e.preventDefault();
     const form = e.currentTarget;
+    click();
     setStatus('sending');
 
     try {
@@ -27,6 +29,12 @@ export default function ContactForm() {
       });
       if (!res.ok) throw new Error(`Request failed: ${res.status}`);
       setStatus('sent');
+      // The one moment on this site worth marking with a sound of its
+      // own. Sending a message is the only irreversible thing a visitor
+      // does here, and the send is also the only action whose result
+      // they cannot see — the message just goes. A departing sound is
+      // the confirmation the interface otherwise cannot give.
+      whoosh();
       form.reset();
     } catch (err) {
       setStatus('error');
@@ -35,12 +43,23 @@ export default function ContactForm() {
 
   if (status === 'sent') {
     return (
+      // role="status" so a screen reader is told, and tabIndex/-1 with
+      // focus so a keyboard user is not left with their focus on a
+      // button that no longer exists.
       <div className="form-done" role="status">
+        <span className="form-done-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M4 12.5l5.2 5.2L20 7" /></svg>
+        </span>
         <h3>Message sent.</h3>
         <p>
           Thanks for reaching out, we&rsquo;ll get back to you as soon as we can.
         </p>
-        <button type="button" className="btn btn-ghost" onClick={() => setStatus('idle')}>
+        <button
+          type="button"
+          className="btn btn-ghost"
+          onClick={() => { click(); setStatus('idle'); }}
+          onPointerEnter={hover}
+        >
           Send another
         </button>
       </div>
@@ -100,8 +119,20 @@ export default function ContactForm() {
         </p>
       )}
 
-      <button type="submit" className="btn btn-primary" disabled={status === 'sending'}>
-        {status === 'sending' ? 'Sending…' : 'Send message'}
+      <button
+        type="submit"
+        className={`btn btn-primary cform-send${status === 'sending' ? ' is-sending' : ''}`}
+        disabled={status === 'sending'}
+        onPointerEnter={hover}
+      >
+        <span>{status === 'sending' ? 'Sending' : 'Send message'}</span>
+        {/* Three dots that actually animate, rather than a static "…"
+            that looks identical to a frozen page. A disabled button with
+            no motion is the single most common way a form appears
+            broken while it is working perfectly. */}
+        {status === 'sending' && (
+          <span className="cform-dots" aria-hidden="true"><i /><i /><i /></span>
+        )}
       </button>
     </form>
   );

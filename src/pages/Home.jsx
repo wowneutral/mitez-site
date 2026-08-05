@@ -106,18 +106,27 @@ export default function Home() {
 
       <Pilot />
 
-      {/* The third band carries facts rather than a phrase, and travels
-          the other way. Same device, different job: this one is the
-          site's plainest information — where, what, how much — moving
-          past at reading size without being a paragraph anyone has to
-          get through. */}
-      {/* The slowest of the three, because it is the only one carrying
-          information rather than a phrase — it is meant to be read. */}
+      {/* The third band carries facts rather than a phrase. Same device,
+          different job: this one is the site's plainest information —
+          where, what, how much — moving past at reading size without
+          being a paragraph anyone has to get through.
+
+          NOT REVERSED, and that is the fix rather than the speed.
+          This band was already the slowest of the three at 0.16 against
+          0.22 and 0.3, and it still read as the fastest — because it was
+          the only one travelling left to right. Text moving against the
+          direction you read it in cannot be tracked by the eye: you
+          catch a word, your gaze runs the wrong way to follow it, and
+          the whole strip registers as a blur regardless of how slowly it
+          is actually moving.
+
+          Depth is a poor reason to make the one band carrying real
+          information the one nobody can read. Same direction as the
+          others, and slower again. */}
       <ScrollBand
         text="Gainesville, Florida — Fully remote — No fixed subject list — Free, always"
-        speed={0.16}
+        speed={0.12}
         repeat={2}
-        reverse
       />
       <FounderNote />
       <FinalCta />
