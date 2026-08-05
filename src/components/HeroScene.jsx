@@ -1,17 +1,37 @@
 import { Suspense, useEffect, useRef } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { Canvas, useFrame } from '@react-three/fiber';
 import Scene from './Scene.jsx';
 
-// Half of 60. The robot drifts, breathes and curls an elbow — there is
-// nothing in this scene moving fast enough for the missing frames to be
-// visible, and a full-viewport WebGL canvas is the most expensive thing
-// on the site by a wide margin. Rendering it 30 times a second instead
-// of 60 halves that cost outright.
-const TARGET_FPS = 30;
+/*
+ * NO FRAMERATE CAP HERE, AND THIS IS A CORRECTION.
+ *
+ * There was briefly a 30fps cap built from frameloop="demand" plus a
+ * setInterval calling invalidate(). It halved the CPU cost and made the
+ * page judder badly, which is a straight bad trade.
+ *
+ * The reason is timing, not load. setInterval is not aligned to the
+ * display's refresh: a 33.3ms timer drifting against a 16.7ms vsync
+ * delivers frames slightly early or slightly late forever, so the
+ * compositor keeps showing one frame twice and dropping the next. The
+ * result reads as far worse than 30fps even though 30 frames are being
+ * drawn — uneven frames look broken in a way that fewer, evenly spaced
+ * frames do not. Scrolling sits on the same main thread, so it inherited
+ * the stutter.
+ *
+ * frameloop="always" is driven by requestAnimationFrame, which is
+ * vsync-aligned by definition. Every frame lands where the display
+ * expects it. That is what smooth is.
+ *
+ * If the render cost genuinely needs to come down later, the lever is
+ * dpr or scene complexity — cheaper frames, not fewer of them. A cap
+ * would have to be driven from inside a rAF loop with a time
+ * accumulator, never from a timer.
+ */
 
 // Decay constant for the scroll tilt, solved rather than guessed:
 // 1 - e^(-k/60) = 0.06  =>  k = -60 * ln(0.94) ≈ 3.71
-// so the motion is identical to the old per-frame 0.06 on a 60Hz screen.
+// so the motion matches the per-frame 0.06 this replaced, at 60fps, and
+// now holds that same feel on a 120Hz display too.
 const SETTLE = 3.71;
 
 /**
@@ -143,33 +163,6 @@ function ReadySignal({ onReady }) {
   return null;
 }
 
-/**
- * Drives the canvas at TARGET_FPS instead of the display's refresh rate.
- *
- * HOW THIS WORKS, because it is not obvious. r3f has three frameloop
- * modes: 'always' renders every rAF tick, 'never' renders nothing, and
- * 'demand' renders only when something calls invalidate(). There is no
- * built-in fps cap, so the cap is built out of 'demand' — the canvas
- * sits idle and this timer asks it for a frame thirty times a second.
- *
- * useFrame callbacks still run exactly as before, once per rendered
- * frame, with a delta of ~33ms rather than ~16ms. Anything that eased by
- * a fixed amount per frame would therefore move at half speed, which is
- * why ScrollTilt below no longer does that.
- *
- * On a 120Hz display this is a 4x reduction rather than 2x, since
- * 'always' would otherwise chase 120 frames a second for a robot that
- * moves a few degrees over an entire screen of scroll.
- */
-function FrameRateCap({ active }) {
-  const invalidate = useThree((s) => s.invalidate);
-  useEffect(() => {
-    if (!active) return undefined;
-    const id = setInterval(invalidate, 1000 / TARGET_FPS);
-    return () => clearInterval(id);
-  }, [active, invalidate]);
-  return null;
-}
 
 
 export default function HeroScene({ onReady, active }) {
@@ -191,16 +184,14 @@ export default function HeroScene({ onReady, active }) {
          size the difference is hard to see on a dark matte model with
          no hard edges against the background. */
       dpr={mobile ? 1 : [1, 1.25]}
-      /* 'demand' rather than 'always': FrameRateCap below asks for the
-         frames, thirty a second, instead of the browser handing over
-         every one it can. 'never' still means never — scrolled past the
-         hero, nothing renders at all, which was already right. */
-      frameloop={active ? 'demand' : 'never'}
+      /* rAF-driven, so every frame is aligned to the display's refresh.
+         'never' once the hero is off screen or the tab is hidden, which
+         is where the real saving is — nothing renders at all. */
+      frameloop={active ? 'always' : 'never'}
       gl={{ powerPreference: 'high-performance', antialias: false }}
       camera={{ position: [-600, 220, 350], fov: 34, near: 70, far: 100000 }}
     >
       <IntroLights />
-      <FrameRateCap active={active} />
       <Suspense fallback={null}>
         <ScrollTilt>
           <Scene />
