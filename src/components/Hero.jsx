@@ -25,18 +25,40 @@ const HeroScene = lazyWithRetry(() => import('./HeroScene.jsx'));
  * every frame, forever.
  */
 function useOnScreen(ref) {
-  const [visible, setVisible] = useState(true);
+  const [onScreen, setOnScreen] = useState(true);
   useEffect(() => {
     const el = ref.current;
-    if (!el || typeof IntersectionObserver === 'undefined') return;
+    if (!el || typeof IntersectionObserver === 'undefined') return undefined;
     const io = new IntersectionObserver(
-      ([entry]) => setVisible(entry.isIntersecting),
+      ([entry]) => setOnScreen(entry.isIntersecting),
       { rootMargin: '200px' },
     );
     io.observe(el);
     return () => io.disconnect();
   }, [ref]);
-  return visible;
+
+  // A BACKGROUNDED TAB IS NOT AN ON-SCREEN ONE.
+  //
+  // IntersectionObserver answers "is this element inside the viewport",
+  // and switching to another tab does not change that answer — the hero
+  // is still intersecting a viewport nobody is looking at. So the render
+  // loop kept running against a robot on a screen that was showing
+  // something else entirely.
+  //
+  // Browsers do throttle requestAnimationFrame in hidden tabs, which is
+  // why this was never catastrophic, but throttled is not stopped and
+  // the throttle is not guaranteed for WebGL. Someone who leaves this
+  // open in a background tab should not be paying for it in battery.
+  const [tabVisible, setTabVisible] = useState(true);
+  useEffect(() => {
+    if (typeof document === 'undefined') return undefined;
+    const onChange = () => setTabVisible(!document.hidden);
+    onChange();
+    document.addEventListener('visibilitychange', onChange);
+    return () => document.removeEventListener('visibilitychange', onChange);
+  }, []);
+
+  return onScreen && tabVisible;
 }
 
 /**
