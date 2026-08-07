@@ -101,13 +101,53 @@ export default function Hero({ onReady, started = false }) {
   return (
     <section className="hero">
       <div className="hero-canvas" ref={canvasWrap}>
-        {/* No fallback: the hero's copy is the important thing and it is
-            already on screen. A spinner behind the headline would be
-            drawing attention to the one part that has not arrived. */}
-        {!handset && (
+        {/* No fallback on desktop: the hero's copy is the important thing
+            and it is already on screen. A spinner behind the headline
+            would be drawing attention to the one part that has not
+            arrived. */}
+        {!handset ? (
           <Suspense fallback={null}>
             <HeroScene onReady={onReady} active={active} />
           </Suspense>
+        ) : (
+          /* A STILL, NOT THE SCENE. Phones still skip three.js entirely —
+             that decision was right and stands. But skipping it left a
+             52vh empty box (see .hero-canvas in the mobile media query),
+             so every phone visitor got half a screen of grey where the
+             one memorable thing on this site should be. The site had no
+             signature visual on mobile at all.
+
+             A still image costs about 80KB against the 2MB chunk it
+             replaces, needs no WebGL context, and no GPU. It is framed
+             for portrait rather than cropped from the wide render, which
+             was the original objection to showing the robot here.
+
+             Decorative, so alt="" and aria-hidden: the h1 beside it
+             already says what this page is, and "photo of a robot" read
+             aloud helps nobody.
+
+             Not lazy-loaded on purpose. It is above the fold and it is
+             the hero — lazy would guarantee it arrives late, which is the
+             one thing a hero image must not do. */
+          <img
+            className="hero-poster"
+            src="/robot-poster.png"
+            alt=""
+            aria-hidden="true"
+            decoding="async"
+            fetchPriority="high"
+            width="900"
+            height="1200"
+            /* FAILS TO NOTHING, ON PURPOSE.
+               A missing src renders a broken-image icon, which is worse
+               than the empty box this replaced — an empty box reads as
+               spacing, a broken icon reads as a broken site. Hiding the
+               element on error puts us back exactly where we were before
+               this change, which is the correct floor.
+               It also means the poster can be swapped, renamed or deleted
+               later without anyone having to remember to touch the JSX. */
+            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+          />
         )}
       </div>
 

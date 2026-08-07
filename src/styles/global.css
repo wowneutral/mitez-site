@@ -673,6 +673,29 @@ body {
   z-index: 0;
 }
 
+/* The mobile hero still. Only ever rendered on a handset — Hero.jsx swaps
+   the WebGL scene for this below 760px.
+
+   object-fit: contain, not cover. Cover would fill the box neatly and
+   decapitate the robot at the top, which is precisely the failure that
+   made us drop the 3D scene on phones in the first place; repeating it
+   with an image would be worse, not better. Contain keeps the whole
+   figure and lets the background show around it.
+
+   No transition or animation here. The desktop hero earns its entrance
+   from the scene arriving; a still that fades in just looks like a slow
+   image. */
+.hero-poster {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+  /* Matches the page, so the letterboxing contain leaves is invisible
+     rather than reading as a photo pasted onto a panel. */
+  background: transparent;
+}
+
 /* Cinematic touch: a soft scrim over the left portion of the frame, behind
    the text column — grounds the copy against the scene without a hard card
    background. Only covers roughly where the text sits, not the full width,
