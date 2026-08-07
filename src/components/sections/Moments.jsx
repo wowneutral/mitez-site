@@ -54,6 +54,45 @@ function useProgress(ref, start = 0.82, end = 0.34) {
   return p;
 }
 
+/**
+ * Progress measured against the element's OWN height rather than a fixed
+ * slice of the viewport. 0 as its top crosses the bottom of the screen,
+ * 1 once `span` of it is in view.
+ *
+ * WHY BOTH HOOKS EXIST. useProgress above ends at a fixed viewport
+ * position, which is right for a section with plenty of page beneath it.
+ * It is wrong for the last section before the footer: the document simply
+ * runs out of scroll before that position is reachable, so the animation
+ * can never finish and a counter meant to land on zero stops at two. You
+ * cannot scroll to a place the page does not go.
+ *
+ * This version's end state is reached the moment the element is mostly on
+ * screen, which is guaranteed to happen for any section that is followed
+ * by anything at all. Use it for anything sitting at the bottom of a page.
+ */
+function useSweep(ref, span = 0.78) {
+  const [p, setP] = useState(0);
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { setP(1); return undefined; }
+    let raf; let alive = true;
+    const tick = () => {
+      if (!alive) return;
+      const el = ref.current;
+      if (el) {
+        const r = el.getBoundingClientRect();
+        const travel = Math.max(1, r.height * span);
+        const next = Math.max(0, Math.min(1, (window.innerHeight - r.top) / travel));
+        setP((prev) => (Math.abs(prev - next) > 0.004 ? next : prev));
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => { alive = false; cancelAnimationFrame(raf); };
+  }, [ref, span]);
+  return p;
+}
+
 /* ------------------------------------------------------------------ 06 */
 const STOPS = [
   { x: 60, label: 'You', sub: 'stuck on something', r: 10 },
@@ -237,7 +276,11 @@ const HEAD = 'M68 20 l 13 12.5 M68 20 l 17.6 -3.7';
 
 export function MarginNote() {
   const ref = useRef(null);
-  const p = useProgress(ref, 0.86, 0.36);
+  /* Same reason as ZeroDistance: this is the last section before the
+     footer on How It Works, so it needs a measure whose end state the
+     page can actually reach. Otherwise the arrow draws most of the way
+     and the handwriting never appears. */
+  const p = useSweep(ref, 0.7);
   const arcRef = useRef(null);
   const headRef = useRef(null);
   const [lens, setLens] = useState({ a: 200, h: 60 });
@@ -324,7 +367,12 @@ export function Tally() {
    the bottom of the page, which is the whole gag.                       */
 export function ZeroDistance() {
   const ref = useRef(null);
-  const p = useProgress(ref, 0.88, 0.42);
+  /* Swept against its own height, not a viewport position. This section
+     sits directly above the footer on Gainesville, and the old measure
+     needed scroll the page did not have, so it stopped at two miles no
+     matter how far you went. It now reads zero once the section is
+     mostly on screen, well before the bottom. */
+  const p = useSweep(ref, 0.72);
   const miles = Math.round(1240 * (1 - p));
   return (
     <section className="section moment-zero" ref={ref}>
