@@ -7,6 +7,7 @@ import { TALLY } from '../config/forms.js';
 import RiseText from '../components/RiseText.jsx';
 import PageProgress from '../components/PageProgress.jsx';
 import RepelWord from '../components/RepelWord.jsx';
+import { ZeroDistance } from '../components/sections/Moments.jsx';
 
 /**
  * The Gainesville / pilot page.
@@ -177,6 +178,11 @@ export default function Gainesville() {
           finished rather than in the middle of an argument. */}
       <RepelWord word="MITEZ" />
 
+      {/* This is the page about where we are, so this is where the
+          distance argument belongs. "Fully remote" is stated on this
+          page as a fact in a spec list; this is the same fact given
+          something to land on. */}
+      <ZeroDistance />
       <Footer />
     </main>
   );

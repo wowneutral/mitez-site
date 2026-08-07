@@ -37,6 +37,7 @@ let ctx = null;
 let master = null;
 let musicBus = null;
 let sfxBus = null;
+let analyser = null;
 let convolver = null;
 
 // ON BY DEFAULT — but read this before changing it.
@@ -93,6 +94,19 @@ function ensureContext() {
   master = ctx.createGain();
   master.gain.value = 1;
   master.connect(ctx.destination);
+
+  // A tap on master, so anything audible is measurable: the score, the
+  // clicks, the plucks, all of it. Tapping the music bus alone would have
+  // meant the meter ignored the effects, and tapping after the bus gains
+  // would have meant it kept moving with the sound muted.
+  //
+  // Deliberately NOT connected onward. An AnalyserNode passes audio
+  // through, so wiring its output to the destination would double every
+  // signal. It only needs an input to read from.
+  analyser = ctx.createAnalyser();
+  analyser.fftSize = 128;            // 64 bins, more than enough for a meter
+  analyser.smoothingTimeConstant = 0.82; // stops it strobing on transients
+  master.connect(analyser);
 
   musicBus = ctx.createGain();
   musicBus.gain.value = 0; // raised by startAudio once a gesture unlocks it
@@ -920,6 +934,26 @@ export function nextTrack() {
 
 export function currentTrack() {
   return TRACKS.find((t) => t.id === track) || TRACKS[0];
+}
+
+/**
+ * Fill `target` with the current spectrum, 0 to 255 per bin.
+ *
+ * Returns false when there is nothing to read: no audio context yet
+ * (nobody has pressed anything), or both buses muted. A meter that keeps
+ * moving with the sound off is not a meter, it is an animation pretending
+ * to be one, so callers should flatten on false rather than carry on.
+ */
+export function readSpectrum(target) {
+  if (!analyser || !ctx || ctx.state !== 'running') return false;
+  if (!musicOn && !sfxOn) return false;
+  analyser.getByteFrequencyData(target);
+  return true;
+}
+
+/** Bin count, so a caller can size its own buffer once. */
+export function spectrumBins() {
+  return analyser ? analyser.frequencyBinCount : 0;
 }
 
 export function isMusicOn() {

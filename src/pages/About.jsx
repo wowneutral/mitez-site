@@ -4,6 +4,7 @@ import PageHeader from '../components/PageHeader.jsx';
 import Footer from '../components/Footer.jsx';
 import Reveal from '../components/Reveal.jsx';
 import RiseText from '../components/RiseText.jsx';
+import { Score } from '../components/sections/Moments.jsx';
 
 const VALUES = [
   {
@@ -121,6 +122,12 @@ export default function About() {
         </div>
       </section>
 
+      {/* The score sits on About because this is the page about what
+          MITEZ is, and the sound is part of that answer. It is the one
+          thing on this site that took real craft and is completely
+          invisible. Deliberately short, at a quarter viewport, so it
+          reads as a signature rather than a feature. */}
+      <Score />
       <Footer />
     </main>
   );

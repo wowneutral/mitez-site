@@ -13,6 +13,7 @@ import GetInvolved from '../components/sections/GetInvolved.jsx';
 import FinalCta from '../components/sections/FinalCta.jsx';
 import Footer from '../components/Footer.jsx';
 import ScrollBand from '../components/ScrollBand.jsx';
+import { SplitFlap, Tally } from '../components/sections/Moments.jsx';
 import Strings from '../components/Strings.jsx';
 import RiseText from '../components/RiseText.jsx';
 
@@ -87,6 +88,15 @@ export default function Home() {
             Final CTA  — pathos close */}
       <Mission />
       <ProblemSolution />
+      {/* Split flap right after ProblemSolution. That section ends on
+          "one place, whatever you came to learn", and this answers the
+          question that immediately raises: like what? It demonstrates
+          the range instead of claiming it, and lands on "anything",
+          which is the actual promise.
+
+          The diagram that used to sit here has moved to How It Works,
+          where a diagram of the process belongs. */}
+      <SplitFlap />
 
       {/* Two bands, placed at the joins between sections rather than
           inside them. Each one travels sideways while the page travels
@@ -104,7 +114,16 @@ export default function Home() {
           same travel reads as faster. */}
       <ScrollBand text="Make it easy" speed={0.22} repeat={4} />
 
+      {/* Zero distance used to sit here. It has moved to the Gainesville
+          page, which is the page actually about where we are and why
+          remote matters. On the homepage it was a good moment attached
+          to nothing. */}
       <Pilot />
+      {/* Tally after Pilot, before the founder note. Pilot is where the
+          reader is deciding whether this is real, and free is the
+          hardest part of it to believe. It answers that question at the
+          moment it gets asked. */}
+      <Tally />
 
       {/* The third band carries facts rather than a phrase. Same device,
           different job: this one is the site's plainest information —

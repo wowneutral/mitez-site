@@ -5,6 +5,7 @@ import SEO from '../components/SEO.jsx';
 import PageHeader from '../components/PageHeader.jsx';
 import Footer from '../components/Footer.jsx';
 import Reveal from '../components/Reveal.jsx';
+import { Network, MarginNote } from '../components/sections/Moments.jsx';
 
 const STEPS = [
   {
@@ -122,6 +123,12 @@ export default function HowItWorksPage() {
         </div>
       </section>
 
+      {/* Both of these belong on this page rather than the homepage.
+          Network is a diagram of the process, and this is the process
+          page. MarginNote annotates "not a chatbot", which is a promise
+          this page makes and the homepage only implies. */}
+      <Network />
+      <MarginNote />
       <Footer />
     </main>
   );
